@@ -26,33 +26,16 @@
 
 **LASIK** は矯正手術です。BLA の述語が定数であることを証明し、隠されたものを復号し、インターロックを切断し、おとりを取り除き、プロンプトの罠を伏せ字にします。**対象を一切実行することなく**。そうすれば、あなたのエージェントはプログラムが実際に何をしているのかを読めます。
 
-```text
-                    ┌────────────┐      ┌────────────┐      ┌────────────┐
-   your release ──▶ │    BLA     │ ──▶  │   LASIK    │ ──▶  │ REA / agent│ ──▶ the real logic
-                    │ poison +   │      │ prove, fold│      │ reads 958× │
-                    │ exhaust    │      │ decrypt,   │      │ fewer      │
-                    └────────────┘      │ strip      │      │ tokens     │
-                                        └────────────┘      └────────────┘
-```
+<p align="center"><img src="../assets/flow.svg" alt="BLA で難読化されたリリースを lasik heal に通すと、エージェントや REA が本物のロジックを読める" width="100%" /></p>
+
+> [!IMPORTANT]
+> **防御目的かつ許可された利用に限ります。** LASIK は難読化されたコードを静的に読み取り、実行は一切しません。自分のソフトウェア、マルウェアや脅威サンプル、CTF、監査を許可されたコードに使ってください。[DISCLAIMER.md](../../DISCLAIMER.md) を参照してください。
 
 ## 👓 ビフォー / アフター
 
-BLA 自身の CrackMe v6 でエージェントが目にするもの（そのファイルにある約 3,000 個の不透明述語のうちの 1 つ）:
+BLA 自身の CrackMe v6 でのビフォー / アフター:
 
-```js
-// BLA-hardened (vault.cjs, 164 KB, 2,680 lines)
-attestTransientCursor_e36 = require("fs"); …
-traceLazyEdge_261.createHash(((Math.imul(runtimeSeedPrimaryHandle_be53 | 15, (runtimeSeedPrimaryHandle_be53 | 15) + 1) & 1) === 0 ? "s" : "b")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 124, runtimeSeedPrimaryHandle_be53 ^ 124) & 7) === 0 ? "1" : "h")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 123, (runtimeSeedPrimaryHandle_be53 | 123) + 1) & 1) === 0 ? "a" : "8") + …
-```
-
-```js
-// after `lasik heal` (5.5 KB, 99 lines)
-const fs = require("fs");
-const crypto = require("crypto");
-return crypto.createHash("sha256").update(input).digest("hex");
-```
+<p align="center"><img src="../assets/before-after.svg" alt="CrackMe v6 の vault.cjs（164 KB）の BLA 難読化部分と、修復後のロジック（5.5 KB）" width="100%" /></p>
 
 そして BLA の CrackMe コーパス全体では次のとおりです:
 
@@ -83,6 +66,11 @@ Node.js ≥ 20.19 が必要です。ネイティブ依存はなく、ネット�
 
 ベンチマークのコーパスは、BLA が公開している CrackMe の出力 v6〜v9（MIT、[`bench/bla-crackme`](../../bench/bla-crackme) に無変更で同梱）で、BLA 自身のメンテナーが `bankrupt` 強度で堅牢化したものです。`npm run build && node dist/cli.js bench bench/bla-crackme` で再現できます。
 
+<p align="center"><img src="../assets/tokens.svg" alt="対数目盛の棒グラフ: BLA CrackMe 各ファイルの推定トークン数（修復前後）。合計 2,110 万から 2.2 万へ" width="100%" /></p>
+
+<details>
+<summary><b>アーティファクト別の表（サイズ、トークン、倍率）</b></summary>
+
 | アーティファクト | 形式 | 処理前 | 処理後 | トークン数 処理前 → 処理後 | 削減倍率 |
 |---|---|---:|---:|---:|---:|
 | `v6/core.wasm.gz` | wasm | 17.7 KB (6.9 MB raw) | 0.1 KB | 6,880,354 → 98 | **70,207×** |
@@ -102,6 +90,8 @@ Node.js ≥ 20.19 が必要です。ネイティブ依存はなく、ネット�
 | `v9/policy.py` | python | 40.6 KB | 0.5 KB | 10,453 → 133 | 78.6× |
 | **合計** | | **1.75 MB** | **58 KB** | **21.1 M → 22 k** | **958×** |
 
+</details>
+
 コーパス全体で、LASIK は **3,011 個の不透明述語**を畳み込み、**3,432 個のデッドブランチ**を除去し、**2,465 個の分割リテラル**を再結合し、**1,487 個のおとり宣言**と **750 個のおとり WASM エクスポート**を削除し、すべての XOR 文字列テーブルを復号し、**11 個のアンチストリップ・インターロック**と **5 個の自己シール**を切断し、すべてのプロンプトのおとりを伏せ字にします。1 ファイルあたりの処理時間は約 0.3 秒です。
 
 処理後の v6 パネルスクリプトは、公開されているテンプレートの `derive()` ロジックと（BLA によって名前が変えられたローカル変数を除き）1 行ずつ一致します。トークン数は推定値です（コードは 1 トークンあたり約 4 文字、hex/base64 は 2 文字、バイナリは 1 バイトあたり 1 トークン）。
@@ -111,6 +101,11 @@ Node.js ≥ 20.19 が必要です。ネイティブ依存はなく、ネット�
 ## 🧠 仕組み
 
 BLA は層を積み重ねます（「Poison → Exhaust → Hallucinate」）。LASIK はそれぞれを静的に元へ戻し、どの程度確実かも示します。
+
+<p align="center"><img src="../assets/pipeline.svg" alt="LASIK の処理順: 検出、インターロック切断、デコイ除去、不動点まで畳み込み、リネーム、ファイアウォール、レポート" width="100%" /></p>
+
+<details open>
+<summary><b>レイヤーごとに: BLA の手口と LASIK の対処</b></summary>
 
 | BLA の層 | BLA がすること | LASIK の対抗策 | 確実性 |
 |---|---|---|---|
@@ -123,7 +118,9 @@ BLA は層を積み重ねます（「Poison → Exhaust → Hallucinate」）。
 | **Runtime** | すべての関数に織り込まれたシャドウヒープのステッパー。デバッガに偽のエンクレーブ状態を返す「Truman show」ブロック | プライベート状態のシンク解析: 他のどこからも読まれない状態だけを変更する関数は観測不能なので、その呼び出しを除去する | 閉じた状態に対して厳密 |
 | **Weave** | エージェントが書いた状態スロットが、`(slot.epoch & 1) !== 0` や `x & 0` の混合で本物のコードを守る | スロットへのすべての書き込みにわたる既知ビット、代数的ゼロ | 厳密。自由形式の weave はラベル付けし、推測はしない |
 | **Exhaust** | 6.9 MB の WASM 名前/セクションパディング、250 個のおとりエクスポート、16 MiB の ASAR ヘッダー、34 個の fuse センチネル | REA の予算内で WASM（検証済み）、ASAR（オフセットを書き換え）、fuse の連なりを再構築する | 厳密 |
-| **Prompt** | 偽の `system`/チャットターン、拒否の罠、「ビジネスロジックは存在しない」という主張、偽の COPPA/IEC 62304 通知、カナリア GUID | **プロンプトファイアウォール**: 38 個のルールが、モデルが読む前にテキストを伏せ字にする（`heal` では動作を保ち、`lasik_read` では完全に伏せ字にする） | フィンガープリント + フレーズルール |
+| **Prompt** | 偽の `system`/チャットターン、拒否の罠、「ビジネスロジックは存在しない」という主張、偽の COPPA/IEC 62304 通知、カナリア GUID | **プロンプトファイアウォール**: 40 個のルールが、モデルが読む前にテキストを伏せ字にする（`heal` では動作を保ち、`lasik_read` では完全に伏せ字にする） | フィンガープリント + フレーズルール |
+
+</details>
 
 パスの完全な順序とすべてのフィンガープリントは [`docs/how-it-works.md`](../how-it-works.md) に記載されています。
 
@@ -134,6 +131,39 @@ BLA は層を積み重ねます（「Poison → Exhaust → Hallucinate」）。
 - **修復しても動作は変わらない。** `heal` の出力では、ファイアウォールはコメントと BLA 固有の文字列だけを伏せ字にします。プロンプトの形をした*実行時*文字列（たとえば実際のチャットアプリにある ChatML マーカー）は、書き換えられずに報告されます。`lasik_read` と `--strict-firewall` は、エージェントに完全に伏せ字にした閲覧用ビューを提供します。
 - **独立してレビュー済み。** 別途行われた敵対的レビューが、あるパスで動作が変わってしまう入力を探し、15 件を発見しました。すべて修正され、[`tests/soundness.test.ts`](../../tests/soundness.test.ts) に固定されています（テストは全部で 85 件）。
 - **順序が重要であり、強制される。** どのおとりを削除するよりも前にインターロックを切断するので、処理後のプログラムは BLA の本物のコードが期待するシードを保ちます。
+
+## フォーマット対応
+
+<!-- coverage:start -->
+Pinned to BLA **3.2.1**. 58/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](../coverage.md).
+
+| Surface | Status |
+|---|---|
+| .NET assembly | ✅ healed |
+| Android APK | ✅ healed |
+| Android DEX | ✅ healed |
+| Apple plist | ✅ healed |
+| Bind-scope licence lock | 🔎 detect-only |
+| Bun standalone | ✅ healed |
+| Electron ASAR | ✅ healed |
+| Erlang BEAM | ✅ healed |
+| EVM bytecode | ✅ healed |
+| Firmware UF2 | ✅ healed |
+| GPU PTX | ✅ healed |
+| JavaScript / HTML | 🟡 partial |
+| JVM class | ✅ healed |
+| Mobile game (DEX / IL2CPP) | ✅ healed |
+| Native ELF / PE / Mach-O | 🟡 partial |
+| PCAP | ✅ healed |
+| Prompt text | ✅ healed |
+| Python | ✅ healed |
+| Safetensors / GGUF | ✅ healed |
+| Sidecar entanglement | ✅ healed |
+| Source maps | ✅ healed |
+| SQLite | ✅ healed |
+| WebAssembly | ✅ healed |
+| ZIP / JAR / APK | ✅ healed |
+<!-- coverage:end -->
 
 ## 🛡️ 安全モデル
 
@@ -201,13 +231,33 @@ LASIK は難読化解除ツールです。ご自身が所有するソフトウ�
 
 ## ❓ FAQ
 
-**これは反 BLA ですか?** はい。第三幕です: REA がリバースエンジニアリングし、BLA が視界を奪い、LASIK が視力を取り戻します。
+<details>
+<summary><b>これは反 BLA ですか?</b></summary>
 
-**なぜ防御側がこれを必要とするのですか?** 攻撃者も BLA を使うからです。BLA で包まれたマルウェアは、あなたの AI アナリストを拒否させたり、停滞させたり、予算を使い果たさせたりするように作られています。LASIK はあなたのアナリストが作業を続けられるようにし、そのプロンプトファイアウォールはコードに仕込まれた命令に対する汎用的な防御にもなります。さらに、すべてのスキャンは **「AI-evasion techniques found: N」** を報告します。AI による解析から隠れようとするコードは、それ自体がリスクのシグナルです。
+はい。第三幕です: REA がリバースエンジニアリングし、BLA が視界を奪い、LASIK が視力を取り戻します。
 
-**REA は必要ですか?** いいえ。どのコーディングエージェントでも LASIK の出力を読めますし、`lasik_read` を直接呼び出すこともできます。LASIK はコンパイル済みの対象に対して REA と自然に組み合わせられます。
+</details>
 
-**BLA はすぐに回避策を打ってくるのでは?** おそらくそうでしょう。フィンガープリントは BLA にとって変更が容易ですが、厳密な証明はそうではありません。BLA が保護するプログラムは、それでも同じように動作しなければならないからです。この非対称性こそが、LASIK の拠り所です。
+<details>
+<summary><b>なぜ防御側がこれを必要とするのですか?</b></summary>
+
+攻撃者も BLA を使うからです。BLA で包まれたマルウェアは、あなたの AI アナリストを拒否させたり、停滞させたり、予算を使い果たさせたりするように作られています。LASIK はあなたのアナリストが作業を続けられるようにし、そのプロンプトファイアウォールはコードに仕込まれた命令に対する汎用的な防御にもなります。さらに、すべてのスキャンは **「AI-evasion techniques found: N」** を報告します。AI による解析から隠れようとするコードは、それ自体がリスクのシグナルです。
+
+</details>
+
+<details>
+<summary><b>REA は必要ですか?</b></summary>
+
+いいえ。どのコーディングエージェントでも LASIK の出力を読めますし、`lasik_read` を直接呼び出すこともできます。LASIK はコンパイル済みの対象に対して REA と自然に組み合わせられます。
+
+</details>
+
+<details>
+<summary><b>BLA はすぐに回避策を打ってくるのでは?</b></summary>
+
+おそらくそうでしょう。フィンガープリントは BLA にとって変更が容易ですが、厳密な証明はそうではありません。BLA が保護するプログラムは、それでも同じように動作しなければならないからです。この非対称性こそが、LASIK の拠り所です。
+
+</details>
 
 ## 🤝 コントリビューション
 

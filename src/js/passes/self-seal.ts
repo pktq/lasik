@@ -1,5 +1,5 @@
 import type { Findings } from "../../core/types.js";
-import { t, traverse, type NodePath } from "../ast.js";
+import { t, traverse, traverseOwn, type NodePath } from "../ast.js";
 
 const SEAL_ERRORS = ["integrity check failed", "integrity binding mismatch"];
 
@@ -10,13 +10,17 @@ function isSealFunction(fn: t.Function): boolean {
   let err = false;
   let hash = false;
   let marker = false;
-  t.traverseFast(fn, (n) => {
+  let sidecar = false;
+  // Only the function's own body counts: a wrapper that merely contains a seal is real code.
+  traverseOwn(fn, (n) => {
     if (t.isStringLiteral(n) && SEAL_ERRORS.includes(n.value)) err = true;
     if (t.isIdentifier(n, { name: "createHash" }) || t.isStringLiteral(n, { value: "sha256" })) hash = true;
     if (t.isIdentifier(n) && SEAL_MARKERS.has(n.name)) marker = true;
+    if (t.isIdentifier(n, { name: "__blaSidecarDigest" })) sidecar = true;
   });
   // A user's own integrity check has the first two; only BLA's has the markers too.
-  return err && hash && marker;
+  // The soft-fold sidecar preamble never throws (sidecar-entangle.ts:320-332) but is still BLA's.
+  return (err || sidecar) && hash && marker;
 }
 
 /**

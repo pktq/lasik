@@ -1,6 +1,6 @@
 import type { Findings } from "../../core/types.js";
 import { DECOY_DECL } from "../fingerprints.js";
-import { t, traverse, type NodePath } from "../ast.js";
+import { parseJs, t, traverse, type NodePath } from "../ast.js";
 
 export interface ShakeOptions {
   /** Identifiers used from outside the file (e.g. HTML on* attributes). Always kept. */
@@ -11,6 +11,8 @@ export interface ShakeOptions {
    * unreachable tagged globals are BLA's too.
    */
   blaHardened?: boolean;
+  /** The program is a function body (a bundled module): its top-level names are closure locals. */
+  closure?: boolean;
 }
 
 /** BLA's generated names: camelCase stem (`verbAdjNoun`) + `_` + 3–4 hex. Not `show_404` or `cache_add`. */
@@ -36,19 +38,53 @@ function isModuleLike(ast: t.File): boolean {
   return cjs && !umd;
 }
 
-/** `eval`, `with`, `new Function`, string timers: names can be reached dynamically, so nothing is provably dead. */
-function hasDynamicNameAccess(ast: t.File): boolean {
+/** Source text of a literal string argument (`"…"` or a template without `${}`), else undefined. */
+function literalCode(a: t.Node | undefined): string | undefined {
+  if (t.isStringLiteral(a)) return a.value;
+  if (t.isTemplateLiteral(a) && a.expressions.length === 0) return a.quasis[0]?.value.cooked ?? undefined;
+  return undefined;
+}
+
+/**
+ * Names code can reach through strings: `eval`, `new Function`, string timers.
+ * When every such string is a literal (BLA ≥ 3.2.1 leaves eval arguments
+ * untouched), parse it and return every identifier it mentions as an extra
+ * root. Undefined when a name could be built at runtime (`with`, a non-literal
+ * argument, `eval` taken as a value): then nothing is provably dead.
+ */
+export function dynamicNameRoots(ast: t.File): Set<string> | undefined {
+  const roots = new Set<string>();
   let dyn = false;
+  let evalCalls = 0;
+  let evalNames = 0;
+  const addCode = (code: string | undefined): void => {
+    if (code === undefined) { dyn = true; return; }
+    const parsed = parseJs(code);
+    if (parsed.errors?.length) { dyn = true; return; }
+    t.traverseFast(parsed, (n) => { if (t.isIdentifier(n)) roots.add(n.name); });
+    // The evaluated code may itself eval: `eval("eval('x')")`.
+    const inner = dynamicNameRoots(parsed);
+    if (!inner) dyn = true;
+    else for (const name of inner) roots.add(name);
+  };
   t.traverseFast(ast, (n) => {
     if (dyn) return;
     if (t.isWithStatement(n)) dyn = true;
-    else if ((t.isCallExpression(n) || t.isNewExpression(n)) && t.isIdentifier(n.callee)) {
+    else if (t.isIdentifier(n, { name: "eval" })) evalNames++;
+    else if ((t.isMemberExpression(n) || t.isOptionalMemberExpression(n)) && !n.computed && t.isIdentifier(n.property, { name: "eval" })) evalNames--;
+    else if (t.isObjectProperty(n) && !n.computed && t.isIdentifier(n.key, { name: "eval" })) evalNames--;
+    if ((t.isCallExpression(n) || t.isNewExpression(n)) && t.isIdentifier(n.callee)) {
       const c = n.callee.name;
-      if (c === "eval" || c === "Function") dyn = true;
-      if ((c === "setTimeout" || c === "setInterval") && (t.isStringLiteral(n.arguments[0]) || t.isTemplateLiteral(n.arguments[0]))) dyn = true;
+      if (c === "eval" || c === "Function") {
+        if (c === "eval") evalCalls++;
+        for (const a of n.arguments) addCode(literalCode(a));
+      } else if ((c === "setTimeout" || c === "setInterval") && (t.isStringLiteral(n.arguments[0]) || t.isTemplateLiteral(n.arguments[0]))) {
+        addCode(literalCode(n.arguments[0]));
+      }
     }
   });
-  return dyn;
+  // `const e = eval; e(code)`: indirect eval of a string nobody can see statically.
+  return dyn || evalNames > evalCalls ? undefined : roots;
 }
 
 /** Like scope.isPure, but also treats `Object.freeze(<pure>)` and literal containers as pure. */
@@ -196,11 +232,12 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
     }
   }
 
-  if (hasDynamicNameAccess(ast)) {
-    f.add("deceive", "shake-skipped-dynamic", "unreachable-code removal skipped: file uses eval/with/new Function/string timers");
+  const evalRoots = dynamicNameRoots(ast);
+  if (!evalRoots) {
+    f.add("deceive", "shake-skipped-dynamic", "unreachable-code removal skipped: file builds names at runtime (with, eval of a non-literal string)");
     return removed;
   }
-  const moduleLike = isModuleLike(ast);
+  const moduleLike = opts.closure === true || isModuleLike(ast);
   const external = opts.externalRoots ?? new Set<string>();
 
   for (let round = 0; round < 8; round++) {
@@ -229,7 +266,7 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
     // In a plain script every global may be used by another script; only fingerprinted decoys are fair game.
     for (const [name, d] of decls) {
       const injected = DECOY_DECL.test(name) || (opts.blaHardened === true && BLA_TAG.test(name));
-      if (external.has(name) || (!moduleLike && !injected)) roots.push(d);
+      if (external.has(name) || evalRoots.has(name) || (!moduleLike && !injected)) roots.push(d);
     }
 
     const live = new Set<string>();

@@ -1,7 +1,8 @@
 import { Findings } from "../core/types.js";
 import type { FormatHealer } from "./types.js";
 
-const SENTINEL = Buffer.from("dL7pKGdnNz796PbbjQWNKmHXBZaB9tsX", "latin1");
+/** Electron fuse wire sentinel (also what BLA floods). */
+export const FUSE_SENTINEL = Buffer.from("dL7pKGdnNz796PbbjQWNKmHXBZaB9tsX", "latin1");
 /** BLA's decoy fuse state; real Electron fuses only use '0', '1' and 'r'. */
 const DECOY_STATE = 0x39;
 
@@ -18,24 +19,24 @@ export const healFuseSentinels: FormatHealer = (input) => {
   // Walk back from EOF over records whose end lands exactly on the current cut.
   const run: number[] = [];
   let end = input.length;
-  while (end >= SENTINEL.length + 2) {
-    const at = input.lastIndexOf(SENTINEL, end - SENTINEL.length);
+  while (end >= FUSE_SENTINEL.length + 2) {
+    const at = input.lastIndexOf(FUSE_SENTINEL, end - FUSE_SENTINEL.length);
     if (at < 0) break;
-    const ver = input[at + SENTINEL.length];
-    const len = input[at + SENTINEL.length + 1];
-    if (ver !== 0x01 || len === undefined || at + SENTINEL.length + 2 + len !== end) break;
+    const ver = input[at + FUSE_SENTINEL.length];
+    const len = input[at + FUSE_SENTINEL.length + 1];
+    if (ver !== 0x01 || len === undefined || at + FUSE_SENTINEL.length + 2 + len !== end) break;
     run.push(at);
     end = at;
   }
   if (run.length === 0) return unchanged;
   run.reverse(); // ascending offsets
 
-  const realElsewhere = input.subarray(0, run[0]).includes(SENTINEL);
+  const realElsewhere = input.subarray(0, run[0]).includes(FUSE_SENTINEL);
   const removed = realElsewhere ? run : run.slice(1);
   if (removed.length === 0) return unchanged;
   const decoyMarked = removed.some((at) => {
-    const len = input[at + SENTINEL.length + 1]!;
-    return input.subarray(at + SENTINEL.length + 2, at + SENTINEL.length + 2 + len).includes(DECOY_STATE);
+    const len = input[at + FUSE_SENTINEL.length + 1]!;
+    return input.subarray(at + FUSE_SENTINEL.length + 2, at + FUSE_SENTINEL.length + 2 + len).includes(DECOY_STATE);
   });
   // A single trailing record with no decoy marker could be a legitimately odd binary: leave it.
   if (removed.length < 2 && !decoyMarked) return unchanged;

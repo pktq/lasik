@@ -1,5 +1,6 @@
 import type { Findings } from "../../core/types.js";
 import { t, traverse } from "../ast.js";
+import { dynamicNameRoots } from "./tree-shake.js";
 
 /** BLA's renamer appends a 3–6 hex-digit tag to every identifier it touches. */
 const BLA_NAME = /_[0-9a-f]{3,6}$/;
@@ -17,13 +18,15 @@ function moduleIdent(spec: string): string | undefined {
  */
 export function renameRequireHandles(ast: t.File, f: Findings): number {
   let n = 0;
+  // A name an eval string mentions must keep its spelling.
+  const evalNames = dynamicNameRoots(ast);
   traverse(ast, {
     Program(pp) {
       pp.scope.crawl();
       for (const stmt of pp.get("body")) {
         if (!stmt.isVariableDeclaration()) continue;
         for (const d of stmt.node.declarations) {
-          if (!t.isIdentifier(d.id) || !BLA_NAME.test(d.id.name)) continue;
+          if (!t.isIdentifier(d.id) || !BLA_NAME.test(d.id.name) || !evalNames || evalNames.has(d.id.name)) continue;
           const init = d.init;
           if (!t.isCallExpression(init) || !t.isIdentifier(init.callee, { name: "require" }) || !t.isStringLiteral(init.arguments[0])) continue;
           const name = moduleIdent(init.arguments[0].value);

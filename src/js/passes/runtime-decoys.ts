@@ -1,5 +1,5 @@
 import type { Findings } from "../../core/types.js";
-import { t, traverse, type NodePath } from "../ast.js";
+import { t, traverse, traverseOwn, type NodePath } from "../ast.js";
 
 /** String literals only BLA's runtime-deception blocks contain. */
 const RUNTIME_DECOY_STRINGS = [
@@ -35,10 +35,11 @@ export function stripRuntimeDecoys(ast: t.File, f: Findings): number {
         if (!fn) continue;
         let marked = t.isFunctionExpression(fn) && !!fn.id && RUNTIME_DECOY_NAME.test(fn.id.name);
         let closed = true;
+        // The marker must sit in this IIFE itself: a bundler wrapper that merely contains a decoy block is real code.
+        traverseOwn(fn, (x) => {
+          if (t.isStringLiteral(x) && RUNTIME_DECOY_STRINGS.some((s) => x.value.includes(s))) marked = true;
+        });
         stmt.traverse({
-          StringLiteral(p) {
-            if (RUNTIME_DECOY_STRINGS.some((s) => p.node.value.includes(s))) marked = true;
-          },
           Identifier(p: NodePath<t.Identifier>) {
             if (!p.isReferencedIdentifier()) return;
             const b = p.scope.getBinding(p.node.name);
@@ -71,7 +72,7 @@ function stripBindScope(ast: t.File, f: Findings): number {
         if (!fn) continue;
         let contract: t.ObjectExpression | undefined;
         let bind = false;
-        t.traverseFast(fn, (x) => {
+        traverseOwn(fn, (x) => {
           if (t.isStringLiteral(x, { value: "bla-bind-scope/v1" })) bind = true;
           if (t.isIdentifier(x, { name: "BLA_BIND_HOST" }) || t.isStringLiteral(x, { value: "BLA_BIND_HOST" })) bind = true;
           if (t.isObjectExpression(x) && x.properties.some((p) => t.isObjectProperty(p) && t.isStringLiteral(p.value, { value: "bla-bind-scope/v1" }))) contract = x;

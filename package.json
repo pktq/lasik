@@ -1,7 +1,7 @@
 {
   "name": "lasik-agents",
   "version": "0.1.0",
-  "description": "LASIK (LLM Agent Sight In Kode): restores the sight of AI reverse-engineering agents blinded by BLA. Decrypts, de-tarpits, de-decoys and prompt-firewalls hardened JS bundles, Electron apps, WebAssembly and source maps so REA can read them again.",
+  "description": "LASIK (LLM Agent Sight In Kode): restores the sight of AI reverse-engineering agents blinded by BLA. Statically undoes every BLA shield (JS bundles, Electron/ASAR, WebAssembly, Python/.pyc, native ELF/PE/Mach-O, SQLite, models, APK/DEX, JVM, .NET, BEAM, EVM, PCAP and more) and prompt-firewalls the decoy text so REA can read them again.",
   "keywords": [
     "lasik",
     "anti-bla",
@@ -59,7 +59,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "bench": "node dist/cli.js bench",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "npm run build && npm test",
+    "coverage:docs": "node scripts/bla-coverage.mjs docs",
+    "coverage:check": "node scripts/bla-coverage.mjs check"
   },
   "dependencies": {
     "@babel/generator": "^8.1.0",

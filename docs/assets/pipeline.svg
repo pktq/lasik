@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="352" viewBox="0 0 1280 352" role="img" aria-labelledby="t d"><title id="t">The LASIK JavaScript pipeline</title><desc id="d">Seven stages in the order src/js/heal.ts runs them: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report. Clean files skip the structural stages.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#22d3ee"/></marker></defs>
+<rect width="1280" height="352" rx="12" fill="#0b1020"/>
+<text x="32" y="42" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#e6edff">Pass order</text><text x="32" y="64" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#94a3b8">Interlocks are cut before any decoy is deleted. Nothing here executes the target.</text>
+<rect x="32.0" y="96" width="150" height="170" rx="10" fill="#111a33" stroke="#243049" stroke-width="1"/>
+<circle cx="54.0" cy="122" r="12" fill="none" stroke="#22d3ee"/><text x="54.0" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#22d3ee" text-anchor="middle">1</text>
+<text x="74.0" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#e6edff">Detect</text>
+<text x="46.0" y="158" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">fingerprint BLA</text>
+<text x="46.0" y="177" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">evidence, score</text>
+<text x="46.0" y="196" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">blindness</text>
+<line x1="185.0" y1="181" x2="205.7" y2="181" stroke="#22d3ee" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="209.7" y="96" width="150" height="170" rx="10" fill="#111a33" stroke="#243049" stroke-width="1"/>
+<circle cx="231.7" cy="122" r="12" fill="none" stroke="#22d3ee"/><text x="231.7" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#22d3ee" text-anchor="middle">2</text>
+<text x="251.7" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#e6edff">Cut interlocks</text>
+<text x="223.7" y="158" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">recompute the</text>
+<text x="223.7" y="177" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">corpus digest, fold</text>
+<text x="223.7" y="196" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">the seed bit</text>
+<line x1="362.7" y1="181" x2="383.3" y2="181" stroke="#22d3ee" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="387.3" y="96" width="150" height="170" rx="10" fill="#111a33" stroke="#243049" stroke-width="1"/>
+<circle cx="409.3" cy="122" r="12" fill="none" stroke="#22d3ee"/><text x="409.3" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#22d3ee" text-anchor="middle">3</text>
+<text x="429.3" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#e6edff">Strip decoys</text>
+<text x="401.3" y="158" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">scrambled comments,</text>
+<text x="401.3" y="177" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">runtime deception</text>
+<line x1="540.3" y1="181" x2="561.0" y2="181" stroke="#22d3ee" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="565.0" y="96" width="150" height="170" rx="10" fill="#111a33" stroke="#22d3ee" stroke-width="1.6"/>
+<circle cx="587.0" cy="122" r="12" fill="none" stroke="#22d3ee"/><text x="587.0" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#22d3ee" text-anchor="middle">4</text>
+<text x="607.0" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#e6edff">Fold to fixpoint</text>
+<text x="579.0" y="158" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">predicates, dead</text>
+<text x="579.0" y="177" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">branches, weave,</text>
+<text x="579.0" y="196" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">state sinks, XOR</text>
+<text x="579.0" y="215" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">strings, seals,</text>
+<text x="579.0" y="234" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">tree-shake</text>
+<line x1="718.0" y1="181" x2="738.7" y2="181" stroke="#22d3ee" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="742.7" y="96" width="150" height="170" rx="10" fill="#111a33" stroke="#243049" stroke-width="1"/>
+<circle cx="764.7" cy="122" r="12" fill="none" stroke="#22d3ee"/><text x="764.7" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#22d3ee" text-anchor="middle">5</text>
+<text x="784.7" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#e6edff">Rename</text>
+<text x="756.7" y="158" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">require handles</text>
+<text x="756.7" y="177" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">after their module</text>
+<line x1="895.7" y1="181" x2="916.3" y2="181" stroke="#22d3ee" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="920.3" y="96" width="150" height="170" rx="10" fill="#111a33" stroke="#243049" stroke-width="1"/>
+<circle cx="942.3" cy="122" r="12" fill="none" stroke="#22d3ee"/><text x="942.3" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#22d3ee" text-anchor="middle">6</text>
+<text x="962.3" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#e6edff">Firewall</text>
+<text x="934.3" y="158" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">redact prompt</text>
+<text x="934.3" y="177" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">bait in comments</text>
+<text x="934.3" y="196" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">and BLA strings</text>
+<line x1="1073.3" y1="181" x2="1094.0" y2="181" stroke="#22d3ee" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="1098.0" y="96" width="150" height="170" rx="10" fill="#111a33" stroke="#243049" stroke-width="1"/>
+<circle cx="1120.0" cy="122" r="12" fill="none" stroke="#22d3ee"/><text x="1120.0" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#22d3ee" text-anchor="middle">7</text>
+<text x="1140.0" y="127" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#e6edff">Report</text>
+<text x="1112.0" y="158" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">verdict, findings,</text>
+<text x="1112.0" y="177" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">warnings, tokens</text>
+<text x="1112.0" y="196" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#94a3b8">saved</text>
+<text x="640.0" y="288" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#67e8f9" text-anchor="middle">repeats up to 6 rounds,</text><text x="640.0" y="304" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#67e8f9" text-anchor="middle">until nothing changes</text>
+<text x="1248" y="338" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#64748b" text-anchor="end">Files without BLA evidence skip 2 to 5 and come back byte-identical (the firewall may redact comments only).</text>
+</svg>

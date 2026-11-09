@@ -1,3 +1,5 @@
+<p align="center"><b>English</b> | <a href="docs/readme/README.zh-CN.md">简体中文</a> | <a href="docs/readme/README.ja.md">日本語</a> | <a href="docs/readme/README.ko.md">한국어</a> | <a href="docs/readme/README.es.md">Español</a></p>
+
 <div align="center">
 
 <img src="docs/assets/banner.svg" alt="LASIK: LLM Agent Sight In Kode" width="100%" />
@@ -17,6 +19,8 @@
 [![MCP](https://img.shields.io/badge/MCP-server-7c3aed)](#-mcp-server)
 [![Never runs the target](https://img.shields.io/badge/executes%20target%20code-never-success)](#-safety-model)
 
+<sub><a href="#-30-second-quick-start">Quick start</a> · <a href="#-before--after">Before / after</a> · <a href="#-results-on-blas-own-crackmes">Results</a> · <a href="#-how-it-works">How it works</a> · <a href="#format-coverage">Coverage</a> · <a href="#-mcp-server">MCP</a> · <a href="#-honest-limits">Limits</a></sub>
+
 </div>
 
 ---
@@ -25,33 +29,16 @@
 
 **LASIK** is the corrective surgery. It proves BLA's predicates constant, decrypts what it hid, cuts its interlocks, drops its decoys and redacts its prompt bait, **without ever running the target**. Then your agent reads what the program actually does.
 
-```text
-                    ┌────────────┐      ┌────────────┐      ┌────────────┐
-   your release ──▶ │    BLA     │ ──▶  │   LASIK    │ ──▶  │ REA / agent│ ──▶ the real logic
-                    │ poison +   │      │ prove, fold│      │ reads 958× │
-                    │ exhaust    │      │ decrypt,   │      │ fewer      │
-                    └────────────┘      │ strip      │      │ tokens     │
-                                        └────────────┘      └────────────┘
-```
+<p align="center"><img src="docs/assets/flow.svg" alt="A BLA-hardened release goes through lasik heal, then an agent or REA reads the real logic" width="100%" /></p>
+
+> [!IMPORTANT]
+> **Defensive and authorised use.** LASIK reads hardened code statically and never runs it. Use it on software you own, malware and threat samples, CTFs and code you are authorised to audit. See [DISCLAIMER.md](DISCLAIMER.md).
 
 ## 👓 Before / after
 
-What an agent sees in BLA's own CrackMe v6 (one of ~3,000 opaque predicates in that file):
+What an agent sees in BLA's own CrackMe v6, before and after:
 
-```js
-// BLA-hardened (vault.cjs, 164 KB, 2,680 lines)
-attestTransientCursor_e36 = require("fs"); …
-traceLazyEdge_261.createHash(((Math.imul(runtimeSeedPrimaryHandle_be53 | 15, (runtimeSeedPrimaryHandle_be53 | 15) + 1) & 1) === 0 ? "s" : "b")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 124, runtimeSeedPrimaryHandle_be53 ^ 124) & 7) === 0 ? "1" : "h")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 123, (runtimeSeedPrimaryHandle_be53 | 123) + 1) & 1) === 0 ? "a" : "8") + …
-```
-
-```js
-// after `lasik heal` (5.5 KB, 99 lines)
-const fs = require("fs");
-const crypto = require("crypto");
-return crypto.createHash("sha256").update(input).digest("hex");
-```
+<p align="center"><img src="docs/assets/before-after.svg" alt="A BLA-hardened excerpt from CrackMe v6 vault.cjs (164 KB) next to the healed logic (5.5 KB)" width="100%" /></p>
 
 And on BLA's whole CrackMe corpus:
 
@@ -82,6 +69,11 @@ Requires Node.js ≥ 20.19. No native dependencies, no network calls.
 
 The benchmark corpus is BLA's published CrackMe outputs v6–v9 (MIT, vendored unchanged in [`bench/bla-crackme`](bench/bla-crackme)), hardened by BLA's own maintainers at `bankrupt` intensity. Reproduce with `npm run build && node dist/cli.js bench bench/bla-crackme`.
 
+<p align="center"><img src="docs/assets/tokens.svg" alt="Log-scale bar chart: estimated tokens per BLA CrackMe artifact before and after healing, 21.1M down to 22k in total" width="100%" /></p>
+
+<details>
+<summary><b>Per-artifact table (sizes, tokens, factors)</b></summary>
+
 | Artifact | Format | Before | After | Tokens before → after | Cheaper |
 |---|---|---:|---:|---:|---:|
 | `v6/core.wasm.gz` | wasm | 17.7 KB (6.9 MB raw) | 0.1 KB | 6,880,354 → 98 | **70,207×** |
@@ -101,6 +93,8 @@ The benchmark corpus is BLA's published CrackMe outputs v6–v9 (MIT, vendored u
 | `v9/policy.py` | python | 40.6 KB | 0.5 KB | 10,453 → 133 | 78.6× |
 | **Total** | | **1.75 MB** | **58 KB** | **21.1 M → 22 k** | **958×** |
 
+</details>
+
 Across the corpus LASIK folds **3,011 opaque predicates**, removes **3,432 dead branches**, re-joins **2,465 split literals**, deletes **1,487 decoy declarations** and **750 decoy WASM exports**, decrypts every XOR string table, cuts **11 anti-strip interlocks** and **5 self-seals**, and redacts every prompt decoy. A run takes about 0.3 s per file.
 
 The healed v6 panel script is the published template's `derive()` logic line for line (BLA's renamed locals aside). Token counts are estimates (≈4 chars/token for code, 2 for hex/base64, 1 per byte for binary).
@@ -110,6 +104,11 @@ The healed v6 panel script is the published template's `derive()` logic line for
 ## 🧠 How it works
 
 BLA stacks layers ("Poison → Exhaust → Hallucinate"). LASIK undoes each one statically, and says how sure it is.
+
+<p align="center"><img src="docs/assets/pipeline.svg" alt="LASIK pass order: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report" width="100%" /></p>
+
+<details open>
+<summary><b>Layer by layer: what BLA does and how LASIK answers</b></summary>
 
 | BLA layer | What BLA does | LASIK's countermove | Certainty |
 |---|---|---|---|
@@ -122,7 +121,9 @@ BLA stacks layers ("Poison → Exhaust → Hallucinate"). LASIK undoes each one 
 | **Runtime** | Shadow-heap stepper woven into every function; "Truman show" blocks that serve fake enclave status to debuggers | Private-state sink analysis: functions that only mutate state nothing else reads are unobservable, so their calls go | Exact for closed state |
 | **Weave** | Agent-written state slots guarding real code with `(slot.epoch & 1) !== 0` and `x & 0` mixes | Known-bits over every write of the slot; algebraic zero | Exact; free-form weave is labelled, not guessed |
 | **Exhaust** | 6.9 MB WASM name/section padding, 250 decoy exports, 16 MiB ASAR headers, 34 fuse sentinels | Rebuilds WASM (validated), ASAR (offsets rewritten) and fuse runs under REA's budgets | Exact |
-| **Prompt** | Fake `system`/chat turns, refusal bait, "no business logic is present" claims, fake COPPA/IEC 62304 notices, canary GUIDs | **Prompt firewall**: 38 rules redact the text before a model reads it (behaviour-preserving in `heal`, full redaction in `lasik_read`) | Fingerprint + phrase rules |
+| **Prompt** | Fake `system`/chat turns, refusal bait, "no business logic is present" claims, fake COPPA/IEC 62304 notices, canary GUIDs | **Prompt firewall**: 40 rules redact the text before a model reads it (behaviour-preserving in `heal`, full redaction in `lasik_read`) | Fingerprint + phrase rules |
+
+</details>
 
 The full pass order and every fingerprint are documented in [`docs/how-it-works.md`](docs/how-it-works.md).
 
@@ -133,6 +134,39 @@ The full pass order and every fingerprint are documented in [`docs/how-it-works.
 - **Healing keeps behaviour.** In `heal` output the firewall redacts comments and BLA-specific strings only; prompt-shaped *runtime* strings (say, ChatML markers in a real chat app) are reported, not rewritten. `lasik_read` and `--strict-firewall` give agents a fully redacted read view instead.
 - **Independently reviewed.** A separate adversarial review hunted for inputs where a pass changes behaviour and found 15; all are fixed and pinned in [`tests/soundness.test.ts`](tests/soundness.test.ts) (85 tests in total).
 - **Order matters, and is enforced.** Interlocks are cut before any decoy is deleted, so the healed program keeps the seed BLA's real code expects.
+
+## Format coverage
+
+<!-- coverage:start -->
+Pinned to BLA **3.2.1**. 58/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](docs/coverage.md).
+
+| Surface | Status |
+|---|---|
+| .NET assembly | ✅ healed |
+| Android APK | ✅ healed |
+| Android DEX | ✅ healed |
+| Apple plist | ✅ healed |
+| Bind-scope licence lock | 🔎 detect-only |
+| Bun standalone | ✅ healed |
+| Electron ASAR | ✅ healed |
+| Erlang BEAM | ✅ healed |
+| EVM bytecode | ✅ healed |
+| Firmware UF2 | ✅ healed |
+| GPU PTX | ✅ healed |
+| JavaScript / HTML | 🟡 partial |
+| JVM class | ✅ healed |
+| Mobile game (DEX / IL2CPP) | ✅ healed |
+| Native ELF / PE / Mach-O | 🟡 partial |
+| PCAP | ✅ healed |
+| Prompt text | ✅ healed |
+| Python | ✅ healed |
+| Safetensors / GGUF | ✅ healed |
+| Sidecar entanglement | ✅ healed |
+| Source maps | ✅ healed |
+| SQLite | ✅ healed |
+| WebAssembly | ✅ healed |
+| ZIP / JAR / APK | ✅ healed |
+<!-- coverage:end -->
 
 ## 🛡️ Safety model
 
@@ -200,13 +234,33 @@ LASIK is a deobfuscator. Use it on software you own, malware and threat samples,
 
 ## ❓ FAQ
 
-**Is this anti-BLA?** Yes. It's the third act: REA reverse engineers, BLA blinds, LASIK restores sight.
+<details>
+<summary><b>Is this anti-BLA?</b></summary>
 
-**Why would a defender want this?** Because attackers will use BLA too. Malware wrapped in BLA is built to make your AI analyst refuse, stall, or burn its budget. LASIK keeps your analyst working, its prompt firewall is a general defence against instructions planted in code, and every scan reports **"AI-evasion techniques found: N"**: code that goes out of its way to hide from AI analysis is a risk signal in itself.
+Yes. It's the third act: REA reverse engineers, BLA blinds, LASIK restores sight.
 
-**Does it need REA?** No. Any coding agent can read LASIK's output, or call `lasik_read` directly. LASIK pairs naturally with REA for compiled targets.
+</details>
 
-**Will BLA just patch around it?** Probably. Fingerprints are cheap for BLA to change; the exact proofs are not, because BLA's protected program still has to behave the same. That asymmetry is what LASIK is built on.
+<details>
+<summary><b>Why would a defender want this?</b></summary>
+
+Because attackers will use BLA too. Malware wrapped in BLA is built to make your AI analyst refuse, stall, or burn its budget. LASIK keeps your analyst working, its prompt firewall is a general defence against instructions planted in code, and every scan reports **"AI-evasion techniques found: N"**: code that goes out of its way to hide from AI analysis is a risk signal in itself.
+
+</details>
+
+<details>
+<summary><b>Does it need REA?</b></summary>
+
+No. Any coding agent can read LASIK's output, or call `lasik_read` directly. LASIK pairs naturally with REA for compiled targets.
+
+</details>
+
+<details>
+<summary><b>Will BLA just patch around it?</b></summary>
+
+Probably. Fingerprints are cheap for BLA to change; the exact proofs are not, because BLA's protected program still has to behave the same. That asymmetry is what LASIK is built on.
+
+</details>
 
 ## 🤝 Contributing
 

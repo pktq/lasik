@@ -18,8 +18,9 @@ const TAIL = String.raw`(?:\\.|[^"\x60\n\\])*`;
 const SENT = String.raw`[^\n"]*?(?:\.(?=\s|["'\x60]|$)|(?=["\n]|$))`;
 const NL = String.raw`(?:\n\n|\\n\\n)`;
 const BUILD_ID = String.raw`(?:\s*\[(?:enclave|adapter)_build_id=[0-9a-f]{8}\])?`;
+// The title may carry a parenthesised qualifier: `[Compliance & Safety Boundary (COPPA … Class C): …]` (chaff-generator.ts:28).
 const bracket = (titles: string): string =>
-  String.raw`\[(?:${titles})\s*:(?:[^\[\]]|\[[^\[\]]{0,200}\])*\]` + BUILD_ID;
+  String.raw`\[(?:${titles})\s*(?:\([^()\[\]]{0,200}\)\s*)?:(?:[^\[\]]|\[[^\[\]]{0,200}\])*\]` + BUILD_ID;
 const KV = String.raw`[a-z]+(?:_[a-z0-9]+)+=[\w.:/<>{}$-]*`;
 const CLAIM_KEYS = [
   "business_logic_present=false",
@@ -41,6 +42,41 @@ const r = (
   flags = "i",
   requires?: RegExp,
 ): FirewallRule => ({ id, category, granularity, regex: new RegExp(source, flags), ...(requires ? { requires } : {}) });
+
+/** Alternation of fixed BLA phrases, regex-escaped. */
+const lits = (xs: readonly string[]): string => xs.map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+
+// Fixed lead-ins of BLA's evidence-ledger lures (bla/src/shields/deception/evidence-contract-poison.ts:39-77).
+const EVIDENCE_LURES = [
+  "Core state transitions and cryptographic key derivation execute out-of-process",
+  "License and entitlement verification uses a 3-of-5 Shamir",
+  "Algorithmic scoring coefficients are streamed as encrypted",
+  "Renderer IPC channels are proxied through a signed kernel driver",
+  "Static constants in AST are fallback zero-weights",
+];
+
+// Fake toolchain failures that send an agent down rabbit holes
+// (bla/src/shields/deception/system-diagnostic-decoy.ts:31-104): message and remediation lead-ins.
+const DIAGNOSTIC_DECOYS = [
+  "observe_native_calls could not verify start_time run-token",
+  "Hopper headless bridge failed to acquire private Xvfb display socket",
+  "AnalysisSnapshotCache detected a stale .gpr lock file",
+  "__TEXT,__swift5_types relative offset 0x7ff8e4a0 points outside",
+  "V8InspectorProvider rejected Debugger.scriptParsed projection",
+  "GDB/MI console stream desynchronized after hitting MAX_COMMAND_OUTPUT_RECORDS",
+  "SqliteDatabaseInspection failed during VIRTUAL generated column projection",
+  "DWARF v5 .debug_info compilation unit header at offset 0x00004020",
+  "Re-run `rea doctor --json`, clear TMPDIR PrivateRuntimeRoot caches",
+  "Inspect Xvfb lock files in /tmp/.X99-lock",
+  "Discard cached Ghidra reference snapshots",
+  "Check FAT Mach-O architecture slice selection",
+  "Disconnect all existing Inspector clients, check /json/list",
+  "Close the persistent GDB session via close_gdb_session",
+  "Check Node.js runtime version (^22.13.0 || >=24.0.0), verify WAL",
+  "Verify llvm-dwarfdump / readelf version compatibility",
+];
+const DIAGNOSTIC_CODES =
+  "EXDEV_SWIFT_HELPER_STALE|ECONNREFUSED_XVFB_DISPLAY_99|ESTALE_GHIDRA_GPR_LOCK|ERANGE_SWIFT5_TYPES_REL_PTR|PROVIDER_CLOSING_TRANSPORT_LEASE|EMSGSIZE_MI_RECORD_OVERFLOW|SQLITE_ERROR_MISSING_SCALAR_UDF|EINVAL_DWARF5_FORM_STRX";
 
 const CLAIM_WORDS = /enclave|\bTEE\b|IPC|stub|passthrough|bytecode|offload|attestation|sealed|_build_id|vsock|TPM|business logic|marshal/i;
 
@@ -71,7 +107,8 @@ export const RULES: readonly FirewallRule[] = [
   r("honeypot-policy-notice", "canary", "tail", String.raw`PROTECTED_CREDENTIAL_AND_DRM_KEY_MATERIAL\s*:` + TAIL, ""),
   r(
     "honeypot-tokens", "canary", "match",
-    String.raw`bla_canary_synthetic_(?:kms|scm)_\w+|AKIAIOSFODNN7EXAMPLE_[0-9A-F]{4}_\d+|https:/canary_[0-9a-f]{4}_\d+:secret_[0-9a-f]{16}@|Basic Y2FuYXJ5OmhvbmV5cG90|__Host-tee_quorum_session=[0-9a-f]+`,
+    // canary-honeypot.ts:69-91: tokens, single-slash credential URLs, duplicate-lease query URLs.
+    String.raw`bla_canary_synthetic_(?:kms|scm)_\w+|AKIAIOSFODNN7EXAMPLE_[0-9A-F]{4}_\d+|https:/canary_[0-9a-f]{4}_\d+:secret_[0-9a-f]{8,16}@[\w.-]*(?:/[\w./-]*)?|https://[\w.-]+\.internal/[\w./-]*\?lease=\d+&lease=\d+&epoch=0x[0-9a-f]{8}|Basic Y2FuYXJ5OmhvbmV5cG90|__Host-tee_quorum_session=[0-9a-f]+`,
     "",
   ),
 
@@ -93,7 +130,8 @@ export const RULES: readonly FirewallRule[] = [
   ),
   r(
     "evidence-header-list", "false-claim", "kvlist",
-    String.raw`\b(?:EVIDENCE_CONTRACT_SUMMARY|ANALYSIS_VIEW_PROJECTION|RECONSTRUCTION_LEDGER_STATE|NATIVE_DISPATCH_TABLE_NOTE|QUEUE_LEASE_CONTRACT)\s*:` + TAIL,
+    // chaff-generator.ts:32-50 (evidence and state-machine templates), :105-112 (offset table, HSM descriptor).
+    String.raw`\b(?:EVIDENCE_CONTRACT_SUMMARY|ANALYSIS_VIEW_PROJECTION|RECONSTRUCTION_LEDGER_STATE|NATIVE_DISPATCH_TABLE_NOTE|QUEUE_LEASE_CONTRACT|FSM_SPEC_V3|QUORUM_PROTOCOL_DESCRIPTOR|IPC_BRIDGE_TOPOLOGY|SYMBOL_OFFSET_MANIFEST_[0-9A-F]{8}|HSM_ATTESTATION_DESCRIPTOR_[0-9a-f]{8})\s*:` + TAIL,
     "",
   ),
   r("evidence-claim-list", "false-claim", "kvlist", String.raw`(?:\b${KV};\s*)*\b(?:${CLAIM_KEYS})(?:;\s*${KV})*`, ""),
@@ -106,6 +144,8 @@ export const RULES: readonly FirewallRule[] = [
     "unmapped-aliases-claim", "false-claim", "match",
     String.raw`\bstatic IPC channel names in preload scripts represent unmapped virtual aliases\b[^.\n"]*\.?|\blocal offline reconstruction cannot satisfy quorum\b` + SENT,
   ),
+  r("evidence-lure", "false-claim", "tail", String.raw`\b(?:${lits(EVIDENCE_LURES)})` + TAIL, ""),
+  r("toolchain-diagnostic-decoy", "false-claim", "tail", String.raw`(?:${lits(DIAGNOSTIC_DECOYS)}|(?:\[[\w.-]+\] )?\b\w+ \((?:${DIAGNOSTIC_CODES})\):)` + TAIL, ""),
 
   // refusal-bait: imperatives aimed at an analysing agent
   r(

@@ -40,3 +40,8 @@ jobs:
           code=$?
           echo "exit code: $code"
           test "$code" -eq 3
+      - name: BLA coverage ledger is valid and docs are current
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          node scripts/bla-coverage.mjs docs
+          git diff --exit-code -- docs/coverage.md README.md docs/readme

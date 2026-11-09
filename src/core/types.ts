@@ -19,6 +19,21 @@ export type Format =
   | "json"
   | "safetensors"
   | "gguf"
+  | "pcap"
+  | "native"
+  | "bun"
+  | "uf2"
+  | "beam"
+  | "evm"
+  | "jvm"
+  | "dotnet"
+  | "ptx"
+  | "zip"
+  | "dex"
+  | "axml"
+  | "plist"
+  | "il2cpp"
+  | "pyc"
   | "unknown";
 
 export interface Finding {

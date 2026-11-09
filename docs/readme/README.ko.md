@@ -27,33 +27,16 @@
 
 **LASIK**은 교정 수술입니다. BLA의 술어가 상수임을 증명하고, 숨겨진 것을 복호화하고, 인터록을 끊고, 미끼를 제거하고, 프롬프트 미끼를 가리며, 이 모든 것을 **대상을 한 번도 실행하지 않고** 해냅니다. 그러면 당신의 에이전트는 프로그램이 실제로 하는 일을 읽게 됩니다.
 
-```text
-                    ┌────────────┐      ┌────────────┐      ┌────────────┐
-   your release ──▶ │    BLA     │ ──▶  │   LASIK    │ ──▶  │ REA / agent│ ──▶ the real logic
-                    │ poison +   │      │ prove, fold│      │ reads 958× │
-                    │ exhaust    │      │ decrypt,   │      │ fewer      │
-                    └────────────┘      │ strip      │      │ tokens     │
-                                        └────────────┘      └────────────┘
-```
+<p align="center"><img src="../assets/flow.svg" alt="BLA로 강화된 릴리스를 lasik heal에 통과시키면 에이전트나 REA가 실제 로직을 읽는다" width="100%" /></p>
+
+> [!IMPORTANT]
+> **방어 목적 및 허가된 사용에 한합니다.** LASIK은 난독화된 코드를 정적으로 읽을 뿐 실행하지 않습니다. 본인 소프트웨어, 악성코드·위협 샘플, CTF, 감사 권한이 있는 코드에 사용하세요. [DISCLAIMER.md](../../DISCLAIMER.md)를 참고하세요.
 
 ## 👓 적용 전 / 후
 
-BLA 자체 CrackMe v6에서 에이전트가 보는 모습입니다(해당 파일에 있는 약 3,000개의 불투명 술어 중 하나):
+BLA 자체 CrackMe v6에서의 전/후:
 
-```js
-// BLA-hardened (vault.cjs, 164 KB, 2,680 lines)
-attestTransientCursor_e36 = require("fs"); …
-traceLazyEdge_261.createHash(((Math.imul(runtimeSeedPrimaryHandle_be53 | 15, (runtimeSeedPrimaryHandle_be53 | 15) + 1) & 1) === 0 ? "s" : "b")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 124, runtimeSeedPrimaryHandle_be53 ^ 124) & 7) === 0 ? "1" : "h")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 123, (runtimeSeedPrimaryHandle_be53 | 123) + 1) & 1) === 0 ? "a" : "8") + …
-```
-
-```js
-// after `lasik heal` (5.5 KB, 99 lines)
-const fs = require("fs");
-const crypto = require("crypto");
-return crypto.createHash("sha256").update(input).digest("hex");
-```
+<p align="center"><img src="../assets/before-after.svg" alt="CrackMe v6 vault.cjs(164 KB)의 BLA 난독화 발췌와 복구된 로직(5.5 KB)" width="100%" /></p>
 
 그리고 BLA의 CrackMe 전체 코퍼스에 적용한 결과입니다:
 
@@ -84,6 +67,11 @@ Node.js ≥ 20.19가 필요합니다. 네이티브 의존성도, 네트워크 �
 
 벤치마크 코퍼스는 BLA가 공개한 CrackMe 결과물 v6–v9(MIT, [`bench/bla-crackme`](../../bench/bla-crackme)에 변경 없이 포함)이며, BLA 메인테이너들이 직접 `bankrupt` 강도로 하드닝한 것입니다. `npm run build && node dist/cli.js bench bench/bla-crackme`로 재현할 수 있습니다.
 
+<p align="center"><img src="../assets/tokens.svg" alt="로그 스케일 막대 그래프: BLA CrackMe 아티팩트별 추정 토큰, 복구 전후. 합계 2,110만에서 2.2만으로" width="100%" /></p>
+
+<details>
+<summary><b>아티팩트별 표 (크기, 토큰, 배율)</b></summary>
+
 | 아티팩트 | 형식 | 이전 | 이후 | 토큰 이전 → 이후 | 절감 배율 |
 |---|---|---:|---:|---:|---:|
 | `v6/core.wasm.gz` | wasm | 17.7 KB (원본 6.9 MB) | 0.1 KB | 6,880,354 → 98 | **70,207×** |
@@ -103,6 +91,8 @@ Node.js ≥ 20.19가 필요합니다. 네이티브 의존성도, 네트워크 �
 | `v9/policy.py` | python | 40.6 KB | 0.5 KB | 10,453 → 133 | 78.6× |
 | **합계** | | **1.75 MB** | **58 KB** | **21.1 M → 22 k** | **958×** |
 
+</details>
+
 코퍼스 전체에서 LASIK은 **3,011개의 불투명 술어**를 접고, **3,432개의 죽은 분기**를 제거하고, **2,465개의 분할된 리터럴**을 다시 합치고, **1,487개의 미끼 선언**과 **750개의 미끼 WASM export**를 삭제하고, 모든 XOR 문자열 테이블을 복호화하고, **11개의 안티 스트립 인터록**과 **5개의 셀프 실**을 끊고, 모든 프롬프트 미끼를 가립니다. 실행은 파일당 약 0.3초가 걸립니다.
 
 복원된 v6 패널 스크립트는 공개된 템플릿의 `derive()` 로직과 한 줄 한 줄 일치합니다(BLA가 바꾼 지역 변수 이름은 제외). 토큰 수는 추정치입니다(코드는 토큰당 약 4자, hex/base64는 2자, 바이너리는 바이트당 1).
@@ -112,6 +102,11 @@ Node.js ≥ 20.19가 필요합니다. 네이티브 의존성도, 네트워크 �
 ## 🧠 작동 방식
 
 BLA는 레이어를 쌓습니다("Poison → Exhaust → Hallucinate"). LASIK은 각 레이어를 정적으로 되돌리며, 얼마나 확신하는지도 함께 알려 줍니다.
+
+<p align="center"><img src="../assets/pipeline.svg" alt="LASIK 처리 순서: 탐지, 인터락 절단, 디코이 제거, 고정점까지 폴딩, 이름 복원, 방화벽, 보고서" width="100%" /></p>
+
+<details open>
+<summary><b>레이어별: BLA의 수법과 LASIK의 대응</b></summary>
 
 | BLA 레이어 | BLA가 하는 일 | LASIK의 대응 | 확실성 |
 |---|---|---|---|
@@ -124,7 +119,9 @@ BLA는 레이어를 쌓습니다("Poison → Exhaust → Hallucinate"). LASIK은
 | **Runtime** | 모든 함수에 짜 넣은 섀도 힙 스테퍼; 디버거에 가짜 enclave 상태를 내놓는 "Truman show" 블록 | 비공개 상태 싱크 분석: 다른 곳에서 읽지 않는 상태만 변경하는 함수는 관측 불가능하므로 그 호출을 제거 | 닫힌 상태에 대해 정확함 |
 | **Weave** | 실제 코드를 `(slot.epoch & 1) !== 0`과 `x & 0` 혼합으로 보호하는, 에이전트가 작성한 상태 슬롯 | 슬롯의 모든 쓰기에 대한 known-bits; 대수적 영 | 정확함; 자유 형식 weave는 추측하지 않고 표시만 함 |
 | **Exhaust** | 6.9 MB WASM 이름/섹션 패딩, 250개의 미끼 export, 16 MiB ASAR 헤더, 34개의 퓨즈 센티넬 | REA의 예산 안에서 WASM(검증됨), ASAR(오프셋 재작성), 퓨즈 런을 재구성 | 정확함 |
-| **Prompt** | 가짜 `system`/채팅 턴, 거부 미끼, "비즈니스 로직이 없다"는 주장, 가짜 COPPA/IEC 62304 고지, 카나리 GUID | **프롬프트 방화벽**: 38개 규칙이 모델이 읽기 전에 텍스트를 가림(`heal`에서는 동작 유지, `lasik_read`에서는 완전히 가림) | 핑거프린트 + 구문 규칙 |
+| **Prompt** | 가짜 `system`/채팅 턴, 거부 미끼, "비즈니스 로직이 없다"는 주장, 가짜 COPPA/IEC 62304 고지, 카나리 GUID | **프롬프트 방화벽**: 40개 규칙이 모델이 읽기 전에 텍스트를 가림(`heal`에서는 동작 유지, `lasik_read`에서는 완전히 가림) | 핑거프린트 + 구문 규칙 |
+
+</details>
 
 전체 패스 순서와 모든 핑거프린트는 [`docs/how-it-works.md`](../how-it-works.md)에 문서화되어 있습니다.
 
@@ -135,6 +132,39 @@ BLA는 레이어를 쌓습니다("Poison → Exhaust → Hallucinate"). LASIK은
 - **복원해도 동작은 유지됩니다.** `heal` 출력에서 방화벽은 주석과 BLA 전용 문자열만 가립니다. 프롬프트 형태의 *런타임* 문자열(예: 실제 채팅 앱의 ChatML 마커)은 다시 쓰지 않고 보고만 합니다. `lasik_read`와 `--strict-firewall`은 에이전트에게 완전히 가린 읽기용 뷰를 제공합니다.
 - **독립적으로 검토되었습니다.** 별도의 적대적 검토가 어떤 패스가 동작을 바꾸는 입력을 찾아 15건을 발견했고, 모두 수정되어 [`tests/soundness.test.ts`](../../tests/soundness.test.ts)에 고정되었습니다(전체 테스트 85개).
 - **순서가 중요하며, 강제됩니다.** 인터록은 어떤 미끼보다 먼저 끊으므로, 복원된 프로그램은 BLA의 실제 코드가 기대하는 시드를 유지합니다.
+
+## 포맷 지원 범위
+
+<!-- coverage:start -->
+Pinned to BLA **3.2.1**. 58/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](../coverage.md).
+
+| Surface | Status |
+|---|---|
+| .NET assembly | ✅ healed |
+| Android APK | ✅ healed |
+| Android DEX | ✅ healed |
+| Apple plist | ✅ healed |
+| Bind-scope licence lock | 🔎 detect-only |
+| Bun standalone | ✅ healed |
+| Electron ASAR | ✅ healed |
+| Erlang BEAM | ✅ healed |
+| EVM bytecode | ✅ healed |
+| Firmware UF2 | ✅ healed |
+| GPU PTX | ✅ healed |
+| JavaScript / HTML | 🟡 partial |
+| JVM class | ✅ healed |
+| Mobile game (DEX / IL2CPP) | ✅ healed |
+| Native ELF / PE / Mach-O | 🟡 partial |
+| PCAP | ✅ healed |
+| Prompt text | ✅ healed |
+| Python | ✅ healed |
+| Safetensors / GGUF | ✅ healed |
+| Sidecar entanglement | ✅ healed |
+| Source maps | ✅ healed |
+| SQLite | ✅ healed |
+| WebAssembly | ✅ healed |
+| ZIP / JAR / APK | ✅ healed |
+<!-- coverage:end -->
 
 ## 🛡️ 안전 모델
 
@@ -202,13 +232,33 @@ LASIK은 난독화 해제 도구입니다. 직접 소유한 소프트웨어, 악
 
 ## ❓ FAQ
 
-**이건 안티 BLA인가요?** 네. 3막입니다. REA는 리버스 엔지니어링하고, BLA는 눈멀게 하고, LASIK은 시력을 되찾아 줍니다.
+<details>
+<summary><b>이건 안티 BLA인가요?</b></summary>
 
-**방어하는 쪽이 왜 이게 필요한가요?** 공격자들도 BLA를 쓸 것이기 때문입니다. BLA로 감싼 악성코드는 당신의 AI 분석가가 거부하거나, 멈추거나, 예산을 소진하도록 만들어집니다. LASIK은 분석가가 계속 일하게 해 주며, 프롬프트 방화벽은 코드에 심어 둔 지시에 대한 범용 방어책입니다. 또한 모든 스캔은 **"AI-evasion techniques found: N"** 을 보고합니다. AI 분석을 피하려고 애쓰는 코드는 그 자체로 위험 신호입니다.
+네. 3막입니다. REA는 리버스 엔지니어링하고, BLA는 눈멀게 하고, LASIK은 시력을 되찾아 줍니다.
 
-**REA가 필요한가요?** 아니요. 어떤 코딩 에이전트든 LASIK의 출력을 읽거나 `lasik_read`를 직접 호출할 수 있습니다. LASIK은 컴파일된 대상에 대해서는 REA와 자연스럽게 짝을 이룹니다.
+</details>
 
-**BLA가 그냥 우회하도록 패치하지 않을까요?** 아마도요. 핑거프린트는 BLA가 바꾸기 쉽지만, 정확한 증명은 그렇지 않습니다. BLA가 보호하는 프로그램은 여전히 같게 동작해야 하기 때문입니다. 그 비대칭이 LASIK의 토대입니다.
+<details>
+<summary><b>방어하는 쪽이 왜 이게 필요한가요?</b></summary>
+
+공격자들도 BLA를 쓸 것이기 때문입니다. BLA로 감싼 악성코드는 당신의 AI 분석가가 거부하거나, 멈추거나, 예산을 소진하도록 만들어집니다. LASIK은 분석가가 계속 일하게 해 주며, 프롬프트 방화벽은 코드에 심어 둔 지시에 대한 범용 방어책입니다. 또한 모든 스캔은 **"AI-evasion techniques found: N"** 을 보고합니다. AI 분석을 피하려고 애쓰는 코드는 그 자체로 위험 신호입니다.
+
+</details>
+
+<details>
+<summary><b>REA가 필요한가요?</b></summary>
+
+아니요. 어떤 코딩 에이전트든 LASIK의 출력을 읽거나 `lasik_read`를 직접 호출할 수 있습니다. LASIK은 컴파일된 대상에 대해서는 REA와 자연스럽게 짝을 이룹니다.
+
+</details>
+
+<details>
+<summary><b>BLA가 그냥 우회하도록 패치하지 않을까요?</b></summary>
+
+아마도요. 핑거프린트는 BLA가 바꾸기 쉽지만, 정확한 증명은 그렇지 않습니다. BLA가 보호하는 프로그램은 여전히 같게 동작해야 하기 때문입니다. 그 비대칭이 LASIK의 토대입니다.
+
+</details>
 
 ## 🤝 기여하기
 

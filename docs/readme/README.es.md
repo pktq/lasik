@@ -27,33 +27,16 @@ el endurecimiento de [BLA](https://github.com/qybaihe/bla) (Blind LLM Agents) pa
 
 **LASIK** es la cirugía correctiva. Demuestra que los predicados de BLA son constantes, descifra lo que ocultó, corta sus interbloqueos, elimina sus señuelos y censura su cebo de prompts, **sin ejecutar nunca el objetivo**. Después, tu agente lee lo que el programa realmente hace.
 
-```text
-                    ┌────────────┐      ┌────────────┐      ┌────────────┐
-   your release ──▶ │    BLA     │ ──▶  │   LASIK    │ ──▶  │ REA / agent│ ──▶ the real logic
-                    │ poison +   │      │ prove, fold│      │ reads 958× │
-                    │ exhaust    │      │ decrypt,   │      │ fewer      │
-                    └────────────┘      │ strip      │      │ tokens     │
-                                        └────────────┘      └────────────┘
-```
+<p align="center"><img src="../assets/flow.svg" alt="Una versión endurecida por BLA pasa por lasik heal y después un agente o REA lee la lógica real" width="100%" /></p>
+
+> [!IMPORTANT]
+> **Uso defensivo y autorizado.** LASIK lee código endurecido de forma estática y nunca lo ejecuta. Úsalo en software propio, muestras de malware y amenazas, CTF y código que estés autorizado a auditar. Consulta [DISCLAIMER.md](../../DISCLAIMER.md).
 
 ## 👓 Antes / después
 
-Lo que ve un agente en el CrackMe v6 de BLA (uno de los ~3000 predicados opacos de ese archivo):
+Antes y después en el CrackMe v6 de BLA:
 
-```js
-// BLA-hardened (vault.cjs, 164 KB, 2,680 lines)
-attestTransientCursor_e36 = require("fs"); …
-traceLazyEdge_261.createHash(((Math.imul(runtimeSeedPrimaryHandle_be53 | 15, (runtimeSeedPrimaryHandle_be53 | 15) + 1) & 1) === 0 ? "s" : "b")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 124, runtimeSeedPrimaryHandle_be53 ^ 124) & 7) === 0 ? "1" : "h")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 123, (runtimeSeedPrimaryHandle_be53 | 123) + 1) & 1) === 0 ? "a" : "8") + …
-```
-
-```js
-// after `lasik heal` (5.5 KB, 99 lines)
-const fs = require("fs");
-const crypto = require("crypto");
-return crypto.createHash("sha256").update(input).digest("hex");
-```
+<p align="center"><img src="../assets/before-after.svg" alt="Fragmento endurecido por BLA de vault.cjs del CrackMe v6 (164 KB) junto a la lógica sanada (5,5 KB)" width="100%" /></p>
 
 Y en todo el corpus de CrackMes de BLA:
 
@@ -84,6 +67,11 @@ Requiere Node.js ≥ 20.19. Sin dependencias nativas, sin llamadas de red.
 
 El corpus de referencia son las salidas publicadas de los CrackMes de BLA v6–v9 (MIT, incluidas sin modificar en [`bench/bla-crackme`](../../bench/bla-crackme)), endurecidas por los propios mantenedores de BLA con la intensidad `bankrupt`. Reprodúcelo con `npm run build && node dist/cli.js bench bench/bla-crackme`.
 
+<p align="center"><img src="../assets/tokens.svg" alt="Gráfico de barras en escala logarítmica: tokens estimados por artefacto CrackMe de BLA antes y después, de 21,1 M a 22 k en total" width="100%" /></p>
+
+<details>
+<summary><b>Tabla por artefacto (tamaños, tokens, factores)</b></summary>
+
 | Artefacto | Formato | Antes | Después | Tokens antes → después | Más barato |
 |---|---|---:|---:|---:|---:|
 | `v6/core.wasm.gz` | wasm | 17.7 KB (6.9 MB raw) | 0.1 KB | 6,880,354 → 98 | **70,207×** |
@@ -103,6 +91,8 @@ El corpus de referencia son las salidas publicadas de los CrackMes de BLA v6–v
 | `v9/policy.py` | python | 40.6 KB | 0.5 KB | 10,453 → 133 | 78.6× |
 | **Total** | | **1.75 MB** | **58 KB** | **21.1 M → 22 k** | **958×** |
 
+</details>
+
 En todo el corpus, LASIK pliega **3,011 predicados opacos**, elimina **3,432 ramas muertas**, reúne **2,465 literales divididos**, borra **1,487 declaraciones señuelo** y **750 exportaciones WASM señuelo**, descifra todas las tablas de cadenas XOR, corta **11 interbloqueos anti-strip** y **5 autosellos**, y censura todos los señuelos de prompts. Una ejecución tarda unos 0.3 s por archivo.
 
 El script del panel v6 sanado es la lógica `derive()` de la plantilla publicada línea por línea (salvo los locales renombrados por BLA). Los recuentos de tokens son estimaciones (≈4 caracteres/token para código, 2 para hex/base64, 1 por byte para binarios).
@@ -112,6 +102,11 @@ El script del panel v6 sanado es la lógica `derive()` de la plantilla publicada
 ## 🧠 Cómo funciona
 
 BLA apila capas ("Poison → Exhaust → Hallucinate"). LASIK deshace cada una de forma estática e indica con qué certeza.
+
+<p align="center"><img src="../assets/pipeline.svg" alt="Orden de pasadas de LASIK: detectar, cortar interbloqueos, eliminar señuelos, plegar hasta punto fijo, renombrar, firewall, informe" width="100%" /></p>
+
+<details open>
+<summary><b>Capa por capa: qué hace BLA y cómo responde LASIK</b></summary>
 
 | Capa de BLA | Qué hace BLA | Contramedida de LASIK | Certeza |
 |---|---|---|---|
@@ -124,7 +119,9 @@ BLA apila capas ("Poison → Exhaust → Hallucinate"). LASIK deshace cada una d
 | **Runtime** | Stepper de shadow-heap entretejido en cada función; bloques "Truman show" que sirven un estado de enclave falso a los depuradores | Análisis de sumideros de estado privado: las funciones que solo mutan un estado que nadie más lee no son observables, así que sus llamadas se eliminan | Exacta para estado cerrado |
 | **Weave** | Ranuras de estado escritas por el agente que protegen código real con `(slot.epoch & 1) !== 0` y mezclas `x & 0` | Bits conocidos sobre cada escritura de la ranura; cero algebraico | Exacta; el weave de forma libre se etiqueta, no se adivina |
 | **Exhaust** | 6.9 MB de relleno de nombres/secciones WASM, 250 exportaciones señuelo, cabeceras ASAR de 16 MiB, 34 centinelas de fuse | Reconstruye WASM (validado), ASAR (offsets reescritos) y las secuencias de fuse dentro de los presupuestos de REA | Exacta |
-| **Prompt** | Falsos turnos `system`/chat, cebo de rechazo, afirmaciones de "no hay lógica de negocio", falsos avisos COPPA/IEC 62304, GUIDs canario | **Cortafuegos de prompts**: 38 reglas censuran el texto antes de que lo lea un modelo (conserva el comportamiento en `heal`, censura total en `lasik_read`) | Huella + reglas de frases |
+| **Prompt** | Falsos turnos `system`/chat, cebo de rechazo, afirmaciones de "no hay lógica de negocio", falsos avisos COPPA/IEC 62304, GUIDs canario | **Cortafuegos de prompts**: 40 reglas censuran el texto antes de que lo lea un modelo (conserva el comportamiento en `heal`, censura total en `lasik_read`) | Huella + reglas de frases |
+
+</details>
 
 El orden completo de las pasadas y cada huella están documentados en [`docs/how-it-works.md`](../how-it-works.md).
 
@@ -135,6 +132,39 @@ El orden completo de las pasadas y cada huella están documentados en [`docs/how
 - **Sanar conserva el comportamiento.** En la salida de `heal`, el cortafuegos censura solo comentarios y cadenas específicas de BLA; las cadenas *de ejecución* con forma de prompt (por ejemplo, marcadores ChatML en una aplicación de chat real) se informan, no se reescriben. `lasik_read` y `--strict-firewall` ofrecen a los agentes una vista de lectura totalmente censurada.
 - **Revisado de forma independiente.** Una revisión adversarial aparte buscó entradas en las que una pasada cambiara el comportamiento y encontró 15; todas están corregidas y fijadas en [`tests/soundness.test.ts`](../../tests/soundness.test.ts) (85 pruebas en total).
 - **El orden importa y se hace cumplir.** Los interbloqueos se cortan antes de borrar cualquier señuelo, de modo que el programa sanado conserva la semilla que espera el código real de BLA.
+
+## Cobertura de formatos
+
+<!-- coverage:start -->
+Pinned to BLA **3.2.1**. 58/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](../coverage.md).
+
+| Surface | Status |
+|---|---|
+| .NET assembly | ✅ healed |
+| Android APK | ✅ healed |
+| Android DEX | ✅ healed |
+| Apple plist | ✅ healed |
+| Bind-scope licence lock | 🔎 detect-only |
+| Bun standalone | ✅ healed |
+| Electron ASAR | ✅ healed |
+| Erlang BEAM | ✅ healed |
+| EVM bytecode | ✅ healed |
+| Firmware UF2 | ✅ healed |
+| GPU PTX | ✅ healed |
+| JavaScript / HTML | 🟡 partial |
+| JVM class | ✅ healed |
+| Mobile game (DEX / IL2CPP) | ✅ healed |
+| Native ELF / PE / Mach-O | 🟡 partial |
+| PCAP | ✅ healed |
+| Prompt text | ✅ healed |
+| Python | ✅ healed |
+| Safetensors / GGUF | ✅ healed |
+| Sidecar entanglement | ✅ healed |
+| Source maps | ✅ healed |
+| SQLite | ✅ healed |
+| WebAssembly | ✅ healed |
+| ZIP / JAR / APK | ✅ healed |
+<!-- coverage:end -->
 
 ## 🛡️ Modelo de seguridad
 
@@ -202,13 +232,33 @@ LASIK es un desofuscador. Úsalo con software que te pertenezca, malware y muest
 
 ## ❓ Preguntas frecuentes
 
-**¿Es esto anti-BLA?** Sí. Es el tercer acto: REA hace ingeniería inversa, BLA ciega, LASIK devuelve la vista.
+<details>
+<summary><b>¿Es esto anti-BLA?</b></summary>
 
-**¿Por qué querría esto un defensor?** Porque los atacantes también usarán BLA. El malware envuelto en BLA está hecho para que tu analista de IA se niegue, se atasque o agote su presupuesto. LASIK mantiene a tu analista trabajando, su cortafuegos de prompts es una defensa general contra instrucciones plantadas en el código, y cada escaneo informa **"AI-evasion techniques found: N"**: el código que se esfuerza por esconderse del análisis con IA es una señal de riesgo en sí mismo.
+Sí. Es el tercer acto: REA hace ingeniería inversa, BLA ciega, LASIK devuelve la vista.
 
-**¿Necesita REA?** No. Cualquier agente de programación puede leer la salida de LASIK o llamar directamente a `lasik_read`. LASIK combina de forma natural con REA para objetivos compilados.
+</details>
 
-**¿BLA simplemente lo esquivará con un parche?** Probablemente. Para BLA es barato cambiar las huellas; las pruebas exactas no lo son, porque el programa protegido por BLA todavía tiene que comportarse igual. Esa asimetría es la base sobre la que se construye LASIK.
+<details>
+<summary><b>¿Por qué querría esto un defensor?</b></summary>
+
+Porque los atacantes también usarán BLA. El malware envuelto en BLA está hecho para que tu analista de IA se niegue, se atasque o agote su presupuesto. LASIK mantiene a tu analista trabajando, su cortafuegos de prompts es una defensa general contra instrucciones plantadas en el código, y cada escaneo informa **"AI-evasion techniques found: N"**: el código que se esfuerza por esconderse del análisis con IA es una señal de riesgo en sí mismo.
+
+</details>
+
+<details>
+<summary><b>¿Necesita REA?</b></summary>
+
+No. Cualquier agente de programación puede leer la salida de LASIK o llamar directamente a `lasik_read`. LASIK combina de forma natural con REA para objetivos compilados.
+
+</details>
+
+<details>
+<summary><b>¿BLA simplemente lo esquivará con un parche?</b></summary>
+
+Probablemente. Para BLA es barato cambiar las huellas; las pruebas exactas no lo son, porque el programa protegido por BLA todavía tiene que comportarse igual. Esa asimetría es la base sobre la que se construye LASIK.
+
+</details>
 
 ## 🤝 Contribuir
 

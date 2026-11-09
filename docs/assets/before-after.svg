@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="380" viewBox="0 0 1280 380" role="img" aria-labelledby="t d"><title id="t">Before and after lasik heal</title><desc id="d">Left: a BLA-hardened excerpt from CrackMe v6 vault.cjs, 164 KB. Right: the same logic after healing, 5.5 KB.</desc>
+<rect width="1280" height="380" rx="12" fill="#0b1020"/>
+<text x="32" y="40" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#e6edff">What the agent reads</text>
+<rect x="32" y="64" width="592" height="280" rx="10" fill="#0e1630" stroke="#3b2a35"/>
+<text x="52" y="92" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#fda4af">BLA-hardened</text><text x="604" y="92" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#64748b" text-anchor="end">vault.cjs  164 KB  2,680 lines</text>
+<text x="52" y="128" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">attestTransientCursor_e36 = require("fs");</text>
+<text x="52" y="154" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">traceLazyEdge_261.createHash(</text>
+<text x="52" y="180" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">  ((Math.imul(seed | 15, (seed | 15) + 1) &amp; 1) === 0 ? "s" : "b")</text>
+<text x="52" y="206" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">+ ((Math.imul(seed ^ 124, seed ^ 124) &amp; 7) === 0 ? "1" : "h")</text>
+<text x="52" y="232" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">+ ((Math.imul(seed | 123, (seed | 123) + 1) &amp; 1) === 0 ? "a" : "8")</text>
+<text x="52" y="258" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#64748b" xml:space="preserve">+ ...  /* ~3,000 predicates in this file alone, */</text>
+<text x="52" y="284" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#64748b" xml:space="preserve">  /* plus decoy blocks, XOR tables, a self-seal */</text>
+<rect x="656" y="64" width="592" height="280" rx="10" fill="#0e1630" stroke="#155e75"/>
+<text x="676" y="92" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#22d3ee">after lasik heal</text><text x="1228" y="92" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#64748b" text-anchor="end">5.5 KB  99 lines</text>
+<text x="676" y="128" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">const fs = require("fs");</text>
+<text x="676" y="154" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">const crypto = require("crypto");</text>
+<text x="676" y="180" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve"></text>
+<text x="676" y="206" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">return crypto</text>
+<text x="676" y="232" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">  .createHash("sha256")</text>
+<text x="676" y="258" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">  .update(input)</text>
+<text x="676" y="284" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">  .digest("hex");</text>
+<path d="M626 204 L652 204" stroke="#22d3ee" stroke-width="2"/><path d="M646 197 L654 204 L646 211" fill="none" stroke="#22d3ee" stroke-width="2"/>
+<text x="640.0" y="368" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Excerpt shortened and local names abbreviated. Prompt-directed decoy text is omitted.</text></svg>

@@ -2,7 +2,8 @@ import { Findings } from "../core/types.js";
 import { healJs, type JsHealOptions } from "./heal.js";
 
 const SCRIPT = /<script(\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi;
-const JS_TYPE = /^\s*(?:text\/javascript|application\/javascript|module|text\/ecmascript)?\s*$/i;
+// The executable set BLA hardens (bla/src/engine/protector.ts:332-362, classifyHtmlScriptTag).
+const JS_TYPE = /^\s*(?:text\/javascript|application\/javascript|module|text\/ecmascript|application\/ecmascript|javascript)?\s*$/i;
 
 /** Identifiers used from HTML attributes (`onclick="foo()"`): keep them alive in plain scripts. */
 function attributeRoots(html: string): Set<string> {

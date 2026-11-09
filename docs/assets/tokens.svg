@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="642" viewBox="0 0 1100 642" role="img" aria-labelledby="t d"><title id="t">Tokens before and after LASIK</title><desc id="d">Horizontal log-scale bar chart of estimated tokens per BLA CrackMe artifact before and after healing. Total 21,104,859 down to 22,027.</desc>
+<rect width="1100" height="642" rx="12" fill="#0b1020"/>
+<text x="32" y="42" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#e6edff">Estimated tokens an agent must read</text>
+<text x="32" y="64" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#94a3b8">BLA CrackMes v6-v9, before vs after lasik heal. Log scale: each gridline is 10x.</text>
+<rect x="800" y="30" width="12" height="12" rx="2" fill="#475569"/><text x="818" y="41" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#cbd5e1">before</text><rect x="890" y="30" width="12" height="12" rx="2" fill="#22d3ee"/><text x="908" y="41" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#cbd5e1">after (LASIK)</text>
+<line x1="250.0" y1="88" x2="250.0" y2="546" stroke="#1e293b"/><text x="250.0" y="564" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">10</text>
+<line x1="371.7" y1="88" x2="371.7" y2="546" stroke="#1e293b"/><text x="371.7" y="564" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">100</text>
+<line x1="493.3" y1="88" x2="493.3" y2="546" stroke="#1e293b"/><text x="493.3" y="564" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">1,000</text>
+<line x1="615.0" y1="88" x2="615.0" y2="546" stroke="#1e293b"/><text x="615.0" y="564" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">10,000</text>
+<line x1="736.7" y1="88" x2="736.7" y2="546" stroke="#1e293b"/><text x="736.7" y="564" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">100,000</text>
+<line x1="858.3" y1="88" x2="858.3" y2="546" stroke="#1e293b"/><text x="858.3" y="564" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">1,000,000</text>
+<line x1="980.0" y1="88" x2="980.0" y2="546" stroke="#1e293b"/><text x="980.0" y="564" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">10,000,000</text>
+<text x="238" y="113" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v6/core.wasm.gz</text>
+<rect x="250" y="100" width="710.2" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="111" width="120.6" height="9" rx="2" fill="#22d3ee"/>
+<text x="378.6" y="120" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">98</text>
+<text x="968.2" y="109" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">6,880,354</text>
+<text x="238" y="143" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v6/panel.html</text>
+<rect x="250" y="130" width="426.5" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="141" width="204.1" height="9" rx="2" fill="#22d3ee"/>
+<text x="462.1" y="150" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">476</text>
+<text x="684.5" y="139" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">32,035</text>
+<text x="238" y="173" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v6/vault.cjs</text>
+<rect x="250" y="160" width="441.6" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="171" width="264.1" height="9" rx="2" fill="#22d3ee"/>
+<text x="522.1" y="180" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">1,481</text>
+<text x="699.6" y="169" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">42,600</text>
+<text x="238" y="203" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v7/cli/meridian.cjs</text>
+<rect x="250" y="190" width="444.4" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="201" width="235.8" height="9" rx="2" fill="#22d3ee"/>
+<text x="493.8" y="210" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">867</text>
+<text x="702.4" y="199" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">44,897</text>
+<text x="238" y="233" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v7/core/expr.cjs</text>
+<rect x="250" y="220" width="437.1" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="231" width="282.8" height="9" rx="2" fill="#22d3ee"/>
+<text x="540.8" y="240" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">2,111</text>
+<text x="695.1" y="229" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">39,135</text>
+<text x="238" y="263" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v7/core/license.cjs</text>
+<rect x="250" y="250" width="444.3" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="261" width="303.0" height="9" rx="2" fill="#22d3ee"/>
+<text x="561.0" y="270" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">3,091</text>
+<text x="702.3" y="259" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">44,823</text>
+<text x="238" y="293" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v7/core/stats.cjs</text>
+<rect x="250" y="280" width="428.9" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="291" width="195.4" height="9" rx="2" fill="#22d3ee"/>
+<text x="453.4" y="300" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">404</text>
+<text x="686.9" y="289" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">33,515</text>
+<text x="238" y="323" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v7/core/units.cjs</text>
+<rect x="250" y="310" width="431.5" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="321" width="210.9" height="9" rx="2" fill="#22d3ee"/>
+<text x="468.9" y="330" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">541</text>
+<text x="689.5" y="319" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">35,191</text>
+<text x="238" y="353" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v8/core.wasm.gz</text>
+<rect x="250" y="340" width="710.3" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="351" width="309.6" height="9" rx="2" fill="#22d3ee"/>
+<text x="567.6" y="360" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">3,506</text>
+<text x="968.3" y="349" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">6,883,663</text>
+<text x="238" y="383" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v8/license.cjs</text>
+<rect x="250" y="370" width="458.0" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="381" width="262.8" height="9" rx="2" fill="#22d3ee"/>
+<text x="520.8" y="390" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">1,445</text>
+<text x="716.0" y="379" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">58,120</text>
+<text x="238" y="413" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v8/panel.html</text>
+<rect x="250" y="400" width="424.3" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="411" width="184.9" height="9" rx="2" fill="#22d3ee"/>
+<text x="442.9" y="420" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">331</text>
+<text x="682.3" y="409" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">30,708</text>
+<text x="238" y="443" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v9/core.wasm.gz</text>
+<rect x="250" y="430" width="710.3" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="441" width="309.5" height="9" rx="2" fill="#22d3ee"/>
+<text x="567.5" y="450" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">3,496</text>
+<text x="968.3" y="439" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">6,883,604</text>
+<text x="238" y="473" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v9/license.cjs</text>
+<rect x="250" y="460" width="452.1" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="471" width="268.2" height="9" rx="2" fill="#22d3ee"/>
+<text x="526.2" y="480" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">1,600</text>
+<text x="710.1" y="469" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">52,019</text>
+<text x="238" y="503" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v9/panel.html</text>
+<rect x="250" y="490" width="425.8" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="501" width="179.5" height="9" rx="2" fill="#22d3ee"/>
+<text x="437.5" y="510" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">299</text>
+<text x="683.8" y="499" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">31,594</text>
+<text x="238" y="533" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#cbd5e1" text-anchor="end">v9/policy.py</text>
+<rect x="250" y="520" width="367.3" height="9" rx="2" fill="#475569"/>
+<rect x="250" y="531" width="136.7" height="9" rx="2" fill="#22d3ee"/>
+<text x="394.7" y="540" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#67e8f9">133</text>
+<text x="625.3" y="529" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">10,453</text>
+<text x="32" y="600" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#e6edff"><tspan font-weight="600">Total</tspan><tspan fill="#94a3b8">  21,104,859 tokens  to  </tspan><tspan fill="#22d3ee" font-weight="600">22,027</tspan><tspan fill="#94a3b8">   (958x fewer; 1.75 MB to 58 KB on disk)</tspan></text></svg>

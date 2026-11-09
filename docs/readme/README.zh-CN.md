@@ -27,33 +27,16 @@
 
 **LASIK** 就是矫正手术。它证明 BLA 的谓词为常量，解密被隐藏的内容，切断它的联锁，丢弃它的诱饵，并涂抹它的提示词诱饵，**全程无需运行目标程序**。之后，你的智能体读到的就是程序真正在做的事。
 
-```text
-                    ┌────────────┐      ┌────────────┐      ┌────────────┐
-   your release ──▶ │    BLA     │ ──▶  │   LASIK    │ ──▶  │ REA / agent│ ──▶ the real logic
-                    │ poison +   │      │ prove, fold│      │ reads 958× │
-                    │ exhaust    │      │ decrypt,   │      │ fewer      │
-                    └────────────┘      │ strip      │      │ tokens     │
-                                        └────────────┘      └────────────┘
-```
+<p align="center"><img src="../assets/flow.svg" alt="经 BLA 加固的发布物通过 lasik heal，然后由智能体或 REA 读取真实逻辑" width="100%" /></p>
+
+> [!IMPORTANT]
+> **仅限防御性及已授权使用。** LASIK 以静态方式读取被加固的代码，从不执行它。请用于你自己的软件、恶意软件与威胁样本、CTF，以及你有权审计的代码。参见 [DISCLAIMER.md](../../DISCLAIMER.md)。
 
 ## 👓 前后对比
 
-智能体在 BLA 自带的 CrackMe v6 中看到的内容（该文件中约 3,000 个不透明谓词之一）：
+BLA 自家 CrackMe v6 的前后对比：
 
-```js
-// BLA-hardened (vault.cjs, 164 KB, 2,680 lines)
-attestTransientCursor_e36 = require("fs"); …
-traceLazyEdge_261.createHash(((Math.imul(runtimeSeedPrimaryHandle_be53 | 15, (runtimeSeedPrimaryHandle_be53 | 15) + 1) & 1) === 0 ? "s" : "b")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 124, runtimeSeedPrimaryHandle_be53 ^ 124) & 7) === 0 ? "1" : "h")
-  + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 123, (runtimeSeedPrimaryHandle_be53 | 123) + 1) & 1) === 0 ? "a" : "8") + …
-```
-
-```js
-// after `lasik heal` (5.5 KB, 99 lines)
-const fs = require("fs");
-const crypto = require("crypto");
-return crypto.createHash("sha256").update(input).digest("hex");
-```
+<p align="center"><img src="../assets/before-after.svg" alt="CrackMe v6 vault.cjs（164 KB）中 BLA 加固的片段，与修复后的逻辑（5.5 KB）对比" width="100%" /></p>
 
 BLA 整个 CrackMe 语料库上的结果：
 
@@ -84,6 +67,11 @@ npx lasik-agents setup          # --dry-run to preview, --remove to undo
 
 基准语料库是 BLA 公开发布的 CrackMe 输出 v6–v9（MIT 许可，原样收录于 [`bench/bla-crackme`](../../bench/bla-crackme)），由 BLA 的维护者自己以 `bankrupt` 强度加固。复现方法：`npm run build && node dist/cli.js bench bench/bla-crackme`。
 
+<p align="center"><img src="../assets/tokens.svg" alt="对数坐标柱状图：BLA CrackMe 各文件修复前后的估算 token，总计 2110 万降至 2.2 万" width="100%" /></p>
+
+<details>
+<summary><b>按文件列出的表格（大小、token、倍数）</b></summary>
+
 | 产物 | 格式 | 处理前 | 处理后 | Token：处理前 → 处理后 | 节省倍数 |
 |---|---|---:|---:|---:|---:|
 | `v6/core.wasm.gz` | wasm | 17.7 KB (6.9 MB raw) | 0.1 KB | 6,880,354 → 98 | **70,207×** |
@@ -103,6 +91,8 @@ npx lasik-agents setup          # --dry-run to preview, --remove to undo
 | `v9/policy.py` | python | 40.6 KB | 0.5 KB | 10,453 → 133 | 78.6× |
 | **总计** | | **1.75 MB** | **58 KB** | **21.1 M → 22 k** | **958×** |
 
+</details>
+
 在整个语料库中，LASIK 折叠了 **3,011 个不透明谓词**，移除了 **3,432 个死分支**，重新拼合了 **2,465 个被拆分的字面量**，删除了 **1,487 个诱饵声明**和 **750 个 WASM 诱饵导出**，解密了每一张 XOR 字符串表，切断了 **11 个反剥离联锁**和 **5 个自封印**，并涂抹了每一处提示词诱饵。每个文件的处理耗时约 0.3 秒。
 
 修复后的 v6 面板脚本与公开模板的 `derive()` 逻辑逐行一致（BLA 重命名的局部变量除外）。Token 数为估算值（代码约 4 个字符/token，十六进制/base64 为 2，二进制为每字节 1）。
@@ -112,6 +102,11 @@ npx lasik-agents setup          # --dry-run to preview, --remove to undo
 ## 🧠 工作原理
 
 BLA 把各层叠在一起（“投毒 → 耗尽 → 致幻”）。LASIK 逐层静态撤销，并说明自己有多大把握。
+
+<p align="center"><img src="../assets/pipeline.svg" alt="LASIK 处理顺序：检测、切断互锁、移除诱饵、折叠至不动点、重命名、防火墙、报告" width="100%" /></p>
+
+<details open>
+<summary><b>逐层对照：BLA 做了什么，LASIK 如何应对</b></summary>
 
 | BLA 层 | BLA 的做法 | LASIK 的应对 | 确定性 |
 |---|---|---|---|
@@ -124,7 +119,9 @@ BLA 把各层叠在一起（“投毒 → 耗尽 → 致幻”）。LASIK 逐层
 | **Runtime（运行时）** | 织入每个函数的影子堆步进器；向调试器提供伪造飞地状态的“楚门秀”块 | 私有状态汇点分析：只修改无人读取的状态的函数不可观测，因此对它们的调用被移除 | 对封闭状态精确 |
 | **Weave（编织）** | 智能体编写的状态槽，用 `(slot.epoch & 1) !== 0` 和 `x & 0` 混合来守卫真实代码 | 对该槽的每一次写入做已知比特分析；代数上的零 | 精确；自由形式的编织会被标注，不会瞎猜 |
 | **Exhaust（耗尽）** | 6.9 MB 的 WASM 名称/段填充、250 个诱饵导出、16 MiB 的 ASAR 头、34 个 fuse 哨兵 | 在 REA 的预算内重建 WASM（经过验证）、ASAR（偏移量已重写）和 fuse 序列 | 精确 |
-| **Prompt（提示词）** | 伪造的 `system`/聊天轮次、拒绝诱饵、“不存在业务逻辑”的声明、伪造的 COPPA/IEC 62304 声明、金丝雀 GUID | **提示词防火墙**：38 条规则在模型读取之前涂抹这些文本（`heal` 中保持行为不变，`lasik_read` 中完全涂抹） | 指纹 + 短语规则 |
+| **Prompt（提示词）** | 伪造的 `system`/聊天轮次、拒绝诱饵、“不存在业务逻辑”的声明、伪造的 COPPA/IEC 62304 声明、金丝雀 GUID | **提示词防火墙**：40 条规则在模型读取之前涂抹这些文本（`heal` 中保持行为不变，`lasik_read` 中完全涂抹） | 指纹 + 短语规则 |
+
+</details>
 
 完整的处理顺序和所有指纹都记录在 [`docs/how-it-works.md`](../how-it-works.md) 中。
 
@@ -135,6 +132,39 @@ BLA 把各层叠在一起（“投毒 → 耗尽 → 致幻”）。LASIK 逐层
 - **修复保持行为不变。** 在 `heal` 输出中，防火墙只涂抹注释和 BLA 特有的字符串；带有提示词形态的*运行时*字符串（例如真实聊天应用中的 ChatML 标记）只会被报告，不会被改写。`lasik_read` 和 `--strict-firewall` 则为智能体提供完全涂抹后的只读视图。
 - **经过独立审查。** 一次独立的对抗性审查专门寻找某个处理步骤会改变行为的输入，发现了 15 个；全部已修复，并固定在 [`tests/soundness.test.ts`](../../tests/soundness.test.ts) 中（共 85 个测试）。
 - **顺序很重要，并且被强制执行。** 联锁在删除任何诱饵之前先被切断，因此修复后的程序保留了 BLA 真实代码所期望的种子。
+
+## 格式覆盖范围
+
+<!-- coverage:start -->
+Pinned to BLA **3.2.1**. 58/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](../coverage.md).
+
+| Surface | Status |
+|---|---|
+| .NET assembly | ✅ healed |
+| Android APK | ✅ healed |
+| Android DEX | ✅ healed |
+| Apple plist | ✅ healed |
+| Bind-scope licence lock | 🔎 detect-only |
+| Bun standalone | ✅ healed |
+| Electron ASAR | ✅ healed |
+| Erlang BEAM | ✅ healed |
+| EVM bytecode | ✅ healed |
+| Firmware UF2 | ✅ healed |
+| GPU PTX | ✅ healed |
+| JavaScript / HTML | 🟡 partial |
+| JVM class | ✅ healed |
+| Mobile game (DEX / IL2CPP) | ✅ healed |
+| Native ELF / PE / Mach-O | 🟡 partial |
+| PCAP | ✅ healed |
+| Prompt text | ✅ healed |
+| Python | ✅ healed |
+| Safetensors / GGUF | ✅ healed |
+| Sidecar entanglement | ✅ healed |
+| Source maps | ✅ healed |
+| SQLite | ✅ healed |
+| WebAssembly | ✅ healed |
+| ZIP / JAR / APK | ✅ healed |
+<!-- coverage:end -->
 
 ## 🛡️ 安全模型
 
@@ -202,13 +232,33 @@ LASIK 是一个反混淆工具。请将它用于你自己拥有的软件、恶�
 
 ## ❓ 常见问题
 
-**这是反 BLA 的吗？** 是的。这是第三幕：REA 逆向，BLA 致盲，LASIK 恢复视力。
+<details>
+<summary><b>这是反 BLA 的吗？</b></summary>
 
-**防御者为什么需要它？** 因为攻击者也会使用 BLA。用 BLA 包裹的恶意软件，就是要让你的 AI 分析师拒绝工作、停滞不前或耗尽预算。LASIK 让你的分析师继续工作，而它的提示词防火墙是对抗植入代码中的指令的通用防御，而且每次扫描都会报告 **“AI-evasion techniques found: N”**（发现 N 项 AI 规避技术）：刻意躲避 AI 分析的代码，本身就是一个风险信号。
+是的。这是第三幕：REA 逆向，BLA 致盲，LASIK 恢复视力。
 
-**需要 REA 吗？** 不需要。任何编码智能体都可以读取 LASIK 的输出，或直接调用 `lasik_read`。对于已编译的目标，LASIK 与 REA 是天然搭档。
+</details>
 
-**BLA 会直接绕过它吗？** 很可能会。对 BLA 来说，修改指纹成本很低；但精确证明不然，因为 BLA 保护后的程序仍然必须保持相同的行为。这种不对称正是 LASIK 的立足之本。
+<details>
+<summary><b>防御者为什么需要它？</b></summary>
+
+因为攻击者也会使用 BLA。用 BLA 包裹的恶意软件，就是要让你的 AI 分析师拒绝工作、停滞不前或耗尽预算。LASIK 让你的分析师继续工作，而它的提示词防火墙是对抗植入代码中的指令的通用防御，而且每次扫描都会报告 **“AI-evasion techniques found: N”**（发现 N 项 AI 规避技术）：刻意躲避 AI 分析的代码，本身就是一个风险信号。
+
+</details>
+
+<details>
+<summary><b>需要 REA 吗？</b></summary>
+
+不需要。任何编码智能体都可以读取 LASIK 的输出，或直接调用 `lasik_read`。对于已编译的目标，LASIK 与 REA 是天然搭档。
+
+</details>
+
+<details>
+<summary><b>BLA 会直接绕过它吗？</b></summary>
+
+很可能会。对 BLA 来说，修改指纹成本很低；但精确证明不然，因为 BLA 保护后的程序仍然必须保持相同的行为。这种不对称正是 LASIK 的立足之本。
+
+</details>
 
 ## 🤝 参与贡献
 

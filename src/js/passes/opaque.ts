@@ -78,6 +78,7 @@ function topLevelKnownBits(ast: t.File): Map<string, KnownBits> {
   traverse(ast, {
     Program(p) {
       p.scope.crawl();
+      if (p.scope.getBinding("Math")) return p.stop();
       for (const stmt of p.get("body")) {
         if (!stmt.isVariableDeclaration()) continue;
         // Only `const` (a `var` can be rewritten by other scripts or eval), and only
@@ -165,6 +166,8 @@ export function foldOpaquePredicates(ast: t.File, f: Findings, opts: OpaqueOptio
   const visit = (path: NodePath<t.BinaryExpression>) => {
     const node = path.node;
     if (!["===", "!==", "==", "!="].includes(node.operator)) return;
+    // The proofs model the built-in Math.imul; a local `Math` (BLA renames them since 3.2.1) is anything.
+    if (path.scope.getBinding("Math")) return;
     const vars = freeIdents(node);
     if (!vars || vars.size === 0 || vars.size > 2) return;
     // The identities hold over int32. A raw `x + k` term sees x itself, so x must be an int32 seed.

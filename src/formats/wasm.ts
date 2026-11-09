@@ -5,7 +5,7 @@ import type { FormatHealer, FormatHealResult } from "./types.js";
 const MAGIC = Buffer.from([0x00, 0x61, 0x73, 0x6d]);
 
 /** Custom sections BLA adds: manifests, fake attestations, canaries, interface-exhaustion payloads. */
-const BLA_CUSTOM = /^(?:bla\.|enclave\.)/;
+const BLA_CUSTOM = /^(?:bla\.|enclave\.attestation\.\d+$)/;
 /** Decoy exports that alias real function indices to blow REA's interface budget. */
 const DECOY_EXPORT = /^(?:enclave_export_[0-9a-f]+_\d+_|bla_enclave_verify_zero_trust_merkle_slot_)/;
 /** Markers of BLA's honey `name` section (decoy module name / symbol names). */
@@ -125,8 +125,11 @@ function healModule(input: Buffer): FormatHealResult {
   }
 
   for (const [name, count] of dropped) {
-    const layer = name === "bla.wasm.interface.exhaustion" ? "exhaust" : "deceive";
+    const layer = name === "bla.wasm.interface.exhaustion" ? "exhaust" : name === "bla.sidecar.v1" ? "entangle" : "deceive";
     findings.add(layer, `wasm-custom:${name}`, `removed BLA custom section "${name}"`, count);
+  }
+  if (dropped.has("bla.sidecar.v1")) {
+    warnings.push("removed the bla.sidecar.v1 binding note; BLA's host-side sidecar verify will no longer pass on this module (intended)");
   }
   if (decoyExports > 0) {
     findings.add("exhaust", "wasm-decoy-exports", "removed decoy WASM exports aliasing real functions", decoyExports);

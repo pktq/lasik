@@ -23,6 +23,7 @@ BLA stacks layers: it poisons control flow, entangles the decoys with the real c
 
 | # | Pass | Module |
 |---|---|---|
+| 0 | Heal BLA-hardened modules nested inside bundles (esbuild hardens each module before bundling); each runs this whole pipeline as its own program | `passes/nested-modules.ts` |
 | 1 | Cut corpus interlocks | `passes/interlock.ts` |
 | 2 | Strip scrambled comments | `passes/comments.ts` |
 | 3 | Strip runtime-deception blocks | `passes/runtime-decoys.ts` |
@@ -177,7 +178,7 @@ On 512 random samples this is false every time, so a naive sampler would fold it
 
 ## Format healers
 
-BLA also pads binary containers past the budgets REA enforces. LASIK rebuilds them without running anything.
+BLA also pads binary containers past the budgets REA enforces. LASIK rebuilds them without running anything. Pinned BLA version and per-file status: [coverage.md](coverage.md).
 
 ### WebAssembly (`src/formats/wasm.ts`)
 
@@ -203,11 +204,24 @@ BLA also pads binary containers past the budgets REA enforces. LASIK rebuilds th
 ### Python (`src/formats/python.ts`)
 
 *BLA:* a regular text emitter. Decoy functions sit behind always-false tarpit guards such as `if (((7 * ((S | k) ** 2) - 1) & 0xFFFFFFFF) == (((S ^ j) ** 2) & 0xFFFFFFFF) and ((S * (S + 1)) & 1) == 1):`, private slot writes churn state nothing reads, and a prelude (seed, corpus, canaries) is prepended to the file.
-*LASIK:* a text-structural healer, not a full parser. The guard is provably false (`S * (S + 1)` is even, so its last conjunct never holds), so the `if` block is dropped. Writes to private slots that nothing reads are dropped, and the prelude goes once nothing references it. Names are matched as stem plus 4-hex tag. Anything LASIK cannot parse is left in place with a warning, and the prompt firewall still runs.
+*LASIK:* a small Python tokenizer splits the file into logical lines and matches BLA's exact emitted templates. Interlocks go first (sidecar preamble, slot touches in real functions), then guards proven false (`S * (S + 1)` is even, and the state is `0xHEX | 1` never rebound), then the tarpit and honeypot blocks, and only if no remaining real code names them. If any block would be left with an empty body, the file is returned unchanged with a warning. CRLF and BOM are preserved.
+
+### Python bytecode (`src/formats/pyc.ts`)
+
+*BLA:* re-marshals the module and appends unused decoy CODE objects to `co_consts`, plus a honey trailer after the root object.
+*LASIK:* parses marshal (3.8 to 3.14), proves no const-loading opcode references a decoy index, splices the decoys out and fixes the tuple count; the trailer is cut. BLA's re-marshal writes UTF-8 as Latin-1 strings, which LASIK repairs. 3.13 and pre-release magics are detect-only.
+
+### Everything else
+
+Native ELF/PE/Mach-O (`native.ts`), Bun (`bun.ts`), UF2 firmware (`uf2.ts`), SQLite (`sqlite.ts`, a pure byte-level b-tree rewriter: nothing in the database is evaluated), safetensors and GGUF (`model.ts`), PCAP (`pcap.ts`), BEAM, EVM, JVM, .NET and PTX (`beam.ts`, `evm.ts`, `jvm.ts`, `dotnet.ts`, `ptx.ts`), ZIP/JAR/APK (`zip.ts`, which dispatches nested `.dex`, `.class`, `.plist` and IL2CPP metadata), DEX, Android binary XML, plists and IL2CPP (`dex.ts`, `axml.ts`, `plist.ts`, `il2cpp.ts`). Each removes only regions carrying BLA's exact markers, rebuilds lengths, offsets and checksums, and leaves clean files byte-identical. Where BLA destroyed the original (a zeroed `.go.buildinfo`, renamed WASM exports, an overwritten source map), LASIK neutralises the plant and says so. [coverage.md](coverage.md) lists every BLA source file and its status.
+
+## Keeping up with BLA
+
+`coverage/bla.json` lists every file in BLA's `src/` with the sha256 it had when LASIK last caught up, its status and the LASIK files that answer it. `node scripts/bla-coverage.mjs check <bla-checkout>` fails when BLA adds, removes or edits any file, naming the LASIK healer to revisit. The `BLA drift` workflow runs this weekly against upstream and opens an issue. After catching up, `pin` records the new hashes and `docs` regenerates [coverage.md](coverage.md) and the README table.
 
 ## Prompt firewall
 
-BLA plants text meant for the model rather than the machine. `src/firewall/rules.ts` holds 38 rules in six categories; each rule has a granularity (`match`, `bracket`, `turn`, `kvlist` or `tail`) controlling how much text is redacted.
+BLA plants text meant for the model rather than the machine. `src/firewall/rules.ts` holds 40 rules in six categories; each rule has a granularity (`match`, `bracket`, `turn`, `kvlist` or `tail`) controlling how much text is redacted.
 
 | Category | What it covers |
 |---|---|

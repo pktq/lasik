@@ -7,6 +7,8 @@ const intersect = (a: KnownBits, b: KnownBits): KnownBits => {
   return { mask: same, value: a.value & same };
 };
 
+const BITWISE_ASSIGN = new Set(["|=", "&=", "^=", "<<=", ">>="]);
+
 function fieldOf(node: t.Node, obj: string): string | undefined {
   return t.isMemberExpression(node) && !node.computed && t.isIdentifier(node.object, { name: obj }) && t.isIdentifier(node.property)
     ? node.property.name
@@ -91,6 +93,21 @@ export function foldWeaveInvariants(ast: t.File, f: Findings): number {
       if (!pure) return;
       p.replaceWith(t.numericLiteral(0));
       zeros++;
+    },
+    // What that leaves behind: `acc |= 0` on an accumulator that is int32 already is a no-op.
+    ExpressionStatement: {
+      exit(p) {
+        const e = p.node.expression;
+        if (!t.isAssignmentExpression(e) || !BITWISE_ASSIGN.has(e.operator) || e.operator === "&=" || !t.isNumericLiteral(e.right, { value: 0 }) || !t.isIdentifier(e.left)) return;
+        const b = p.scope.getBinding(e.left.name);
+        const init = b?.path.isVariableDeclarator() ? b.path.node.init : undefined;
+        // int32 from the start, and every write is a compound bitwise op (which yields int32).
+        if (!b || !t.isNumericLiteral(init) || (init.value | 0) !== init.value) return;
+        if (!b.constantViolations.every((v) => v.isAssignmentExpression() && BITWISE_ASSIGN.has(v.node.operator))) return;
+        if (Array.isArray(p.container)) p.remove();
+        else p.replaceWith(t.emptyStatement());
+        zeros++;
+      },
     },
   });
   if (n) f.add("tarpit", "weave-invariant", "folded agent-woven state-slot invariant guards (known bits over every write)", n);

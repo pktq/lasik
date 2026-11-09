@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { Findings } from "../core/types.js";
+import { healJs } from "../js/heal.js";
 import { isHoneySourceMap } from "../js/passes/comments.js";
 import { healSourceMap } from "./sourcemap.js";
 import type { FormatHealer } from "./types.js";
@@ -81,6 +82,7 @@ export const healAsar: FormatHealer = (input, file, opts) => {
   let decoys = 0;
   let inlineMaps = 0;
   let honeyMaps = 0;
+  let jsHealed = 0;
 
   // Rebuilds `dir` in place, returning false when it ended up empty only because decoys were removed.
   const walk = (dir: Record<string, AsarNode>, prefix: string): boolean => {
@@ -103,6 +105,20 @@ export const healAsar: FormatHealer = (input, file, opts) => {
       let content = input.subarray(start, start + size);
       let rewritten = false;
       if (/\.[cm]?js$/.test(name)) {
+        // BLA runs its full JS shield over every .js entry (protector.ts electron-asar branch).
+        try {
+          const r = healJs(content.toString("utf8"), { filename: path, aggressive: opts.aggressive });
+          if (r.changed) {
+            content = Buffer.from(r.code, "utf8");
+            for (const f of r.findings.list()) findings.add(f.layer, f.technique, f.detail, f.count);
+            warnings.push(...r.warnings.map((w) => `${path}: ${w}`));
+            jsHealed++;
+            rewritten = true;
+          }
+        } catch (err) {
+          warnings.push(`${path}: JS heal failed (${(err as Error).message}); entry kept`);
+        }
+        // Fallback for entries the JS healer could not parse.
         const stripped = stripHoneyInlineMaps(content);
         if (stripped) {
           ({ content } = stripped);
@@ -135,7 +151,7 @@ export const healAsar: FormatHealer = (input, file, opts) => {
     warnings.push(`asar parse failed (${(err as Error).message}); left unchanged`);
     return unchanged();
   }
-  if (decoys + inlineMaps + honeyMaps === 0) return unchanged();
+  if (decoys + inlineMaps + honeyMaps + jsHealed === 0) return unchanged();
 
   const json = Buffer.from(JSON.stringify(root), "utf8");
   const aligned = Math.ceil(json.length / 4) * 4;

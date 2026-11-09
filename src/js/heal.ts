@@ -10,6 +10,7 @@ import { stripPrivateStateSinks } from "./passes/private-state.js";
 import { stripSelfSeal } from "./passes/self-seal.js";
 import { foldWeaveInvariants } from "./passes/weave.js";
 import { renameRequireHandles } from "./passes/rename.js";
+import { healNestedModules } from "./passes/nested-modules.js";
 import { stripRuntimeDecoys } from "./passes/runtime-decoys.js";
 import { shakeUnreachable } from "./passes/tree-shake.js";
 
@@ -32,6 +33,11 @@ export interface JsHealOptions {
   filename?: string;
   aggressive?: boolean;
   externalRoots?: Set<string>;
+  /**
+   * The code is a function body healed as a program (a bundled BLA module):
+   * its top-level names are closure locals nobody outside can reach.
+   */
+  closure?: boolean;
   /** Rename BLA-renamed module handles (default true). */
   rename?: boolean;
   /**
@@ -53,8 +59,25 @@ export interface JsHealResult {
 export function healJs(code: string, opts: JsHealOptions = {}): JsHealResult {
   const findings = new Findings();
   const warnings: string[] = [];
-  const ast = parseJs(code, opts.filename);
+  let ast = parseJs(code, opts.filename);
   if (ast.errors?.length) warnings.push(`parsed with ${ast.errors.length} recoverable syntax error(s)`);
+
+  // Bundled BLA modules first, each as its own program; the outer file is judged on its own evidence.
+  const inner = new Findings();
+  const nested = healNestedModules(ast, opts.filename, (body) => {
+    const r = healJs(body, { ...opts, closure: true, externalRoots: undefined });
+    for (const x of r.findings.list()) inner.add(x.layer, x.technique, x.detail, x.count);
+    warnings.push(...r.warnings.map((w) => `bundled module: ${w}`));
+    return r;
+  });
+  if (nested) {
+    code = printJs(ast);
+    ast = parseJs(code, opts.filename);
+  }
+  const withInner = (f: Findings): Findings => {
+    for (const x of inner.list()) f.add(x.layer, x.technique, x.detail, x.count);
+    return f;
+  };
 
   let changes = 0;
   const lock = cutCorpusInterlocks(ast, findings);
@@ -70,7 +93,7 @@ export function healJs(code: string, opts: JsHealOptions = {}): JsHealResult {
     round += stripPrivateStateSinks(ast, findings);
     round += decryptStrings(ast, findings);
     round += stripSelfSeal(ast, findings);
-    round += shakeUnreachable(ast, findings, { externalRoots: opts.externalRoots, blaHardened: isHardened(findings) });
+    round += shakeUnreachable(ast, findings, { externalRoots: opts.externalRoots, blaHardened: isHardened(findings), closure: opts.closure });
     changes += round;
     if (!round) break;
   }
@@ -80,14 +103,14 @@ export function healJs(code: string, opts: JsHealOptions = {}): JsHealResult {
   const hardened = isHardened(findings);
   if (!hardened && !opts.aggressive) {
     const clean = new Findings();
-    if (opts.firewall === false) return { code, findings: clean, warnings, changed: false };
+    if (opts.firewall === false) return { code, findings: withInner(clean), warnings, changed: nested > 0 };
     const fresh = parseJs(code, opts.filename);
     const redacted = firewallJs(fresh, clean, { mode, hardened: false });
-    return { code: redacted ? printJs(fresh) : code, findings: clean, warnings, changed: redacted > 0 };
+    return { code: redacted ? printJs(fresh) : code, findings: withInner(clean), warnings, changed: redacted > 0 || nested > 0 };
   }
 
   if (opts.rename !== false) changes += renameRequireHandles(ast, findings);
   if (opts.firewall !== false) changes += firewallJs(ast, findings, { mode, hardened: true });
 
-  return { code: changes ? printJs(ast) : code, findings, warnings, changed: changes > 0 };
+  return { code: changes ? printJs(ast) : code, findings: withInner(findings), warnings, changed: changes > 0 || nested > 0 };
 }

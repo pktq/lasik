@@ -1,0 +1,47 @@
+name: BLA drift
+
+# Weekly: re-hash upstream BLA against coverage/bla.json. Any new, changed or removed BLA
+# source file opens (or updates) one issue listing exactly what LASIK must catch up on.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - name: Fetch upstream BLA (read as data, never run)
+        run: git clone --quiet --depth 200 https://github.com/qybaihe/bla.git "$RUNNER_TEMP/bla"
+      - name: Compare with ledger
+        id: check
+        shell: bash
+        run: |
+          set +e
+          node scripts/bla-coverage.mjs check "$RUNNER_TEMP/bla" --report "$RUNNER_TEMP/drift.md"
+          echo "drift=$?" >> "$GITHUB_OUTPUT"
+      - name: Open or update the drift issue
+        if: steps.check.outputs.drift == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          title="BLA drift: upstream changed since the pinned version"
+          gh label create bla-drift --color d93f0b --description "Upstream BLA changed" 2>/dev/null || true
+          num=$(gh issue list --label bla-drift --state open --json number --jq '.[0].number')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body-file "$RUNNER_TEMP/drift.md"
+          else
+            gh issue create --title "$title" --label bla-drift --body-file "$RUNNER_TEMP/drift.md"
+          fi
+      - name: Fail on ledger errors
+        if: steps.check.outputs.drift != '0' && steps.check.outputs.drift != '1'
+        run: exit 1
