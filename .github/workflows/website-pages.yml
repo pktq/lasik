@@ -3,7 +3,7 @@ name: Website
 on:
   push:
     branches: [main]
-    paths: ["website/**", ".github/workflows/website-pages.yml"]
+    paths: ["website/**", "docs/how-it-works.md", "src/**", "bench/**", ".github/workflows/website-pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -23,8 +23,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Check results.json parses
-        run: node -e "JSON.parse(require('fs').readFileSync('website/assets/results.json','utf8'))"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Regenerates the benchmark numbers, scan transcript and how-it-works page from the real tool.
+      - run: node website/build.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

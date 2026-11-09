@@ -1,0 +1,327 @@
+{
+ "generated": "2026-11-09",
+ "version": "0.1.0",
+ "corpus": "bench/bla-crackme",
+ "verdict": "blinded",
+ "blindness": 100,
+ "evasionTechniques": 24,
+ "totals": {
+  "files": 19,
+  "blinded": 15,
+  "findings": 11667,
+  "bytesBefore": 1837515,
+  "bytesAfter": 59621,
+  "tokensBefore": 21104859,
+  "tokensAfter": 22027
+ },
+ "files": [
+  {
+   "file": "v6/core.wasm.gz",
+   "format": "wasm",
+   "bytesBefore": 18121,
+   "bytesAfter": 117,
+   "tokensBefore": 6880354,
+   "tokensAfter": 98
+  },
+  {
+   "file": "v6/panel.html",
+   "format": "html",
+   "bytesBefore": 127931,
+   "bytesAfter": 1903,
+   "tokensBefore": 32035,
+   "tokensAfter": 476
+  },
+  {
+   "file": "v6/vault.cjs",
+   "format": "javascript",
+   "bytesBefore": 164580,
+   "bytesAfter": 5640,
+   "tokensBefore": 42600,
+   "tokensAfter": 1481
+  },
+  {
+   "file": "v7/cli/meridian.cjs",
+   "format": "javascript",
+   "bytesBefore": 173770,
+   "bytesAfter": 3466,
+   "tokensBefore": 44897,
+   "tokensAfter": 867
+  },
+  {
+   "file": "v7/core/expr.cjs",
+   "format": "javascript",
+   "bytesBefore": 150724,
+   "bytesAfter": 8443,
+   "tokensBefore": 39135,
+   "tokensAfter": 2111
+  },
+  {
+   "file": "v7/core/license.cjs",
+   "format": "javascript",
+   "bytesBefore": 173472,
+   "bytesAfter": 12346,
+   "tokensBefore": 44823,
+   "tokensAfter": 3091
+  },
+  {
+   "file": "v7/core/stats.cjs",
+   "format": "javascript",
+   "bytesBefore": 128247,
+   "bytesAfter": 1614,
+   "tokensBefore": 33515,
+   "tokensAfter": 404
+  },
+  {
+   "file": "v7/core/units.cjs",
+   "format": "javascript",
+   "bytesBefore": 134950,
+   "bytesAfter": 2164,
+   "tokensBefore": 35191,
+   "tokensAfter": 541
+  },
+  {
+   "file": "v8/core.wasm.gz",
+   "format": "wasm",
+   "bytesBefore": 21403,
+   "bytesAfter": 1882,
+   "tokensBefore": 6883663,
+   "tokensAfter": 3506
+  },
+  {
+   "file": "v8/license.cjs",
+   "format": "javascript",
+   "bytesBefore": 226519,
+   "bytesAfter": 5782,
+   "tokensBefore": 58120,
+   "tokensAfter": 1445
+  },
+  {
+   "file": "v8/panel.html",
+   "format": "html",
+   "bytesBefore": 122529,
+   "bytesAfter": 1327,
+   "tokensBefore": 30708,
+   "tokensAfter": 331
+  },
+  {
+   "file": "v9/core.wasm.gz",
+   "format": "wasm",
+   "bytesBefore": 21393,
+   "bytesAfter": 1890,
+   "tokensBefore": 6883604,
+   "tokensAfter": 3496
+  },
+  {
+   "file": "v9/license.cjs",
+   "format": "javascript",
+   "bytesBefore": 201111,
+   "bytesAfter": 6334,
+   "tokensBefore": 52019,
+   "tokensAfter": 1600
+  },
+  {
+   "file": "v9/panel.html",
+   "format": "html",
+   "bytesBefore": 126216,
+   "bytesAfter": 1195,
+   "tokensBefore": 31594,
+   "tokensAfter": 299
+  },
+  {
+   "file": "v9/policy.py",
+   "format": "python",
+   "bytesBefore": 41561,
+   "bytesAfter": 530,
+   "tokensBefore": 10453,
+   "tokensAfter": 133
+  }
+ ],
+ "techniques": [
+  {
+   "layer": "deceive",
+   "technique": "fingerprinted-decoy",
+   "detail": "removed BLA decoy declaration (known stem)",
+   "count": 968
+  },
+  {
+   "layer": "deceive",
+   "technique": "unreachable-decl",
+   "detail": "removed top-level declaration unreachable from any live code",
+   "count": 519
+  },
+  {
+   "layer": "deceive",
+   "technique": "scrambled-comment",
+   "detail": "removed BLA's content-free replacement comments",
+   "count": 116
+  },
+  {
+   "layer": "deceive",
+   "technique": "python-tarpit-prelude",
+   "detail": "removed BLA's prepended Python tarpit, chaff tables and honeypots (unreferenced by real code)",
+   "count": 31
+  },
+  {
+   "layer": "deceive",
+   "technique": "keep-alive-anchor",
+   "detail": "removed `void decoy;` keep-alive anchors",
+   "count": 24
+  },
+  {
+   "layer": "deceive",
+   "technique": "renamed-module-handle",
+   "detail": "renamed BLA-renamed require() handles after their module",
+   "count": 17
+  },
+  {
+   "layer": "deceive",
+   "technique": "honey-sourcemap",
+   "detail": "removed inline honey source map (fake enclave source tree)",
+   "count": 16
+  },
+  {
+   "layer": "deceive",
+   "technique": "wasm-custom:enclave.attestation.*",
+   "detail": "removed BLA custom section \"enclave.attestation.*\"",
+   "count": 9
+  },
+  {
+   "layer": "deceive",
+   "technique": "wasm-custom:name",
+   "detail": "removed BLA custom section \"name\"",
+   "count": 3
+  },
+  {
+   "layer": "deceive",
+   "technique": "wasm-custom:bla.enclave.manifest",
+   "detail": "removed BLA custom section \"bla.enclave.manifest\"",
+   "count": 3
+  },
+  {
+   "layer": "deceive",
+   "technique": "wasm-custom:bla.canary.credentials",
+   "detail": "removed BLA custom section \"bla.canary.credentials\"",
+   "count": 3
+  },
+  {
+   "layer": "deceive",
+   "technique": "wasm-custom:bla.system.diagnostics",
+   "detail": "removed BLA custom section \"bla.system.diagnostics\"",
+   "count": 3
+  },
+  {
+   "layer": "deceive",
+   "technique": "wasm-custom:bla.export.name.decoys",
+   "detail": "removed BLA custom section \"bla.export.name.decoys\"",
+   "count": 3
+  },
+  {
+   "layer": "deceive",
+   "technique": "bootstrap-script",
+   "detail": "removed BLA's injected `void 0;` bootstrap <script>",
+   "count": 2
+  },
+  {
+   "layer": "encrypt",
+   "technique": "split-literal",
+   "detail": "re-joined strings, integers and byte arrays BLA split into fragments",
+   "count": 2465
+  },
+  {
+   "layer": "encrypt",
+   "technique": "xor-keystream-strings",
+   "detail": "decrypted XOR-keystream string table statically (key ships in the file)",
+   "count": 11
+  },
+  {
+   "layer": "entangle",
+   "technique": "corpus-digest-interlock",
+   "detail": "recomputed the decoy-corpus digest statically and folded the anti-strip seed bit",
+   "count": 11
+  },
+  {
+   "layer": "entangle",
+   "technique": "self-seal",
+   "detail": "removed SHA-256 self-integrity / sidecar tamper checks (own bytes + core.wasm, panel.html)",
+   "count": 5
+  },
+  {
+   "layer": "exhaust",
+   "technique": "wasm-decoy-exports",
+   "detail": "removed decoy WASM exports aliasing real functions",
+   "count": 750
+  },
+  {
+   "layer": "exhaust",
+   "technique": "wasm-custom:bla.wasm.interface.exhaustion",
+   "detail": "removed BLA custom section \"bla.wasm.interface.exhaustion\"",
+   "count": 3
+  },
+  {
+   "layer": "prompt",
+   "technique": "interlock-safety-corpus",
+   "detail": "LLM-directed decoy corpus (vectorId / classifierDomain / triggerPayload)",
+   "count": 11
+  },
+  {
+   "layer": "runtime",
+   "technique": "memory-diff-churn",
+   "detail": "removed calls to a private-state churn function (shadow heap) that nothing observes",
+   "count": 74
+  },
+  {
+   "layer": "runtime",
+   "technique": "python-slot-churn",
+   "detail": "removed writes to BLA's private tarpit slot from real functions",
+   "count": 43
+  },
+  {
+   "layer": "runtime",
+   "technique": "runtime-deception-block",
+   "detail": "removed self-contained runtime decoy block (fake enclave status, decoy globals/listeners)",
+   "count": 11
+  },
+  {
+   "layer": "tarpit",
+   "technique": "dead-branch",
+   "detail": "removed branches made unreachable by folded predicates",
+   "count": 3432
+  },
+  {
+   "layer": "tarpit",
+   "technique": "opaque-predicate",
+   "detail": "folded number-theoretic opaque predicate (proven int32 identity family)",
+   "count": 1962
+  },
+  {
+   "layer": "tarpit",
+   "technique": "seed-bit-predicate",
+   "detail": "folded predicate proved constant by exhaustive enumeration of the low bits it depends on",
+   "count": 1049
+  },
+  {
+   "layer": "tarpit",
+   "technique": "opaque-predicate-suspected",
+   "detail": "int32 predicate constant on 512 samples but not a known BLA family; left in place (use --aggressive to fold)",
+   "count": 99
+  },
+  {
+   "layer": "tarpit",
+   "technique": "python-opaque-guard",
+   "detail": "removed blocks guarded by BLA's always-false Python tarpit predicate",
+   "count": 20
+  },
+  {
+   "layer": "tarpit",
+   "technique": "weave-invariant",
+   "detail": "folded agent-woven state-slot invariant guards (known bits over every write)",
+   "count": 3
+  },
+  {
+   "layer": "tarpit",
+   "technique": "weave-zero-entanglement",
+   "detail": "folded `x & 0` entanglement terms to 0",
+   "count": 1
+  }
+ ]
+}

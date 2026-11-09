@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head><!-- chrome:head -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How LASIK works</title>
+<meta name="description" content="Pass order, the known-bits prover, format healers, the prompt firewall and the blindness score.">
+<meta property="og:title" content="LASIK: LLM Agent Sight In Kode">
+<meta property="og:description" content="BLA blinds your agent. LASIK gives it its sight back.">
+<meta name="theme-color" content="#0b1020">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<!-- /chrome:head --></head>
+<body>
+<!-- chrome:top --><a class="skip" href="#main">Skip to content</a>
+<header class="bar"><nav class="nav container" aria-label="Main">
+  <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="28" height="28">LASIK</a>
+  <a href="how-it-works.html" aria-current="page">How it works</a>
+  <a class="hide-sm" href="crackme.html">Results</a>
+  <a href="docs.html">Docs</a>
+  <a class="gh" href="https://github.com/pktq/lasik">GitHub</a>
+</nav></header><!-- /chrome:top -->
+<main id="main" class="container docs">
+<nav class="toc" aria-label="On this page"><p>On this page</p><ul><li><a href="#design-rules">Design rules</a></li><li><a href="#bla-at-a-glance">BLA at a glance</a></li><li><a href="#pass-order-and-why-it-matters">Pass order and why it matters</a></li><li><a href="#the-passes">The passes</a></li><li class="sub"><a href="#1-corpus-interlock-interlockts">1. Corpus interlock</a></li><li class="sub"><a href="#2-scrambled-comments-commentsts">2. Scrambled comments</a></li><li class="sub"><a href="#3-runtime-deception-blocks-runtime-decoysts">3. Runtime-deception blocks</a></li><li class="sub"><a href="#4a-opaque-predicates-opaquets-known-bitsts">4a. Opaque predicates</a></li><li class="sub"><a href="#4b-dead-branches-and-split-literals-dead-codets">4b. Dead branches and split literals</a></li><li class="sub"><a href="#4c-weave-invariants-weavets">4c. Weave invariants</a></li><li class="sub"><a href="#4d-private-state-sinks-private-statets">4d. Private-state sinks</a></li><li class="sub"><a href="#4e-string-decryption-decrypt-stringsts">4e. String decryption</a></li><li class="sub"><a href="#4f-self-seal-and-sidecar-entanglement-self-sealts">4f. Self-seal and sidecar entanglement</a></li><li class="sub"><a href="#4g-reachability-tree-shaking-tree-shakets">4g. Reachability tree-shaking</a></li><li class="sub"><a href="#5-handle-renaming-renamets">5. Handle renaming</a></li><li class="sub"><a href="#6-prompt-firewall-firewallts">6. Prompt firewall</a></li><li><a href="#the-known-bits-prover">The known-bits prover</a></li><li><a href="#why---aggressive-is-restricted">Why <code>--aggressive</code> is restricted</a></li><li><a href="#format-healers">Format healers</a></li><li class="sub"><a href="#webassembly-srcformatswasmts">WebAssembly</a></li><li class="sub"><a href="#asar-srcformatsasarts">ASAR</a></li><li class="sub"><a href="#electron-fuses-srcformatselectron-fusests">Electron fuses</a></li><li class="sub"><a href="#source-maps-srcformatssourcemapts">Source maps</a></li><li class="sub"><a href="#python-srcformatspythonts">Python</a></li><li><a href="#prompt-firewall">Prompt firewall</a></li><li><a href="#blindness-score">Blindness score</a></li><li><a href="#what-is-not-recoverable">What is not recoverable</a></li></ul></nav>
+<article class="doc">
+<h1 id="how-lasik-works">How LASIK works</h1>
+<p>LASIK is a static de-blinding engine. It reads files that <a href="https://github.com/qybaihe/bla">BLA</a> (Blind LLM Agents) has hardened, proves what BLA's decoys and predicates are, removes them, and writes a copy a coding agent (or <a href="https://github.com/morluto/rea">REA</a>) can read. It never executes the input: no <code>eval</code>, no <code>vm</code>, no <code>require</code> of the target, no WebAssembly instantiation. Constant evaluation runs on LASIK's own interpreter for a closed int32 subset.</p>
+<h2 id="design-rules">Design rules</h2>
+<ol><li><strong>Proof over heuristics.</strong> A transform runs by default only when LASIK can prove it preserves behaviour. Fingerprints select candidates; proofs authorise changes.</li><li><strong>Never execute the target.</strong> This is what makes LASIK safe on malware that adopts BLA.</li><li><strong>Clean code is byte-identical.</strong> Structural passes only touch files proven BLA-hardened: one BLA-unique marker (interlock corpus, bind-scope, runtime decoy block, honey map) or at least three proven predicates/decoys. A file without that evidence comes back unchanged, except that the prompt firewall may redact planted text in its comments.</li><li><strong>Say what you did.</strong> Every pass records findings with a layer, a technique and a count; the report and the blindness score are built from them.</li></ol>
+<p>Certainty levels used below: <span class="cert cert--exact">exact</span> (a proof or a structural identity), <strong>fingerprint</strong> (a recognised BLA shape), <strong>labelled</strong> (reported but not changed, or changed only behind an opt-in flag).</p>
+<h2 id="bla-at-a-glance">BLA at a glance</h2>
+<p>BLA stacks layers: it poisons control flow, entangles the decoys with the real code so they cannot simply be deleted, encrypts strings, injects deceptive blocks, pads binary formats past the budgets REA enforces, and plants text addressed to the model. Almost every name BLA injects carries a short hex suffix (<code>_f637</code>, <code>_be53</code>) drawn from a seeded PRNG, so LASIK fingerprints the stem and the suffix shape, never a full identifier.</p>
+<h2 id="pass-order-and-why-it-matters">Pass order and why it matters</h2>
+<p><code>healJs</code> in <code>src/js/heal.ts</code> runs these in order:</p>
+<div class="table"><table><thead><tr><th>#</th><th>Pass</th><th>Module</th></tr></thead><tbody><tr><td>1</td><td>Cut corpus interlocks</td><td><code>passes/interlock.ts</code></td></tr><tr><td>2</td><td>Strip scrambled comments</td><td><code>passes/comments.ts</code></td></tr><tr><td>3</td><td>Strip runtime-deception blocks</td><td><code>passes/runtime-decoys.ts</code></td></tr><tr><td>4</td><td>Fixpoint loop (up to 6 rounds): fold opaque predicates, eliminate dead branches, fold weave invariants, strip private-state sinks, decrypt strings, strip self-seals, tree-shake unreachable decoys</td><td><code>opaque.ts</code>, <code>dead-code.ts</code>, <code>weave.ts</code>, <code>private-state.ts</code>, <code>decrypt-strings.ts</code>, <code>self-seal.ts</code>, <code>tree-shake.ts</code></td></tr><tr><td>5</td><td>Rename BLA-renamed <code>require</code> handles (hardened files only)</td><td><code>rename.ts</code></td></tr><tr><td>6</td><td>Prompt firewall over strings, template text and comments</td><td><code>firewall.ts</code></td></tr></tbody></table></div>
+<p><strong>Why the interlock comes first.</strong> BLA derives the low bit of its runtime seed from a digest of its own decoy corpus (<code>digest(corpus) === N</code>). Every opaque predicate depends on that seed. If a tool deleted the corpus first, the digest would change, the seed bit would flip, and every predicate would flip with it: the healed program would take different branches than the original. LASIK re-implements the digest, evaluates it on the untouched corpus, folds the seed bit to its true value, and only then lets the decoy passes delete anything. The healed program keeps exactly the seed BLA's real code expects.</p>
+<p><strong>Why the loop.</strong> Folding a predicate exposes a dead branch; removing it makes a literal chain collapse; the collapsed literal is a key for the next decryption; removing decoys makes more declarations unreachable. Each pass feeds the next, so the passes repeat until nothing changes.</p>
+<p><strong>Why the firewall is last.</strong> It runs on what survived the decoy passes, so a redaction can never alter a string that a digest or a seal still hashes.</p>
+<h2 id="the-passes">The passes</h2>
+<h3 id="1-corpus-interlock-interlockts">1. Corpus interlock (<code>interlock.ts</code>)</h3>
+<p><em>What BLA emits.</em></p>
+<div class="code" data-lang="js"><pre><code>const _interlockSafetyCorpus_f637 = [ { vectorId: "...", classifierDomain: "...", coupledAnchorSymbol: "...", triggerPayload: "..." }, /* 2-8 entries */ ];
+function _deriveContainmentCorpusDigest_f637(seedInput = 0) { /* int32 multiply-xor-rotate hash over the corpus text */ }
+const runtimeSeed = (/* ... */) ^ (_deriveContainmentCorpusDigest_f637(/* ... */) === N ? 1 : 0);</code></pre></div>
+<p><em>How LASIK undoes it.</em> It reimplements the digest, recomputes it over the corpus exactly as shipped, and replaces the seed bit with its constant. If the digest cannot be resolved statically, the pass warns and keeps the corpus rather than guess.</p>
+<p><em>Certainty:</em> exact.</p>
+<h3 id="2-scrambled-comments-commentsts">2. Scrambled comments (<code>comments.ts</code>)</h3>
+<p><em>What BLA emits.</em> Real comments replaced by plausible-looking noise such as <code>/* project quota policy (35c544) */</code>, and a honey source-map reference (see <a href="#source-maps">source maps</a>).</p>
+<p><em>How LASIK undoes it.</em> Comments carry no behaviour, so scrambled ones are dropped. The originals are gone from the input, so nothing is restored.</p>
+<p><em>Certainty:</em> exact (removal); the original text is unrecoverable.</p>
+<h3 id="3-runtime-deception-blocks-runtime-decoysts">3. Runtime-deception blocks (<code>runtime-decoys.ts</code>)</h3>
+<p><em>What BLA emits.</em> IIFEs that, when a debugger or analysis environment is detected, serve fabricated enclave or attestation status. They are recognisable by string literals that only BLA's generator contains.</p>
+<p><em>How LASIK undoes it.</em> Matches the block by those literals and removes it.</p>
+<p><em>Certainty:</em> fingerprint.</p>
+<h3 id="4a-opaque-predicates-opaquets-known-bitsts">4a. Opaque predicates (<code>opaque.ts</code>, <code>known-bits.ts</code>)</h3>
+<p><em>What BLA emits.</em> Thousands of tests such as:</p>
+<div class="code" data-lang="js"><pre><code>(Math.imul(S | 15, (S | 15) + 1) &amp; 1) === 0 ? "s" : "b"
+(Math.imul(S ^ 124, S ^ 124) &amp; 7) === 0 ? "1" : "h"</code></pre></div>
+<p>where <code>S</code> is the runtime seed. Each picks the real chunk or a decoy chunk of a string, integer or statement.</p>
+<p><em>How LASIK proves it.</em> Two layers. First, BLA's four number-theoretic families are matched structurally; each is an identity over int32 for any seed and constant (for example <code>x * (x + 1)</code> is always even, so <code>&amp; 1</code> is <code>0</code>). A structural match is therefore a proof. Second, anything outside those families goes to the <a href="#the-known-bits-prover">known-bits prover</a>.</p>
+<p><em>Certainty:</em> exact. Predicates that look constant on samples but are neither proven nor in a known family are reported as <code>opaque-predicate-suspected</code> and left alone.</p>
+<h3 id="4b-dead-branches-and-split-literals-dead-codets">4b. Dead branches and split literals (<code>dead-code.ts</code>)</h3>
+<p><em>What BLA emits.</em> After predicates fold, <code>cond ? a : b</code>, <code>if</code> and <code>&amp;&amp;</code> chains with constant tests, and strings and integers split into 9 or more chunks joined with <code>+</code>.</p>
+<p><em>How LASIK undoes it.</em> Constant conditions select their live arm; adjacent literals are re-joined. This is plain constant folding once the predicates are proven.</p>
+<p><em>Certainty:</em> exact.</p>
+<h3 id="4c-weave-invariants-weavets">4c. Weave invariants (<code>weave.ts</code>)</h3>
+<p><em>What BLA emits.</em> Agent-written "state slots" that guard real code with expressions like <code>(slot.epoch &amp; 1) !== 0</code>, or mix values with <code>x &amp; 0</code>.</p>
+<div class="code" data-lang="js"><pre><code>if ((slot.epoch &amp; 1) !== 0) { /* real logic */ }
+slot.epoch = slot.epoch | 2; // every write sets the same known bits</code></pre></div>
+<p><em>How LASIK proves it.</em> Runs known-bits over every write to the slot. If all writes agree on the bits the test depends on, the test is constant. <code>x &amp; 0</code> is algebraically zero.</p>
+<p><em>Certainty:</em> exact. Free-form weave that fits no such shape is labelled, not guessed.</p>
+<h3 id="4d-private-state-sinks-private-statets">4d. Private-state sinks (<code>private-state.ts</code>)</h3>
+<p><em>What BLA emits.</em> A shadow-heap stepper woven into every function: calls that mutate a private <code>state</code> object nothing else reads.</p>
+<p><em>How LASIK proves it.</em> A function qualifies only if it touches its own locals, the single top-level state binding and pure <code>Math</code> helpers: no other calls, no globals, no <code>this</code>. If nothing reads that state outside such functions, the calls are unobservable and are removed.</p>
+<p><em>Certainty:</em> exact for closed state.</p>
+<h3 id="4e-string-decryption-decrypt-stringsts">4e. String decryption (<code>decrypt-strings.ts</code>)</h3>
+<p><em>What BLA emits.</em> <code>bla_encrypt_strings</code> output: a table of bytes (<code>"1,2,3".split(",").map(Number)</code> or an array literal) XORed with a keystream that ships beside it, plus the decode loop.</p>
+<p><em>How LASIK undoes it.</em> Re-derives the keystream from the material in the file and decodes the table. The ciphertext and key are co-located by design (the program must decrypt itself at runtime), so this is a computation, not an attack.</p>
+<p><em>Certainty:</em> exact.</p>
+<h3 id="4f-self-seal-and-sidecar-entanglement-self-sealts">4f. Self-seal and sidecar entanglement (<code>self-seal.ts</code>)</h3>
+<p><em>What BLA emits.</em> An IIFE that SHA-256s the file (and, for sidecar entanglement, its siblings) and throws or perturbs behaviour if any byte changed.</p>
+<p><em>How LASIK undoes it.</em> Detected by shape and removed. Its digests only ever fed seed bits that the earlier passes already proved irrelevant. Bind-scope locks (domain or date IIFEs) are removed too, and the contract they enforced (domains, validity window) is reported.</p>
+<p><em>Certainty:</em> exact for BLA's shape; bind-scope is fingerprint.</p>
+<h3 id="4g-reachability-tree-shaking-tree-shakets">4g. Reachability tree-shaking (<code>tree-shake.ts</code>)</h3>
+<p><em>What BLA emits.</em> Around 140 injected blocks: honeypot credentials, fake gRPC enclaves, shadow business logic, call-graph labyrinths, token sinks, regex magnets, decoy diagnostics, <code>void [decoy]</code> keep-alive anchors.</p>
+<p><em>How LASIK undoes it.</em> After folding, the real entry points are the roots; whatever is unreachable goes. In a proven-hardened plain script BLA keeps real top-level names and only its own injections carry a <code>_&lt;hex&gt;</code> tag, so unreachable tagged globals are BLA's. A catalog of 25 decoy families supplies fingerprints for names and keys. Identifiers used from outside the file (for example HTML <code>on*</code> attributes) are always kept.</p>
+<p><em>Certainty:</em> exact (reachability), with fingerprints choosing candidates.</p>
+<h3 id="5-handle-renaming-renamets">5. Handle renaming (<code>rename.ts</code>)</h3>
+<p><em>What BLA emits.</em> <code>const attestTransientCursor_e36 = require("fs")</code>.</p>
+<p><em>How LASIK undoes it.</em> Renames to <code>fs</code>, and restores the hashed panel ABI where BLA renamed <code>derive</code>. Other identifiers are not recoverable.</p>
+<p><em>Certainty:</em> fingerprint.</p>
+<h3 id="6-prompt-firewall-firewallts">6. Prompt firewall (<code>firewall.ts</code>)</h3>
+<p>See <a href="#prompt-firewall">Prompt firewall</a>.</p>
+<h2 id="the-known-bits-prover">The known-bits prover</h2>
+<p>The tarpit's predicates have the shape <code>(f(S, k) &amp; m) === c</code> with <code>S</code> the runtime seed, <code>k</code> constants, and <code>f</code> built from <code>+</code>, <code>-</code>, <code>Math.imul</code>, <code>&amp;</code>, <code>|</code>, <code>^</code>, <code>~</code> and <code>&lt;&lt;</code>. LASIK tracks, for every expression, a pair <code>(mask, value)</code>: where <code>mask</code> has a 1, that bit is known and equals the bit in <code>value</code>. Constants are fully known; <code>S</code> starts with only the bits that BLA's seed construction fixes.</p>
+<p>For the operators above, the key fact is <strong>bit <code>i</code> of the result depends only on bits <code>0..i</code> of the inputs</strong>:</p>
+<ul><li><code>&amp;</code>, <code>|</code>, <code>^</code>, <code>~</code> act bitwise, so bit <code>i</code> depends on bit <code>i</code> alone. <code>x &amp; 0</code> has every bit known to be 0; <code>x | -1</code> every bit known to be 1.</li><li><code>&lt;&lt;</code> by a constant shifts known bits up and makes the vacated low bits known zeros.</li><li><code>+</code>, <code>-</code> propagate carries (or borrows) upward only, so bit <code>i</code> depends on bits <code>0..i</code>.</li><li><code>Math.imul</code> is multiplication mod 2^32; each bit of a product is a sum of partial products from lower bits, so the same upward-only dependence holds.</li></ul>
+<p>Consequence: a comparison masked with <code>m</code> depends only on bits <code>0..h</code>, where <code>h</code> is the highest set bit of <code>m</code>. LASIK takes the bits of <code>S</code> below <code>h+1</code> that are not known, <strong>enumerates every assignment</strong> of just those bits (most BLA masks are <code>&amp; 1</code> or <code>&amp; 7</code>, so at most a few bits), evaluates the predicate on each with its own interpreter, and folds only if the result is identical for all assignments. That is an exhaustive check over everything the predicate can observe, hence a proof, regardless of the unknown high bits of the seed. If the unknown low bits exceed a small cap, LASIK gives up and leaves the predicate.</p>
+<p>Known-bits also powers weave folding: a slot's bits are the intersection of what every write to it establishes.</p>
+<h2 id="why---aggressive-is-restricted">Why <code>--aggressive</code> is restricted</h2>
+<p>Some predicates are constant on every int32 sample LASIK tries yet are not provably constant. <code>--aggressive</code> folds those by sampling (512 int32 values), reports them as <code>opaque-predicate-heuristic</code>, and is opt-in.</p>
+<p>Sampling is only sound for a <em>seed-like</em> variable, where BLA's guarantee is that real code works for any value. It is unsound for program inputs. Consider a real license check:</p>
+<div class="code" data-lang="js"><pre><code>function check(key) { return (key ^ 0x5a5a) === 0x1234; }</code></pre></div>
+<p>On 512 random samples this is false every time, so a naive sampler would fold it to <code>false</code> and delete the one key that unlocks the program. Therefore <code>--aggressive</code> only considers expressions whose free variables are <strong>top-level constants</strong> (seed-like), and never function parameters or anything derived from input. The test suite pins this: with and without <code>--aggressive</code>, <code>(key ^ K) === C</code> is never folded.</p>
+<h2 id="format-healers">Format healers</h2>
+<p>BLA also pads binary containers past the budgets REA enforces. LASIK rebuilds them without running anything.</p>
+<h3 id="webassembly-srcformatswasmts">WebAssembly (<code>src/formats/wasm.ts</code>)</h3>
+<p><em>BLA:</em> about 7 MB of padding in custom sections (name section, <code>bla.<em></code> manifests, fake attestations, canary credentials, an interface-exhaustion payload) and about 250 decoy exports with very long names that alias real function indices. </em>LASIK:* parses the binary, drops BLA's custom sections and decoy exports (an export that aliases a real function index but carries BLA's decoy shape), re-encodes, and checks the result with <code>WebAssembly.validate</code>. The module is never instantiated. <code>.wasm.gz</code> is handled transparently. <em>Limits:</em> real exports BLA renamed to <code>ops_&lt;hex&gt;_...</code> keep that name (reported); original custom sections were stripped by BLA.</p>
+<h3 id="asar-srcformatsasarts">ASAR (<code>src/formats/asar.ts</code>)</h3>
+<p><em>BLA:</em> thousands of decoy entries with very long paths inflate the archive header (up to 16 MiB) and a decoy <code>enclave/</code> tree is added; every <code>.js</code> inside gets a honey source map. <em>LASIK:</em> parses the header, removes decoy entries, rewrites file offsets, heals the contained JS, and writes a valid archive. Tested on synthetic archives; no public BLA ASAR sample exists yet.</p>
+<h3 id="electron-fuses-srcformatselectron-fusests">Electron fuses (<code>src/formats/electron-fuses.ts</code>)</h3>
+<p><em>BLA:</em> appends dozens of decoy fuse sentinels at the end of the binary so a fuse reader's slice limit is exceeded. <em>LASIK:</em> removes the decoy runs of sentinels and keeps the genuine fuse block. (BLA overwrites real fuse bytes in place; that part is not undoable but is harmless.)</p>
+<h3 id="source-maps-srcformatssourcemapts">Source maps (<code>src/formats/sourcemap.ts</code>)</h3>
+<p><em>BLA:</em> replaces every source map with a honey map: a v3 map rooted at a fake <code>enclave://</code> tree, naming fake hardware-bridge and attestation sources, carrying a canary GUID. <em>LASIK:</em> detects the honey map, drops it, and removes the matching <code>sourceMappingURL</code>. The original map is not recoverable.</p>
+<h3 id="python-srcformatspythonts">Python (<code>src/formats/python.ts</code>)</h3>
+<p><em>BLA:</em> a regular text emitter. Decoy functions sit behind always-false tarpit guards such as <code>if (((7 * ((S | k) <strong> 2) - 1) &amp; 0xFFFFFFFF) == (((S ^ j) </strong> 2) &amp; 0xFFFFFFFF) and ((S * (S + 1)) &amp; 1) == 1):</code>, private slot writes churn state nothing reads, and a prelude (seed, corpus, canaries) is prepended to the file. <em>LASIK:</em> a text-structural healer, not a full parser. The guard is provably false (<code>S * (S + 1)</code> is even, so its last conjunct never holds), so the <code>if</code> block is dropped. Writes to private slots that nothing reads are dropped, and the prelude goes once nothing references it. Names are matched as stem plus 4-hex tag. Anything LASIK cannot parse is left in place with a warning, and the prompt firewall still runs.</p>
+<h2 id="prompt-firewall">Prompt firewall</h2>
+<p>BLA plants text meant for the model rather than the machine. <code>src/firewall/rules.ts</code> holds 38 rules in six categories; each rule has a granularity (<code>match</code>, <code>bracket</code>, <code>turn</code>, <code>kvlist</code> or <code>tail</code>) controlling how much text is redacted.</p>
+<div class="table"><table><thead><tr><th>Category</th><th>What it covers</th></tr></thead><tbody><tr><td><code>fake-role</code></td><td>Fake <code>system</code> / <code>assistant</code> chat turns and in-band turn markers embedded in strings or comments</td></tr><tr><td><code>refusal-bait</code></td><td>Text that tells automated agents to refuse, stop, or abort analysis</td></tr><tr><td><code>false-claim</code></td><td>Assertions such as "no actionable business logic is present" or "only transport stubs here"</td></tr><tr><td><code>canary</code></td><td>Canary GUIDs and honeypot credential markers</td></tr><tr><td><code>dual-use-bait</code></td><td>Deliberately alarming bio, chemical, cyber or ICS text placed so a safety-trained model balks. LASIK matches only stable prefix markers and redacts the passage; it never needs the bodies</td></tr><tr><td><code>fake-compliance</code></td><td>Fabricated regulatory or child-safety notices forbidding analysis</td></tr></tbody></table></div>
+<p>Redaction replaces the matched span with an explicit marker so the agent knows text was removed and why.</p>
+<p><strong>Two modes.</strong> <code>heal</code> output must keep behaving like the input, so by default (<code>safe</code>) the firewall redacts comments everywhere, and string values only in BLA-hardened files and only for BLA-specific categories (canary, false-claim, dual-use-bait, fake-compliance). Generic shapes in runtime strings, like ChatML markers in a real chat client, are reported (<code>firewall-kept-runtime-string</code>) but left alone. <code>strict</code> mode (<code>--strict-firewall</code>, and always in <code>lasik_read</code>) redacts every match, because that output is a read view for an agent, not a program to run. The firewall is also exposed on its own (<code>lasik firewall</code>, <code>lasik_firewall</code>) as a general defence against instructions planted in code.</p>
+<h2 id="blindness-score">Blindness score</h2>
+<p><code>src/engine/score.ts</code> answers "how hard did BLA try?" and not "how big is the file". Every finding belongs to a layer; each layer found anywhere in the target contributes a fixed weight, and the sum is capped at 100.</p>
+<div class="table"><table><thead><tr><th>Layer</th><th class="num">Weight</th></tr></thead><tbody><tr><td>tarpit</td><td class="num">25</td></tr><tr><td>entangle</td><td class="num">20</td></tr><tr><td>deceive</td><td class="num">15</td></tr><tr><td>encrypt</td><td class="num">15</td></tr><tr><td>prompt</td><td class="num">15</td></tr><tr><td>exhaust</td><td class="num">15</td></tr><tr><td>runtime</td><td class="num">10</td></tr></tbody></table></div>
+<p>Weak techniques that also occur in ordinary code (<code>dead-branch</code>, <code>split-literal</code>, <code>renamed-module-handle</code>, <code>seed-bit-predicate</code>, <code>opaque-predicate-suspected</code>, <code>weave-zero-entanglement</code>, <code>unreachable-decl</code>) are ignored. The verdict is <code>clean</code> when there are no strong findings, <code>blinded</code> at a score of 40 or more, and <code>suspected</code> otherwise. <code>--fail-on &lt;suspected|blinded&gt;</code> turns the verdict into exit code 3 for CI.</p>
+<h2 id="what-is-not-recoverable">What is not recoverable</h2>
+<ul><li><strong>Original identifiers.</strong> At <code>bankrupt</code>/<code>maximum</code> intensity BLA discards names. LASIK renames <code>require</code> handles after their module and restores the hashed panel ABI, nothing more.</li><li><strong>Comments and source maps.</strong> Replaced, not hidden; the originals are not in the file.</li><li><strong>Original WASM custom sections</strong> and real export names renamed to <code>ops_&lt;hex&gt;_...</code>.</li><li><strong>Real Electron fuse bytes</strong> that BLA overwrote in place.</li><li><strong>SQLite, safetensors/GGUF, DEX/IL2CPP, native binaries.</strong> Detection only today. Python is healed structurally by text matching, so unusual layouts are left with a warning.</li><li><strong>Free-form agent-written weave</strong> that fits no proven shape is labelled, not folded.</li><li><strong>Future BLA versions.</strong> LASIK targets BLA up to 3.2. New layers need new passes; the proofs (known bits, reachability) carry over better than fingerprints do. See <a href="https://github.com/pktq/lasik/blob/main/CONTRIBUTING.md#reporting-a-new-bla-version">CONTRIBUTING.md</a>.</li></ul>
+<p class="muted" style="margin-top:48px">This page is generated from <a href="https://github.com/pktq/lasik/blob/main/docs/how-it-works.md">docs/how-it-works.md</a>.</p>
+</article>
+</main>
+<!-- chrome:foot --><footer class="foot container">
+  <div class="foot__row">
+    <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="28" height="28">LASIK</a>
+    <nav aria-label="Footer"><a href="how-it-works.html">How it works</a><a href="crackme.html">Results</a><a href="docs.html">Docs</a><a href="https://github.com/pktq/lasik">GitHub</a><a href="https://github.com/pktq/lasik/blob/main/CHANGELOG.md">Changelog</a><a href="https://github.com/pktq/lasik/blob/main/SECURITY.md">Security</a></nav>
+  </div>
+  <small>MIT © LASIK contributors. Benchmark corpus © BLA contributors, MIT. Not affiliated with BLA or REA. Use on software you own or are authorised to analyse.</small>
+</footer><!-- /chrome:foot -->
+</body>
+</html>

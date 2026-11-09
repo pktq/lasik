@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head><!-- chrome:head -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LASIK docs: install, CLI, MCP and library</title>
+<meta name="description" content="Install LASIK, register it with your coding agents, and use the CLI, MCP tools, JSON report and library API.">
+<meta property="og:title" content="LASIK: LLM Agent Sight In Kode">
+<meta property="og:description" content="BLA blinds your agent. LASIK gives it its sight back.">
+<meta name="theme-color" content="#0b1020">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<!-- /chrome:head --></head>
+<body>
+<!-- chrome:top --><a class="skip" href="#main">Skip to content</a>
+<header class="bar"><nav class="nav container" aria-label="Main">
+  <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="28" height="28">LASIK</a>
+  <a href="how-it-works.html">How it works</a>
+  <a class="hide-sm" href="crackme.html">Results</a>
+  <a href="docs.html" aria-current="page">Docs</a>
+  <a class="gh" href="https://github.com/pktq/lasik">GitHub</a>
+</nav></header><!-- /chrome:top -->
+<main id="main" class="container docs">
+<nav class="toc" aria-label="On this page"><p>On this page</p><ul>
+  <li><a href="#quick-start">Quick start</a></li>
+  <li><a href="#agents">Connect your agents</a></li>
+  <li><a href="#cli">CLI reference</a></li>
+  <li class="sub"><a href="#scan">scan</a></li>
+  <li class="sub"><a href="#heal">heal</a></li>
+  <li class="sub"><a href="#firewall">firewall</a></li>
+  <li class="sub"><a href="#bench">bench</a></li>
+  <li><a href="#mcp">MCP tools</a></li>
+  <li><a href="#report">The JSON report</a></li>
+  <li><a href="#ci">CI gate</a></li>
+  <li><a href="#library">Library</a></li>
+  <li><a href="#responsible-use">Responsible use</a></li>
+</ul></nav>
+<article class="doc">
+  <h1>Docs</h1>
+  <p>LASIK runs from <code>npx</code> with Node.js 20.19 or newer. No native dependencies, no network calls, no telemetry, and it never executes the code it reads.</p>
+
+  <h2 id="quick-start">Quick start</h2>
+  <div class="code" data-ui><pre><code><span class="tok-c"># 1. How blind would an agent be?</span>
+npx lasik-agents scan ./dist
+<span class="tok-c"># 2. Write a cleaned copy next to it (./dist.lasik)</span>
+npx lasik-agents heal ./dist
+<span class="tok-c"># 3. Point REA (or any coding agent) at the healed copy</span>
+npx -y rea-agents@latest analyze-javascript-application "$PWD/dist.lasik" --json</code></pre><button class="copy" type="button">Copy</button></div>
+  <p><code>heal</code> never touches your files: it writes a copy to <code>&lt;path&gt;.lasik</code>, or wherever <code>-o</code> says. Files without BLA evidence are copied byte-identical.</p>
+
+  <h2 id="agents">Connect your agents</h2>
+  <p><code>setup</code> registers <code>npx -y lasik-agents mcp</code> with every coding agent it finds: Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI, Windsurf, Antigravity, VS Code, Copilot CLI and OpenCode. <code>doctor</code> checks Node, npx, which agents are registered, and whether REA is installed.</p>
+  <div class="code" data-ui><pre><code>npx lasik-agents setup                         <span class="tok-c"># every client found</span>
+npx lasik-agents setup --client cursor --dry-run <span class="tok-c"># one client, preview only</span>
+npx lasik-agents setup --remove                <span class="tok-c"># unregister</span>
+npx lasik-agents doctor</code></pre><button class="copy" type="button">Copy</button></div>
+  <p>For any other MCP client, add the server by hand:</p>
+  <div class="code" data-ui><pre><code>{
+  "mcpServers": {
+    "lasik": { "command": "npx", "args": ["-y", "lasik-agents", "mcp"] }
+  }
+}</code></pre><button class="copy" type="button">Copy</button></div>
+  <p>Agents that load skills also get <a href="https://github.com/pktq/lasik/blob/main/.agents/skills/lasik/SKILL.md">the LASIK skill</a>, with BLA fingerprints and a REA workflow in its references.</p>
+
+  <h2 id="cli">CLI reference</h2>
+  <p>The binary is <code>lasik</code> (also <code>lasik-agents</code>). This is its own help text:</p>
+  <!-- gen:help --><div class="term" data-ui><div class="title">$ lasik --help</div><pre>LASIK 0.1.0 · LLM Agent Sight In Kode
+BLA blinds your agent. LASIK gives it its sight back.
+
+Usage
+  lasik scan &lt;path&gt;            Detect BLA hardening and score how blinded an agent would be
+  lasik heal &lt;path&gt; [-o dir]   Write a cleaned copy an agent (or REA) can read (default: &lt;path&gt;.lasik)
+  lasik firewall [file|-]      Redact LLM-directed decoy text from any text (stdin with -)
+  lasik bench &lt;dir&gt;            Heal every target under &lt;dir&gt; and print a before/after table
+  lasik setup                  Register the LASIK MCP server with your coding agents
+  lasik doctor                 Check Node, npx, agent registrations and REA
+  lasik mcp                    Run the MCP server on stdio
+
+Options
+  --json                 Machine-readable report
+  --md                   Markdown report
+  -o, --out &lt;dir&gt;        Output directory for heal
+  --aggressive           Also fold predicates proven only by sampling, and shake files without BLA fingerprints
+  --no-firewall          Don't run the prompt firewall
+  --strict-firewall      Redact every prompt-decoy match, even in runtime strings (read view; may change behaviour)
+  --no-rename            Keep BLA's renamed module handles
+  --fail-on &lt;level&gt;      Exit 3 when the verdict is at least &lt;suspected|blinded&gt; (for CI)
+  --client &lt;id&gt;          setup: only this client (repeatable): claude-code, claude-desktop, cursor, codex,
+                         gemini-cli, windsurf, antigravity, vscode, copilot-cli, opencode
+  --dry-run              setup: show what would change
+  --remove               setup: unregister
+
+LASIK never executes the code it reads. Use it on software you own or are authorised to analyse.</pre></div><!-- /gen:help -->
+
+  <h3 id="scan">scan</h3>
+  <p>Detects BLA layers and scores how blinded an agent would be, without writing anything. The verdict is <code>clean</code> with no strong findings, <code>blinded</code> at a blindness score of 40 or more, and <code>suspected</code> otherwise. The score is a weighted sum of the layers found (tarpit 25, entangle 20, deceive, encrypt, prompt and exhaust 15 each, runtime 10), capped at 100. <a href="how-it-works.html#blindness-score">How the score works</a>.</p>
+
+  <h3 id="heal">heal</h3>
+  <p>Writes the cleaned copy: JavaScript and TypeScript bundles, inline scripts in HTML, Electron ASAR archives (offsets rewritten), WebAssembly including <code>.wasm.gz</code> (re-encoded and checked with <code>WebAssembly.validate</code>, never instantiated), source maps, Electron fuses and Python. <code>--md</code> prints a Markdown report you can attach to an issue.</p>
+  <div class="code" data-ui><pre><code>npx lasik-agents heal ./app -o ./app.lasik
+npx lasik-agents heal ./app --md &gt; lasik-report.md</code></pre><button class="copy" type="button">Copy</button></div>
+
+  <h3 id="firewall">firewall</h3>
+  <p>Redacts text written to steer a model (fake chat turns, refusal bait, false "no business logic here" claims, canaries, dual-use bait, fake compliance notices) from a file or standard input. Each redaction leaves a marker saying what was removed and why. 38 rules in six categories; <a href="how-it-works.html#prompt-firewall">the rules</a>.</p>
+  <div class="code" data-ui><pre><code>cat strings.txt | npx lasik-agents firewall -</code></pre><button class="copy" type="button">Copy</button></div>
+
+  <h3 id="bench">bench</h3>
+  <p>Heals every target under a directory (each subdirectory is one target) and prints a before/after table. This site's numbers come from <code>lasik bench bench/bla-crackme</code>.</p>
+
+  <h2 id="mcp">MCP tools</h2>
+  <div class="table"><table>
+    <thead><tr><th>Tool</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>lasik_scan</code></td><td>Detect BLA layers in a file or directory: blindness score 0–100, AI-evasion techniques, token savings</td></tr>
+      <tr><td><code>lasik_read</code></td><td>Return one JS/TS/HTML file with BLA removed and the strict firewall applied: what the agent should read instead of the original</td></tr>
+      <tr><td><code>lasik_heal</code></td><td>Write a cleaned copy of a whole app for REA or the agent</td></tr>
+      <tr><td><code>lasik_firewall</code></td><td>Redact prompt decoys from any text before reasoning over it</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="report">The JSON report</h2>
+  <p><code>--json</code> prints the same structure the MCP tools return. Every finding has a layer, a technique id, a plain-English detail and a count. Real output for BLA's v6 <code>vault.cjs</code>, shortened:</p>
+  <div class="code" data-ui><pre><code>{
+  "tool": "LASIK", "version": "0.1.0", "mode": "scan",
+  "target": "./bench/bla-crackme/v6/vault.cjs",
+  "files": [{
+    "file": "vault.cjs", "format": "javascript",
+    "bytesBefore": 164580, "bytesAfter": 5640,
+    "tokensBefore": 42600, "tokensAfter": 1481,
+    "findings": [
+      { "layer": "entangle", "technique": "corpus-digest-interlock",
+        "detail": "recomputed the decoy-corpus digest statically and folded the anti-strip seed bit", "count": 1 },
+      { "layer": "prompt", "technique": "interlock-safety-corpus",
+        "detail": "LLM-directed decoy corpus (vectorId / classifierDomain / triggerPayload)", "count": 1 },
+      …
+    ],
+    "warnings": [], "healed": true
+  }],
+  "totals": { "files": 1, "blinded": 1, "findings": 1109,
+              "bytesBefore": 164580, "bytesAfter": 5640, "tokensBefore": 42600, "tokensAfter": 1481 },
+  "blindness": 85,
+  "verdict": "blinded",
+  "evasion": ["deceive/fingerprinted-decoy", "deceive/honey-sourcemap", "deceive/keep-alive-anchor", …]
+}</code></pre></div>
+  <p><code>evasion</code> lists each distinct AI-evasion technique found, as <code>layer/technique</code>. Its length is the "AI-evasion techniques found" number.</p>
+
+  <h2 id="ci">CI gate</h2>
+  <p><code>--fail-on &lt;suspected|blinded&gt;</code> exits with code 3 when the verdict reaches that level. Use it to stop a build that vendors code built to hide from AI review.</p>
+  <div class="code" data-ui><pre><code>- uses: actions/setup-node@v4
+  with: { node-version: 22 }
+- run: npx -y lasik-agents scan vendor/ --fail-on blinded</code></pre><button class="copy" type="button">Copy</button></div>
+
+  <h2 id="library">Library</h2>
+  <div class="code" data-ui><pre><code>import { run, healJs, firewallText } from "lasik-agents";
+
+const report = run("./dist", "heal", { outDir: "./dist.lasik" });
+console.log(report.verdict, report.blindness, report.totals);
+
+const { code, findings } = healJs(source, { filename: "bundle.js" });
+const { text } = firewallText(untrustedString);</code></pre><button class="copy" type="button">Copy</button></div>
+
+  <h2 id="responsible-use">Responsible use</h2>
+  <p>LASIK is a deobfuscator. Use it on software you own, malware and threat samples, CTFs and challenges (like BLA's CrackMes), and code you are authorised to audit. Removing protection from someone else's software can breach its licence or laws such as the US DMCA §1201. See <a href="https://github.com/pktq/lasik/blob/main/DISCLAIMER.md">DISCLAIMER.md</a>.</p>
+</article>
+</main>
+<!-- chrome:foot --><footer class="foot container">
+  <div class="foot__row">
+    <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="28" height="28">LASIK</a>
+    <nav aria-label="Footer"><a href="how-it-works.html">How it works</a><a href="crackme.html">Results</a><a href="docs.html">Docs</a><a href="https://github.com/pktq/lasik">GitHub</a><a href="https://github.com/pktq/lasik/blob/main/CHANGELOG.md">Changelog</a><a href="https://github.com/pktq/lasik/blob/main/SECURITY.md">Security</a></nav>
+  </div>
+  <small>MIT © LASIK contributors. Benchmark corpus © BLA contributors, MIT. Not affiliated with BLA or REA. Use on software you own or are authorised to analyse.</small>
+</footer><!-- /chrome:foot -->
+</body>
+</html>

@@ -1,79 +1,133 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><!-- chrome:head -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LASIK CrackMe results</title>
-<meta name="description" content="Every CrackMe BLA published, measured as BLA ships it and after LASIK heals it.">
-<meta property="og:title" content="LASIK: give your agent its sight back">
-<meta property="og:description" content="Strips BLA's decoys, tarpits and prompt traps from hardened JavaScript. Open source, MIT.">
-<meta name="theme-color" content="#fbfbfa">
+<title>LASIK results on BLA's CrackMes</title>
+<meta name="description" content="LASIK on every CrackMe BLA has published: per-artifact sizes, estimated tokens, and every technique it found and undid.">
+<meta property="og:title" content="LASIK: LLM Agent Sight In Kode">
+<meta property="og:description" content="BLA blinds your agent. LASIK gives it its sight back.">
+<meta name="theme-color" content="#0b1020">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
-<script>document.documentElement.classList.add("js")</script>
-</head>
-<body>
-<a class="skip" href="#main">Skip to content</a>
-
-<header class="container">
-  <nav class="nav" aria-label="Main">
-    <a class="wordmark" href="./"><i aria-hidden="true"></i>LASIK</a>
-    <a class="hide-sm" href="./#how">How it works</a>
-    <a class="hide-sm" href="crackme.html">Results</a>
-    <a href="get-started.html">Install</a>
-    <a class="btn btn--sm" href="https://github.com/pktq/lasik">GitHub</a>
-  </nav>
-</header>
-
-<main id="main">
-  <section class="page-head container">
-    <img class="disc" src="assets/img/leiden-ophthalmology-room.jpg" width="1600" height="1212" alt="An ophthalmology office in Leiden around 1930, with a Snellen eye chart on the wall">
-    <h1 data-rise>Every CrackMe BLA published.</h1>
-    <p data-rise style="--i:1">BLA hardens these files itself and invites anyone to solve them. Here is each one as BLA ships it, and after <code>lasik heal</code>.</p>
-  </section>
-  <section class="section container">
-    <div class="legend" aria-hidden="true"><span><i></i>As BLA ships it</span><span><i></i>After LASIK</span></div>
-    <div class="bars" id="bars" aria-hidden="true"></div>
-  </section>
-  <section class="container">
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th scope="col">Set</th><th scope="col">File</th><th scope="col">Format</th><th scope="col">BLA bytes</th><th scope="col">LASIK bytes</th><th scope="col">BLA tokens*</th><th scope="col">LASIK tokens*</th><th scope="col">Smaller</th></tr></thead>
-        <tbody>
-          <tr><td>v6</td><td>panel.html</td><td>HTML</td><td>127,931</td><td>1,903</td><td>32,035</td><td>476</td><td>67×</td></tr>
-          <tr><td>v6</td><td>vault.cjs</td><td>JavaScript</td><td>164,580</td><td>5,640</td><td>42,600</td><td>1,481</td><td>29×</td></tr>
-          <tr><td>v7</td><td>cli/meridian.cjs</td><td>JavaScript</td><td>173,770</td><td>3,466</td><td>44,897</td><td>867</td><td>50×</td></tr>
-          <tr><td>v7</td><td>core/expr.cjs</td><td>JavaScript</td><td>150,724</td><td>8,443</td><td>39,135</td><td>2,111</td><td>18×</td></tr>
-          <tr><td>v7</td><td>core/license.cjs</td><td>JavaScript</td><td>173,472</td><td>12,346</td><td>44,823</td><td>3,091</td><td>14×</td></tr>
-          <tr><td>v7</td><td>core/stats.cjs</td><td>JavaScript</td><td>128,247</td><td>1,614</td><td>33,515</td><td>404</td><td>79×</td></tr>
-          <tr><td>v7</td><td>core/units.cjs</td><td>JavaScript</td><td>134,950</td><td>2,164</td><td>35,191</td><td>541</td><td>62×</td></tr>
-          <tr><td>v8</td><td>license.cjs</td><td>JavaScript</td><td>226,519</td><td>5,782</td><td>58,120</td><td>1,445</td><td>39×</td></tr>
-          <tr><td>v8</td><td>panel.html</td><td>HTML</td><td>122,529</td><td>1,327</td><td>30,708</td><td>331</td><td>92×</td></tr>
-          <tr><td>v9</td><td>license.cjs</td><td>JavaScript</td><td>201,111</td><td>6,334</td><td>52,019</td><td>1,600</td><td>32×</td></tr>
-          <tr><td>v9</td><td>panel.html</td><td>HTML</td><td>126,216</td><td>1,195</td><td>31,594</td><td>299</td><td>106×</td></tr>
-          <tr><td>v9</td><td>policy.py</td><td>Python</td><td>41,561</td><td>530</td><td>10,453</td><td>133</td><td>78×</td></tr>
-        </tbody>
-        <tfoot><tr><td colspan="3">All 12 listed files</td><td>1,771,610</td><td>50,744</td><td>455,090</td><td>12,779</td><td>35×</td></tr></tfoot>
-      </table>
-    </div>
-    <p class="table-note">Measured 2026-11-09 on BLA's CrackMe files v6–v9 (bla-agents v3.2.1) with the current LASIK build. The whole set, 15 hardened files including WebAssembly modules, goes from 1,837,515 to 59,621 bytes, with 24 AI-evasion techniques reported. *Tokens are LASIK's estimates (about 4 characters per token for code), not measured REA runs. Raw data: <a href="assets/results.json">results.json</a>. Reproduce with <code>npx lasik-agents bench</code> on BLA's <a href="https://github.com/qybaihe/bla/tree/main/challenge">challenge folder</a>.</p>
-  </section>
-</main>
-
-<footer class="foot container">
-  <div class="foot__top">
-    <div><a class="wordmark" href="./"><i aria-hidden="true"></i>LASIK</a><p>Sight for AI reverse-engineering agents. Open source, MIT.</p></div>
-    <div><h3>Project</h3><ul><li><a href="https://github.com/pktq/lasik">GitHub</a></li><li><a href="https://github.com/pktq/lasik/releases">Releases</a></li><li><a href="https://github.com/pktq/lasik/issues">Issues</a></li></ul></div>
-    <div><h3>Use it</h3><ul><li><a href="get-started.html">Install</a></li><li><a href="crackme.html">Results</a></li><li><a href="./#faq">Questions</a></li></ul></div>
-    <div><h3>Related</h3><ul><li><a href="https://rea.tools">REA</a></li><li><a href="https://bla.tools">BLA</a></li></ul></div>
-  </div>
-  <p class="credits">Pictures: <a href="https://commons.wikimedia.org/wiki/File:GlassPerscriptionRig.jpg">phoropter exam</a> by Sugarcaddy, public domain; <a href="https://commons.wikimedia.org/w/index.php?curid=98617372">ophthalmology room, Leiden</a> by Hendrik Jonker, CC BY 4.0; <a href="https://commons.wikimedia.org/wiki/File:Ophthalmoscope_(Reeve_067768-9P),_National_Museum_of_Health_and_Medicine_(4771560386).jpg">ophthalmoscope engraving</a>, National Museum of Health and Medicine, CC BY 2.0. All via Wikimedia Commons.</p>
-  <div class="foot__last"><span>MIT licence. Made by pktq.</span><a href="#main">Back to top</a></div>
-</footer>
-
 <script src="assets/site.js" defer></script>
+<!-- /chrome:head --></head>
+<body>
+<!-- chrome:top --><a class="skip" href="#main">Skip to content</a>
+<header class="bar"><nav class="nav container" aria-label="Main">
+  <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="28" height="28">LASIK</a>
+  <a href="how-it-works.html">How it works</a>
+  <a class="hide-sm" href="crackme.html" aria-current="page">Results</a>
+  <a href="docs.html">Docs</a>
+  <a class="gh" href="https://github.com/pktq/lasik">GitHub</a>
+</nav></header><!-- /chrome:top -->
+<main id="main" class="container docs">
+<nav class="toc" aria-label="On this page"><p>On this page</p><ul>
+  <li><a href="#artifacts">Per artifact</a></li>
+  <li><a href="#techniques">Every technique found</a></li>
+  <li><a href="#reproduce">Reproduce it</a></li>
+</ul></nav>
+<article class="doc">
+  <h1>Results on BLA's CrackMes</h1>
+  <p>The benchmark corpus is BLA's own published CrackMe outputs, v6 to v9, hardened by BLA's maintainers at <code>bankrupt</code> intensity and vendored unchanged in <a href="https://github.com/pktq/lasik/tree/main/bench/bla-crackme">bench/bla-crackme</a>. Nothing here is hand-written: this page is generated from <code>lasik bench</code>.</p>
+  <p class="muted"><!-- gen:stamp -->Generated 2026-11-09 with LASIK 0.1.0 on <code>bench/bla-crackme</code>: BLA's published CrackMe outputs v6–v9 (MIT), vendored unchanged. Verdict <strong>blinded</strong>, blindness 100/100, 24 AI-evasion techniques.<!-- /gen:stamp --></p>
+
+  <h2 id="artifacts">Per artifact</h2>
+  <!-- gen:results-table --><div class="table"><table>
+<thead><tr><th>Artifact</th><th>Format</th><th class="num">Before</th><th class="num">After</th><th class="num">Est. tokens before → after</th><th class="num">Cheaper</th></tr></thead>
+<tbody>
+<tr><td><code>v6/core.wasm.gz</code></td><td><span class="fmt">wasm</span></td><td class="num">17.7 KB</td><td class="num">117 B</td><td class="num">6,880,354 → 98</td><td class="num">70,208×</td></tr>
+<tr><td><code>v6/panel.html</code></td><td><span class="fmt">html</span></td><td class="num">124.9 KB</td><td class="num">1.9 KB</td><td class="num">32,035 → 476</td><td class="num">67×</td></tr>
+<tr><td><code>v6/vault.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">160.7 KB</td><td class="num">5.5 KB</td><td class="num">42,600 → 1,481</td><td class="num">29×</td></tr>
+<tr><td><code>v7/cli/meridian.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">169.7 KB</td><td class="num">3.4 KB</td><td class="num">44,897 → 867</td><td class="num">52×</td></tr>
+<tr><td><code>v7/core/expr.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">147.2 KB</td><td class="num">8.2 KB</td><td class="num">39,135 → 2,111</td><td class="num">19×</td></tr>
+<tr><td><code>v7/core/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">169.4 KB</td><td class="num">12.1 KB</td><td class="num">44,823 → 3,091</td><td class="num">15×</td></tr>
+<tr><td><code>v7/core/stats.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">125.2 KB</td><td class="num">1.6 KB</td><td class="num">33,515 → 404</td><td class="num">83×</td></tr>
+<tr><td><code>v7/core/units.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">131.8 KB</td><td class="num">2.1 KB</td><td class="num">35,191 → 541</td><td class="num">65×</td></tr>
+<tr><td><code>v8/core.wasm.gz</code></td><td><span class="fmt">wasm</span></td><td class="num">20.9 KB</td><td class="num">1.8 KB</td><td class="num">6,883,663 → 3,506</td><td class="num">1,963×</td></tr>
+<tr><td><code>v8/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">221.2 KB</td><td class="num">5.6 KB</td><td class="num">58,120 → 1,445</td><td class="num">40×</td></tr>
+<tr><td><code>v8/panel.html</code></td><td><span class="fmt">html</span></td><td class="num">119.7 KB</td><td class="num">1.3 KB</td><td class="num">30,708 → 331</td><td class="num">93×</td></tr>
+<tr><td><code>v9/core.wasm.gz</code></td><td><span class="fmt">wasm</span></td><td class="num">20.9 KB</td><td class="num">1.8 KB</td><td class="num">6,883,604 → 3,496</td><td class="num">1,969×</td></tr>
+<tr><td><code>v9/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">196.4 KB</td><td class="num">6.2 KB</td><td class="num">52,019 → 1,600</td><td class="num">33×</td></tr>
+<tr><td><code>v9/panel.html</code></td><td><span class="fmt">html</span></td><td class="num">123.3 KB</td><td class="num">1.2 KB</td><td class="num">31,594 → 299</td><td class="num">106×</td></tr>
+<tr><td><code>v9/policy.py</code></td><td><span class="fmt">python</span></td><td class="num">40.6 KB</td><td class="num">530 B</td><td class="num">10,453 → 133</td><td class="num">79×</td></tr>
+</tbody>
+<tfoot><tr><td>15 hardened artifacts</td><td></td><td class="num">1.75 MB</td><td class="num">58.2 KB</td><td class="num">21.1 M → 22 k</td><td class="num">958×</td></tr></tfoot>
+</table></div><!-- /gen:results-table -->
+  <p class="muted">Token counts are estimates: about 4 characters per token for code, 2 for hex and base64, 1 per byte for binary (WASM is counted uncompressed, about 6.9 MB per module). They are not measured REA runs.</p>
+  <p>LASIK makes every CrackMe readable. It does not publish keys or flags; solving them is still yours.</p>
+
+  <h2 id="techniques">Every technique found</h2>
+  <p>Summed over the corpus, grouped by BLA layer. Technique ids match the <code>findings</code> in the <a href="docs.html#report">JSON report</a>.</p>
+  <!-- gen:techniques --><h3>Deceive</h3>
+<div class="table"><table><tbody>
+<tr><td class="num">968</td><td>removed BLA decoy declaration (known stem) <span class="fmt">fingerprinted-decoy</span></td></tr>
+<tr><td class="num">519</td><td>removed top-level declaration unreachable from any live code <span class="fmt">unreachable-decl</span></td></tr>
+<tr><td class="num">116</td><td>removed BLA's content-free replacement comments <span class="fmt">scrambled-comment</span></td></tr>
+<tr><td class="num">31</td><td>removed BLA's prepended Python tarpit, chaff tables and honeypots (unreferenced by real code) <span class="fmt">python-tarpit-prelude</span></td></tr>
+<tr><td class="num">24</td><td>removed <code>void decoy;</code> keep-alive anchors <span class="fmt">keep-alive-anchor</span></td></tr>
+<tr><td class="num">17</td><td>renamed BLA-renamed require() handles after their module <span class="fmt">renamed-module-handle</span></td></tr>
+<tr><td class="num">16</td><td>removed inline honey source map (fake enclave source tree) <span class="fmt">honey-sourcemap</span></td></tr>
+<tr><td class="num">9</td><td>removed BLA custom section "enclave.attestation.*" <span class="fmt">wasm-custom:enclave.attestation.*</span></td></tr>
+<tr><td class="num">3</td><td>removed BLA custom section "name" <span class="fmt">wasm-custom:name</span></td></tr>
+<tr><td class="num">3</td><td>removed BLA custom section "bla.enclave.manifest" <span class="fmt">wasm-custom:bla.enclave.manifest</span></td></tr>
+<tr><td class="num">3</td><td>removed BLA custom section "bla.canary.credentials" <span class="fmt">wasm-custom:bla.canary.credentials</span></td></tr>
+<tr><td class="num">3</td><td>removed BLA custom section "bla.system.diagnostics" <span class="fmt">wasm-custom:bla.system.diagnostics</span></td></tr>
+<tr><td class="num">3</td><td>removed BLA custom section "bla.export.name.decoys" <span class="fmt">wasm-custom:bla.export.name.decoys</span></td></tr>
+<tr><td class="num">2</td><td>removed BLA's injected <code>void 0;</code> bootstrap &lt;script&gt; <span class="fmt">bootstrap-script</span></td></tr>
+</tbody></table></div>
+<h3>Encrypt</h3>
+<div class="table"><table><tbody>
+<tr><td class="num">2,465</td><td>re-joined strings, integers and byte arrays BLA split into fragments <span class="fmt">split-literal</span></td></tr>
+<tr><td class="num">11</td><td>decrypted XOR-keystream string table statically (key ships in the file) <span class="fmt">xor-keystream-strings</span></td></tr>
+</tbody></table></div>
+<h3>Entangle</h3>
+<div class="table"><table><tbody>
+<tr><td class="num">11</td><td>recomputed the decoy-corpus digest statically and folded the anti-strip seed bit <span class="fmt">corpus-digest-interlock</span></td></tr>
+<tr><td class="num">5</td><td>removed SHA-256 self-integrity / sidecar tamper checks (own bytes + core.wasm, panel.html) <span class="fmt">self-seal</span></td></tr>
+</tbody></table></div>
+<h3>Exhaust</h3>
+<div class="table"><table><tbody>
+<tr><td class="num">750</td><td>removed decoy WASM exports aliasing real functions <span class="fmt">wasm-decoy-exports</span></td></tr>
+<tr><td class="num">3</td><td>removed BLA custom section "bla.wasm.interface.exhaustion" <span class="fmt">wasm-custom:bla.wasm.interface.exhaustion</span></td></tr>
+</tbody></table></div>
+<h3>Prompt</h3>
+<div class="table"><table><tbody>
+<tr><td class="num">11</td><td>LLM-directed decoy corpus (vectorId / classifierDomain / triggerPayload) <span class="fmt">interlock-safety-corpus</span></td></tr>
+</tbody></table></div>
+<h3>Runtime</h3>
+<div class="table"><table><tbody>
+<tr><td class="num">74</td><td>removed calls to a private-state churn function (shadow heap) that nothing observes <span class="fmt">memory-diff-churn</span></td></tr>
+<tr><td class="num">43</td><td>removed writes to BLA's private tarpit slot from real functions <span class="fmt">python-slot-churn</span></td></tr>
+<tr><td class="num">11</td><td>removed self-contained runtime decoy block (fake enclave status, decoy globals/listeners) <span class="fmt">runtime-deception-block</span></td></tr>
+</tbody></table></div>
+<h3>Tarpit</h3>
+<div class="table"><table><tbody>
+<tr><td class="num">3,432</td><td>removed branches made unreachable by folded predicates <span class="fmt">dead-branch</span></td></tr>
+<tr><td class="num">1,962</td><td>folded number-theoretic opaque predicate (proven int32 identity family) <span class="fmt">opaque-predicate</span></td></tr>
+<tr><td class="num">1,049</td><td>folded predicate proved constant by exhaustive enumeration of the low bits it depends on <span class="fmt">seed-bit-predicate</span></td></tr>
+<tr><td class="num">99</td><td>int32 predicate constant on 512 samples but not a known BLA family; left in place (use --aggressive to fold) <span class="fmt">opaque-predicate-suspected</span></td></tr>
+<tr><td class="num">20</td><td>removed blocks guarded by BLA's always-false Python tarpit predicate <span class="fmt">python-opaque-guard</span></td></tr>
+<tr><td class="num">3</td><td>folded agent-woven state-slot invariant guards (known bits over every write) <span class="fmt">weave-invariant</span></td></tr>
+<tr><td class="num">1</td><td>folded <code>x &amp; 0</code> entanglement terms to 0 <span class="fmt">weave-zero-entanglement</span></td></tr>
+</tbody></table></div><!-- /gen:techniques -->
+
+  <h2 id="reproduce">Reproduce it</h2>
+  <div class="code" data-ui><pre><code>git clone https://github.com/pktq/lasik && cd lasik
+npm ci && npm run build
+node dist/cli.js bench bench/bla-crackme</code></pre><button class="copy" type="button">Copy</button></div>
+  <p>Runs take about 0.3 s per file. Raw data for this page: <a href="assets/bench.json">bench.json</a>.</p>
+</article>
+</main>
+<!-- chrome:foot --><footer class="foot container">
+  <div class="foot__row">
+    <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="28" height="28">LASIK</a>
+    <nav aria-label="Footer"><a href="how-it-works.html">How it works</a><a href="crackme.html">Results</a><a href="docs.html">Docs</a><a href="https://github.com/pktq/lasik">GitHub</a><a href="https://github.com/pktq/lasik/blob/main/CHANGELOG.md">Changelog</a><a href="https://github.com/pktq/lasik/blob/main/SECURITY.md">Security</a></nav>
+  </div>
+  <small>MIT © LASIK contributors. Benchmark corpus © BLA contributors, MIT. Not affiliated with BLA or REA. Use on software you own or are authorised to analyse.</small>
+</footer><!-- /chrome:foot -->
 </body>
 </html>
