@@ -1,6 +1,6 @@
 {
   "name": "lasik-agents",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "LASIK (LLM Agent Sight In Kode): restores the sight of AI reverse-engineering agents blinded by BLA. Statically undoes every BLA shield (JS bundles, Electron/ASAR, WebAssembly, Python/.pyc, native ELF/PE/Mach-O, SQLite, models, APK/DEX, JVM, .NET, BEAM, EVM, PCAP and more) and prompt-firewalls the decoy text so REA can read them again.",
   "keywords": [
     "lasik",
@@ -20,7 +20,7 @@
     "cursor",
     "codex"
   ],
-  "homepage": "https://lasik.dev",
+  "homepage": "https://github.com/pktq/lasik#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pktq/lasik.git"
@@ -61,7 +61,8 @@
     "bench": "node dist/cli.js bench",
     "prepublishOnly": "npm run build && npm test",
     "coverage:docs": "node scripts/bla-coverage.mjs docs",
-    "coverage:check": "node scripts/bla-coverage.mjs check"
+    "coverage:check": "node scripts/bla-coverage.mjs check",
+    "bench:real": "node scripts/bench-real.mjs"
   },
   "dependencies": {
     "@babel/generator": "^8.1.0",

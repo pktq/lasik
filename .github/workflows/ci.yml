@@ -45,3 +45,6 @@ jobs:
         run: |
           node scripts/bla-coverage.mjs docs
           git diff --exit-code -- docs/coverage.md README.md docs/readme
+      - name: Benchmark on real BLA 3.2.1 output (docs must match)
+        if: matrix.os == 'ubuntu-latest'
+        run: node scripts/bench-real.mjs --check

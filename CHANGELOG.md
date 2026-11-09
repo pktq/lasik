@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-11-09
+
+### Added
+
+- `npm run bench:real`: benchmark on a project hardened with the published `bla-agents@3.2.1` (21 formats, default and all opt-in runs), in `docs/benchmark.md` and the README, checked in CI.
+- README badges.
+
+### Changed
+
+- Package homepage and MCP registry URL point at the GitHub repo; the website deploy is manual until the site is published.
+
+### Fixed
+
+- The BLA coverage ledger (`coverage/bla.json`) is committed; it was caught by the `coverage/` ignore rule.
+- Real-output SQLite read-back skips on Node 20, which has no `node:sqlite`.
+
 ## [0.2.0] - 2026-11-09
 
 Full parity with BLA 3.2.1: every file in BLA's `src/` is accounted for in `coverage/bla.json`.

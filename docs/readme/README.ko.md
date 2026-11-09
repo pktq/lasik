@@ -25,7 +25,6 @@
 </p>
 
 <p align="center">
-  <a href="https://lasik.dev">웹사이트</a> ·
   <a href="../how-it-works.md">동작 방식</a> ·
   <a href="../benchmark.md">벤치마크</a> ·
   <a href="../../CHANGELOG.md">변경 내역</a>
@@ -108,6 +107,15 @@ BLA 메인테이너가 과제로 공개한 CrackMe로 측정했으며, [`bench/b
 | v9 | 4 | 381 KB | 7.4 KB | 6,977,670 → 4,941 |
 
 <p align="center"><img src="../assets/tokens.svg" alt="Log-scale bar chart: estimated tokens per BLA CrackMe artifact before and after LASIK" width="100%" /></p>
+
+<!-- realbench:start -->
+On a project we hardened ourselves with the published `bla-agents@3.2.1`, one file per format ([details](../benchmark.md#your-own-code-hardened-by-real-bla-321)):
+
+| BLA run | Files | Original | BLA-hardened | After LASIK | Tokens (estimated) | Result |
+|---|---:|---:|---:|---:|---|---|
+| Defaults | 21 | 151.9 KB | 31.1 MB | 150.9 KB | 32,154,076 → 152,102 | 21/21 healed, 11 byte-identical |
+| All opt-in layers | 21 | 151.9 KB | 31.2 MB | 151.0 KB | 32,178,121 → 152,197 | 21/21 healed, 10 byte-identical |
+<!-- realbench:end -->
 
 파일별 수치, 측정 방법과 그 한계는 [docs/benchmark.md](../benchmark.md)에 있습니다. LASIK은 CrackMe를 읽을 수 있게 만들 뿐, 풀이를 공개하지는 않습니다.
 

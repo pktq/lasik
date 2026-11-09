@@ -1,9 +1,7 @@
 name: Website
 
+# Manual only until the site is published (needs Settings > Pages > Source: GitHub Actions).
 on:
-  push:
-    branches: [main]
-    paths: ["website/**", "docs/how-it-works.md", "src/**", "bench/**", ".github/workflows/website-pages.yml"]
   workflow_dispatch:
 
 permissions:
