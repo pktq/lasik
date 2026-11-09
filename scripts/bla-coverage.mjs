@@ -159,7 +159,9 @@ function docs() {
   for (const p of readmes) {
     const text = readFileSync(p, "utf8");
     const link = relative(join(p, ".."), join(ROOT, "docs", "coverage.md")).replace(/\\/g, "/");
-    const next = text.replace(/<!-- coverage:start -->[\s\S]*?<!-- coverage:end -->/, () => block.replace("(docs/coverage.md)", `(${link})`));
+    const next = text
+      .replace(/<!-- coverage:start -->[\s\S]*?<!-- coverage:end -->/, () => block.replace("(docs/coverage.md)", `(${link})`))
+      .replace(/badge\/BLA_[0-9.]+-\d+%2F\d+_shields_healed/, `badge/BLA_${ledger.bla.version}-${healed}%2F${rows.length}_shields_healed`);
     if (next !== text) writeFileSync(p, next);
   }
   console.log(`docs/coverage.md: ${rows.length} shield files, ${na.length} n/a; ${healed} healed`);

@@ -10,9 +10,18 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/pktq/lasik/actions/workflows/ci.yml"><img src="https://github.com/pktq/lasik/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/pktq/lasik?color=blue" alt="MIT license" /></a>
-  <img src="https://img.shields.io/badge/node-%E2%89%A520.19-339933" alt="Node 20.19+" />
+  <a href="https://www.npmjs.com/package/lasik-agents"><img src="https://img.shields.io/npm/v/lasik-agents?style=for-the-badge&label=npm&color=22d3ee" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/lasik-agents"><img src="https://img.shields.io/npm/dm/lasik-agents?style=for-the-badge&label=downloads&color=0ea5e9" alt="npm downloads" /></a>
+  <a href="https://github.com/pktq/lasik/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/pktq/lasik/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI" /></a>
+  <a href="https://github.com/pktq/lasik/actions/workflows/bla-drift.yml"><img src="https://img.shields.io/github/actions/workflow/status/pktq/lasik/bla-drift.yml?branch=main&style=for-the-badge&label=BLA%20drift%20check" alt="BLA drift check" /></a>
+  <a href="https://github.com/pktq/lasik/stargazers"><img src="https://img.shields.io/github/stars/pktq/lasik?style=for-the-badge&color=22d3ee" alt="GitHub stars" /></a>
+  <br />
+  <a href="docs/coverage.md"><img src="https://img.shields.io/badge/BLA_3.2.1-59%2F63_shields_healed-22d3ee?style=for-the-badge" alt="BLA coverage" /></a>
+  <a href="tests/fixtures/bla-3.2.1"><img src="https://img.shields.io/badge/verified_on-real_BLA_output-0ea5e9?style=for-the-badge" alt="Verified on real BLA output" /></a>
+  <a href="docs/coverage.md"><img src="https://img.shields.io/badge/formats-24-0ea5e9?style=for-the-badge" alt="Formats" /></a>
+  <a href="docs/how-it-works.md"><img src="https://img.shields.io/badge/MCP-4_tools-6366f1?style=for-the-badge" alt="MCP tools" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge" alt="MIT license" /></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%E2%89%A520.19-339933?style=for-the-badge" alt="Node 20.19+" /></a>
 </p>
 
 <p align="center">

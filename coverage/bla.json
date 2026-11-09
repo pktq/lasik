@@ -1,0 +1,1051 @@
+{
+  "bla": {
+    "version": "3.2.1",
+    "commit": "ea3d165ee37dfe4e1cd5f946e0dad73b9468a387"
+  },
+  "files": [
+    {
+      "path": "src/bundler/index.ts",
+      "sha256": "f7e490175a1c849281405ab8e83f627e1c4ae383f26753723eceba5668f2d6f4",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/nested-modules.ts"
+      ],
+      "note": "rollup/vite/webpack chunks and esbuild per-module hardening; lazy __esm wrappers not yet"
+    },
+    {
+      "path": "src/cli.ts",
+      "sha256": "f83761000d0b1e3e0948372d3c6a670eea8fd85964cc241b15993e624b90a19f",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "CLI"
+    },
+    {
+      "path": "src/core/config.ts",
+      "sha256": "b1888d1dafaf799da01538fd65b2a1b0c2f69d60dbe7023d5eea80ced4f99871",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": ".blarc config"
+    },
+    {
+      "path": "src/core/coverage-contract.ts",
+      "sha256": "a35b0efdf240e8c36a22a48cf54f1e144166894eb6a8f78ec0a72e6c0756c4e7",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "scope statement in reports"
+    },
+    {
+      "path": "src/core/debug-posture.ts",
+      "sha256": "947a25e3e6f48601ea5db3efefe2d956221cc0b727dd2ec212752b6f86d678df",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "checks host debug exposure"
+    },
+    {
+      "path": "src/core/detector.ts",
+      "sha256": "070d72da4b9211eb08226f12d1ac380da747fa54c9bfa9d57cd5afbb9055757d",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "format router (LASIK has its own: src/core/detect.ts)"
+    },
+    {
+      "path": "src/core/identifiers.ts",
+      "sha256": "29fdeeb7f12d8e738d44d7cda8563d7876bfb8609f3f7f5df0821e3ecbd2988e",
+      "surface": "JavaScript / HTML",
+      "status": "unrecoverable",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts"
+      ],
+      "note": "realistic decoy names: original names gone, used as fingerprints to remove decoys"
+    },
+    {
+      "path": "src/core/llm-directives.ts",
+      "sha256": "317945856fc66732255b73330bf83e4f03168e5df67043e386511dd11881397e",
+      "surface": "Prompt text",
+      "status": "healed",
+      "lasik": [
+        "src/firewall/rules.ts"
+      ],
+      "note": "system-reminder, ChatML, turn markers, dual-use and COPPA text firewalled"
+    },
+    {
+      "path": "src/core/manifest-signing.ts",
+      "sha256": "ccb68fc40d79368c5abb1ef13779da5122bd55db537b9bc35bbacd2bcdc71ba5",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "optional .bla-manifest.json attestation next to artifacts: provenance, not obfuscation"
+    },
+    {
+      "path": "src/core/manifest-verify.ts",
+      "sha256": "7ce0296ca9e7864f7135c9aa131019659ea5ca8714317b52e31232a2c1c0dd34",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "verifies BLA manifests"
+    },
+    {
+      "path": "src/core/output-path.ts",
+      "sha256": "623f5a80ab06f65c358b95e855ae97bdcb5a3c5789374406c7e29554f7389e49",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "path handling"
+    },
+    {
+      "path": "src/core/prng.ts",
+      "sha256": "1bd601b5116e6af38523b96de721d0e18659eab82ff0ceaeb6009b2ab88df1ef",
+      "surface": "JavaScript / HTML",
+      "status": "unrecoverable",
+      "lasik": [
+        "src/js/heal.ts"
+      ],
+      "note": "seeded naming; nothing to restore"
+    },
+    {
+      "path": "src/core/release-exposure.ts",
+      "sha256": "946e8d7d8addea6d063de2bd8a2422cac9a996af6d7a2c152a43008c32c6a374",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "release scanner"
+    },
+    {
+      "path": "src/core/release-plan.ts",
+      "sha256": "29d20979b78342cdb65b0bfd2e105f284a2e5d04d70870425eb9826097aa2c9f",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "packaging + SHA256SUMS"
+    },
+    {
+      "path": "src/core/sarif.ts",
+      "sha256": "4c320fbf5822091681d97d797865bf98918fc71845cb3a003df4103db1eb5fd1",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "SARIF report"
+    },
+    {
+      "path": "src/core/sqlite-runtime.ts",
+      "sha256": "3b18efd94c81e362b6b25422b02a91340c6f3ea42b2c8af09ea8fd412fe8c5d5",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "probes node:sqlite"
+    },
+    {
+      "path": "src/core/token-estimator.ts",
+      "sha256": "bf339e5b736d6a1d7dd98b06b02571517d05f8daa61c171c4247cabd13001b6a",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "cost estimates"
+    },
+    {
+      "path": "src/core/types.ts",
+      "sha256": "babc6c6c15104f001ae1d189b052a1afc660bfd42272a0cdb017d349820295e6",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "types"
+    },
+    {
+      "path": "src/core/walk.ts",
+      "sha256": "868514df5ebc1f782f606b54c739eb89e693ee856233c15f60537d6b910b8e5d",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "file walking"
+    },
+    {
+      "path": "src/engine/auditor.ts",
+      "sha256": "73c417be54a9894effeab193aa37568d4bf12b2df26d2486f490b238d8f78823",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "audit report"
+    },
+    {
+      "path": "src/engine/benchmark.ts",
+      "sha256": "3dfec39c26aa299f7ebd5c9bafd23f619897140391f3e8ad45eee4d4752d5390",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "benchmark"
+    },
+    {
+      "path": "src/engine/bind-scope.ts",
+      "sha256": "7fa14c45ddde01e04d0a3d7a8d2d7d2e60e82a735cb1d70079ec38d95d5aae52",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/passes/runtime-decoys.ts",
+        "src/engine/run.ts"
+      ],
+      "note": "public domain/date lock IIFE removed; its domains and dates are listed in the report"
+    },
+    {
+      "path": "src/engine/defender.ts",
+      "sha256": "9d9d22ae3f7d6cb8c148e2f4946010ffcd4ad37c1012c183c04459e809966076",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "orchestrates protector/harden"
+    },
+    {
+      "path": "src/engine/defense-score-honesty.ts",
+      "sha256": "6f40d263d09e6ac4b99396bf724b45b32986370ce6f1040d1e797f05b1bb8640",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "score caps"
+    },
+    {
+      "path": "src/engine/encrypt-strings.ts",
+      "sha256": "ffe84ae1e5f5769f46fec72a469bcd8bcdfc9d6758128fd496a01ecce7d33548",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/decrypt-strings.ts"
+      ],
+      "note": "XOR keystream string tables decrypted (JS and per-script HTML)"
+    },
+    {
+      "path": "src/engine/harden.ts",
+      "sha256": "8d74551daae0106de912bc727a067f500ad54357cb36e8f5abfba5033fbb4451",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts"
+      ],
+      "note": "project-level orchestration of the shields listed here"
+    },
+    {
+      "path": "src/engine/integrity-coverage.ts",
+      "sha256": "abb4df8a3be13917de7fa0cd0770caebf8437533768ec91029e1d0016a14a981",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "hash-topology gate (the hashes themselves come from self-seal/sidecar-entangle)"
+    },
+    {
+      "path": "src/engine/js-aes-unwrap-lint.ts",
+      "sha256": "98fa91e97ddd6271589aba4d8e13e504723bdafe53de686b4860784911278d5a",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/js-wasm-hydrate-dump-lint.ts",
+      "sha256": "ec5a86913bbcfe440bd67c7162530bd0d3ed5dc6896415d65d0314eeaca97ad2",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/lane-independence-lint.ts",
+      "sha256": "f8252b806b65da7b936289cc23948f8de63e9db817e0464fa105c29c0b06290d",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/packaging-gates.ts",
+      "sha256": "fe99944aed5e2247985f196b87fee4a6255a44b675894fc682c64362388722e3",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/panel-derive-abi-lint.ts",
+      "sha256": "14e2e9b03a6acc92fb49a0581bb027806c943c45e31730f03c1733053052f322",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/plaintext-secret-lint.ts",
+      "sha256": "6f2b529b11172a3c90a2b618cc26abaa4cb92aad3afe52d969f0f574da7111f7",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/polymorph-report.ts",
+      "sha256": "4a791b735fc3cc0b9a677780238ede4e8bb4ebb586ab8c4310f29eaee292ea92",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "cross-build diff report"
+    },
+    {
+      "path": "src/engine/protector.ts",
+      "sha256": "80e050fcba3921be6281d12abb7e54fccae5ec7a09148ef1b83f25930c6bf6b0",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/html.ts",
+        "src/formats/asar.ts"
+      ],
+      "note": "per-format dispatch; HTML script types, bootstrap script and ASAR JS entries all healed"
+    },
+    {
+      "path": "src/engine/rea-observability.ts",
+      "sha256": "36e5a924b88d223ed08b13aa05dc7c41e0b2d3f04500c3629348719ccc552739",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "runs REA for BLA red-team"
+    },
+    {
+      "path": "src/engine/run-evidence.ts",
+      "sha256": "f04180db6f1130026ab0c48d0aff393d1d05d3fa94843a411d6274eed0009e14",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "bla-harden-summary.json log: provenance, not obfuscation"
+    },
+    {
+      "path": "src/engine/seal-commitment-lint.ts",
+      "sha256": "cfa691ceeb74c0c8eccb41d81f4142311057ca65d31af4fbe87ca1fd172b3ec3",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/verifier.ts",
+      "sha256": "2d66765b1f64bf61b645e66991e704da50b189bee697604cf586d5f664fa07d4",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "post-harden verify"
+    },
+    {
+      "path": "src/engine/wasm-param-carrier-lint.ts",
+      "sha256": "5274f9ee58b9f56adff7c7ce67a60c3c6fe7511090f84e784726d35435a23152",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/wasm-seal-xor-known-plaintext-lint.ts",
+      "sha256": "1b336c8c599654428b3ab73379137083e83e4d26f395e2f4a75a397c97007a1f",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/engine/wasm-xor-mask-sidecar-lint.ts",
+      "sha256": "5aa4d2e4d164734c5fd4ce5629c8edc2526415b758de2f7cfd6a165bc287b01d",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "pre-harden lint"
+    },
+    {
+      "path": "src/identity.ts",
+      "sha256": "84894427730d72b2cf94b8a7e5a1000087948352cccc1d34a276c6e7f8adbcb5",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "version + constants; a hash change here usually means new markers: re-check every healer"
+    },
+    {
+      "path": "src/index.ts",
+      "sha256": "2777d87296129a73e59591afa16309a4c2144e9b93bda91f1d3379c87cec1328",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "barrel exports"
+    },
+    {
+      "path": "src/mcp/server.ts",
+      "sha256": "3cd4f26709e3b6250cfc360cb3f70ec0a3d17c6d494ecf0c4d7277e954c231b2",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "MCP server"
+    },
+    {
+      "path": "src/setup/clients.ts",
+      "sha256": "410c617d8478d8143c1965687cdc42afdb4fb00bd0c203832ba908a6dd4eb726",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "agent setup"
+    },
+    {
+      "path": "src/setup/doctor.ts",
+      "sha256": "5bbe4dd96b046bc3ce1e9a94d4a8e7a42bc251f1c7b7d8cc86a07764ed73758c",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "agent setup"
+    },
+    {
+      "path": "src/setup/setup.ts",
+      "sha256": "f5af0835307f266136e17111de4a95339fd600da3e0496798dc7db5d460849d3",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "agent setup"
+    },
+    {
+      "path": "src/shields/chaff/chaff-generator.ts",
+      "sha256": "ff405ef8c9c40dfea2669cb7be46dc901192a47320d2b6dbd0b7c1706f6cacfe",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "all chaff kinds stripped and firewalled"
+    },
+    {
+      "path": "src/shields/deception/architecture-mirage.ts",
+      "sha256": "5012c51d44370e5d89c47b962b71d0da91239ddfa4e0fe19ed12b99cceaee742",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "architecture-mirage decoys stripped"
+    },
+    {
+      "path": "src/shields/deception/canary-honeypot.ts",
+      "sha256": "72b3cb25c121f145d93fc86166bf65984213919b142679e8e26d940f928988d4",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "canary-honeypot decoys stripped, LLM-directed text firewalled"
+    },
+    {
+      "path": "src/shields/deception/cognitive-armor-trigger.ts",
+      "sha256": "f156e1e032cce8392bf570f96bc1a07a452325b50dc83f821d9d60247078c903",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/interlock.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "corpus digest interlock cut first, then corpus stripped and firewalled"
+    },
+    {
+      "path": "src/shields/deception/crash-trace-decoy.ts",
+      "sha256": "670d8e519391421c662ce75b516c4be7ddced3d8919e40477cb8c79a39ed24cb",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "crash-trace-decoy decoys stripped"
+    },
+    {
+      "path": "src/shields/deception/decompiler-illusion.ts",
+      "sha256": "e99a4280992bc0d853a79a1422ac4bc23badd5cc4d3c8df216e6f4fa124fc391",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "decompiler-illusion decoys stripped"
+    },
+    {
+      "path": "src/shields/deception/diff-noise-injector.ts",
+      "sha256": "acce3048e40bbf1caf7685e99f8b52c07315acb4ff9e78a3f550f5c7445c5478",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "diff-noise-injector decoys stripped"
+    },
+    {
+      "path": "src/shields/deception/evidence-contract-poison.ts",
+      "sha256": "7cf0f9a3fd6914f724ff2248caeb68a07f47e10a3d0c18115d044c881127e40b",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "evidence-contract-poison decoys stripped, LLM-directed text firewalled"
+    },
+    {
+      "path": "src/shields/deception/format-payloads.ts",
+      "sha256": "3281351100182bcd9d2cd85766c28121983ce5cf6172c327f1b46d1e4775fc39",
+      "surface": "Prompt text",
+      "status": "healed",
+      "lasik": [
+        "src/firewall/rules.ts"
+      ],
+      "note": "text records firewalled in every format; removed with the planted regions in binary formats"
+    },
+    {
+      "path": "src/shields/deception/index.ts",
+      "sha256": "b7c0d1349803fb0f4cbc76761c3ab8222609e6a0375a7210aff650c26b2dfaae",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "barrel"
+    },
+    {
+      "path": "src/shields/deception/prompt-completion-poison.ts",
+      "sha256": "8609a2e25d1bd63acfa4862dffd27a4ced29c4b25bbb0aaf6fb78d87fb8d4fd2",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "prompt-completion-poison decoys stripped"
+    },
+    {
+      "path": "src/shields/deception/semantic-honeypot.ts",
+      "sha256": "9dcff9aef5527a6e80bf2c8d840fd0cdba0ca4f1c3ee50e4ce7d8db832179244",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "semantic-honeypot decoys stripped"
+    },
+    {
+      "path": "src/shields/deception/shadow-business-logic.ts",
+      "sha256": "893f452cdf02645c521973cd4a59421e67135aa1ebe67a1c0e02a34ad57e3793",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "shadow-business-logic decoys stripped"
+    },
+    {
+      "path": "src/shields/deception/system-diagnostic-decoy.ts",
+      "sha256": "9d66832b380a98649d043528f1197831f643776816238c442ce227cf818dd88e",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/firewall/rules.ts"
+      ],
+      "note": "system-diagnostic-decoy decoys stripped, LLM-directed text firewalled"
+    },
+    {
+      "path": "src/shields/exhaustion/asar-header-amplifier.ts",
+      "sha256": "93b7c4cc9ceae336dc9a10642ae7ec08861e0f2354d57e9ff30b8091ab799539",
+      "surface": "Electron ASAR",
+      "status": "healed",
+      "lasik": [
+        "src/formats/asar.ts"
+      ],
+      "note": "ring0-slot-* header flood removed"
+    },
+    {
+      "path": "src/shields/exhaustion/bpe-token-amplifier.ts",
+      "sha256": "726863ce793a9582fb9d6fd8ea42969bb33875bff8021c9ca99862cc5478b9a6",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts"
+      ],
+      "note": "bpe-token-amplifier stripped"
+    },
+    {
+      "path": "src/shields/exhaustion/callgraph-labyrinth.ts",
+      "sha256": "8d84ccff9a5b74bf0a4103e6658b9ed5dc62689bc1e5ee63713513e5ef760b03",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts"
+      ],
+      "note": "callgraph-labyrinth stripped"
+    },
+    {
+      "path": "src/shields/exhaustion/cdp-shape-budget-breaker.ts",
+      "sha256": "0ab5e02ba58f9364725cf702a56ac57d2eb92e7e78d4d658dc58599c9d8b8423",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts"
+      ],
+      "note": "cdp-shape-budget-breaker stripped"
+    },
+    {
+      "path": "src/shields/exhaustion/frida-capture-saturation.ts",
+      "sha256": "172ef3fbf5fddb55c14cb0cd4cafe594b890b462bcaf0a1a7fba3d3cde4ef8ab",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts"
+      ],
+      "note": "frida-capture-saturation stripped"
+    },
+    {
+      "path": "src/shields/exhaustion/index.ts",
+      "sha256": "f1da8cc9ddb43474f4f73b62a10888664703a938740e41647c3efa7809f96dc3",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "barrel"
+    },
+    {
+      "path": "src/shields/exhaustion/obligation-flooder.ts",
+      "sha256": "459e61affaa3b0314dadd49c0db0dcaad126953532731d6ef3c9d1693cba0109",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts"
+      ],
+      "note": "obligation-flooder stripped"
+    },
+    {
+      "path": "src/shields/exhaustion/rea-budget-matrix.ts",
+      "sha256": "aac75e9cc3b388258a992c2671fc7add6cae04fdcb0ec086f553bd33d5c98246",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "parameters only, emits nothing"
+    },
+    {
+      "path": "src/shields/exhaustion/regex-worker-tarpit.ts",
+      "sha256": "609dabbcc26a6c4eb94c239ff5c96276ee158a6723c373f73fe15588e4e401dd",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts"
+      ],
+      "note": "regex-worker-tarpit stripped"
+    },
+    {
+      "path": "src/shields/exhaustion/wasm-interface-exhaustion.ts",
+      "sha256": "962bb4730b599168deec37dca99dd4e32194b15f30652b4fdc13ce9023b2fe3e",
+      "surface": "WebAssembly",
+      "status": "healed",
+      "lasik": [
+        "src/formats/wasm.ts"
+      ],
+      "note": "bla.wasm.interface.exhaustion section stripped"
+    },
+    {
+      "path": "src/shields/formats/android-dex-xref.ts",
+      "sha256": "828bc6a23dbe4b4b4a53d1ffd965c0c8e0dea3cc526bf9493fbdda8e57a4831f",
+      "surface": "Android DEX",
+      "status": "healed",
+      "lasik": [
+        "src/formats/dex.ts",
+        "src/formats/zip.ts"
+      ],
+      "note": "planted classesN.dex xref decoy removed from APKs; standalone decoy DEX reported"
+    },
+    {
+      "path": "src/shields/formats/android-manifest.ts",
+      "sha256": "941614db9c88ff2da510e7d8a145d399286638258f544cba57b101700970df26",
+      "surface": "Android APK",
+      "status": "healed",
+      "lasik": [
+        "src/formats/axml.ts",
+        "src/formats/zip.ts"
+      ],
+      "note": "decoy manifests under bla-shield/ removed; BLA never edits the real manifest"
+    },
+    {
+      "path": "src/shields/formats/android-r8.ts",
+      "sha256": "09cf37d9bb32964f33689ef7a66aa268165b5bc83770f9751c6a575035031729",
+      "surface": "Android APK",
+      "status": "healed",
+      "lasik": [
+        "src/formats/zip.ts"
+      ],
+      "note": "decoy mapping.txt + libbla_enclave_jni.so removed inside APKs; standalone copies only reported"
+    },
+    {
+      "path": "src/shields/formats/apple-plist.ts",
+      "sha256": "e35f05ef843bff5e243faab8cf8d3fb22f286fee4000c8177f22e2eebcf25a15",
+      "surface": "Apple plist",
+      "status": "healed",
+      "lasik": [
+        "src/formats/plist.ts"
+      ],
+      "note": "DOCTYPE subset restored, BLA* keys dropped, bplist depth-guard trailer cut; a trimmed final newline is lost (warned)"
+    },
+    {
+      "path": "src/shields/formats/archive.ts",
+      "sha256": "2656850123b16360129c55292d652159c8448591b72fd0b0933c5521a72a4d1b",
+      "surface": "ZIP / JAR / APK",
+      "status": "healed",
+      "lasik": [
+        "src/formats/zip.ts"
+      ],
+      "note": "enclave manifest, canaries, shadow modules dropped; central directory rebuilt; ZIP64/encrypted/data-descriptor archives left as-is with a warning"
+    },
+    {
+      "path": "src/shields/formats/asar.ts",
+      "sha256": "192ba73591e9484cf2127480732f7084eda39c2ee6a2fb69910cac1b0556409d",
+      "surface": "Electron ASAR",
+      "status": "healed",
+      "lasik": [
+        "src/formats/asar.ts"
+      ],
+      "note": "decoy enclave modules dropped, every JS entry run through the JS healer, header/offsets/integrity repacked"
+    },
+    {
+      "path": "src/shields/formats/bun-standalone.ts",
+      "sha256": "eebbeb6133188e5f5223350fdab564d084dc8c4eaec97330cde81c9914537dff",
+      "surface": "Bun standalone",
+      "status": "healed",
+      "lasik": [
+        "src/formats/bun.ts"
+      ],
+      "note": "decoy .bunfs-snapshot module graph emptied; real Bun graphs untouched"
+    },
+    {
+      "path": "src/shields/formats/dotnet-managed.ts",
+      "sha256": "1af126e628d00d49d7bdf722731f68f007bbcd0a533b0039e7b1fd92ce8b5394",
+      "surface": ".NET assembly",
+      "status": "healed",
+      "lasik": [
+        "src/formats/dotnet.ts"
+      ],
+      "note": "CLR shield overlay stripped after the PE; metadata untouched"
+    },
+    {
+      "path": "src/shields/formats/electron-fuses.ts",
+      "sha256": "f774ee7597cde3903ab305a2884dd13cb37e239be8031ad77fa1d6a52c0fd859",
+      "surface": "Native ELF / PE / Mach-O",
+      "status": "healed",
+      "lasik": [
+        "src/formats/electron-fuses.ts",
+        "src/formats/native.ts"
+      ],
+      "note": "decoy fuse sentinels stripped; real fuse flips are security settings and left alone"
+    },
+    {
+      "path": "src/shields/formats/erlang-beam.ts",
+      "sha256": "f3fc33e8f9d1e6af8d29ffc67e48fea78333d6b29675f1b5edb0717dc111ebbc",
+      "surface": "Erlang BEAM",
+      "status": "healed",
+      "lasik": [
+        "src/formats/beam.ts"
+      ],
+      "note": "canary atoms cut from AtU8, decoy Bla chunks dropped, FOR1 rebuilt; atoms >255 B that BLA dropped are lost"
+    },
+    {
+      "path": "src/shields/formats/evm-bytecode.ts",
+      "sha256": "0e51ecf15e201f84fbdaeead1d9d7d9acd0f98aee41e0a715e39d7394368f8ba",
+      "surface": "EVM bytecode",
+      "status": "healed",
+      "lasik": [
+        "src/formats/evm.ts"
+      ],
+      "note": "CBOR shield trailer + JUMPDEST padding stripped; a real trailing JUMPDEST is indistinguishable (warned)"
+    },
+    {
+      "path": "src/shields/formats/firmware-uf2.ts",
+      "sha256": "bc22c0434674a1fbc19c00d523171b4fcf645b313cd87951132af063577ac314",
+      "surface": "Firmware UF2",
+      "status": "healed",
+      "lasik": [
+        "src/formats/uf2.ts"
+      ],
+      "note": "appended decoy blocks removed"
+    },
+    {
+      "path": "src/shields/formats/go-flutter-exhaustion.ts",
+      "sha256": "f5858f9c2997de50d3113803731307b93861c6806987a31b015513e8857e4009",
+      "surface": "Native ELF / PE / Mach-O",
+      "status": "healed",
+      "lasik": [
+        "src/formats/native.ts"
+      ],
+      "note": "Go buildinfo / Dart snapshot floods stripped from the trailer; in-section plants neutralised (originals lost)"
+    },
+    {
+      "path": "src/shields/formats/gpu-ptx.ts",
+      "sha256": "02dc70171ab73c4842ed53e42d205b31e2ff5a6dae8d828dabe49236fb39f7e3",
+      "surface": "GPU PTX",
+      "status": "healed",
+      "lasik": [
+        "src/formats/ptx.ts"
+      ],
+      "note": "marker comment, DIAG comments and bla_tarpit_kernel_* entries stripped"
+    },
+    {
+      "path": "src/shields/formats/headers.ts",
+      "sha256": "503de21afd45517b256fb951a1b93fb58af70d3e0b73cb65c693cf8761b6dc0d",
+      "surface": "Native ELF / PE / Mach-O",
+      "status": "partial",
+      "lasik": [
+        "src/formats/native.ts"
+      ],
+      "note": "compiled-in fake rustc paths neutralised; compiled decoy functions need relinking (reported)"
+    },
+    {
+      "path": "src/shields/formats/jvm-bytecode.ts",
+      "sha256": "a142c01a2d16404ed543f48659d044c8973b06f406893621b18f81eb8f8f0486",
+      "surface": "JVM class",
+      "status": "healed",
+      "lasik": [
+        "src/formats/jvm.ts",
+        "src/formats/zip.ts"
+      ],
+      "note": "decoy Utf8 constant-pool tail cut, enclave JSON + V1 trailers stripped; .class inside JARs/APKs too"
+    },
+    {
+      "path": "src/shields/formats/mobile-game.ts",
+      "sha256": "42f2a601ce719fab7c9ff09bfba8971edc8301614328a50d5c7ba350570767fe",
+      "surface": "Mobile game (DEX / IL2CPP)",
+      "status": "healed",
+      "lasik": [
+        "src/formats/dex.ts",
+        "src/formats/il2cpp.ts"
+      ],
+      "note": "DEX trailer cut with checksum + SHA-1 + size fixed; global-metadata.dat trailer cut (exact original restored)"
+    },
+    {
+      "path": "src/shields/formats/model.ts",
+      "sha256": "8a445cd71f5f39c78b251b34dd9ed163a14f51554766c9119270a32da7648edf",
+      "surface": "Safetensors / GGUF",
+      "status": "healed",
+      "lasik": [
+        "src/formats/model.ts"
+      ],
+      "note": "enclave.* metadata, canaries and nesting breakers stripped; GGUF restored byte for byte"
+    },
+    {
+      "path": "src/shields/formats/native.ts",
+      "sha256": "aa5e6bc35027366b2bace11cc1cac445a7e2de8007c7e4857cb6a2b0468d3145",
+      "surface": "Native ELF / PE / Mach-O",
+      "status": "healed",
+      "lasik": [
+        "src/formats/native.ts"
+      ],
+      "note": "[BLA-NATIVE-SHIELD-V1] EOF trailer cut (original restored byte for byte); planted .go.buildinfo/.isolate are zeroed: BLA destroyed the originals (warned)"
+    },
+    {
+      "path": "src/shields/formats/pcap-capture.ts",
+      "sha256": "78c3e74b0e637d12b13c83f41d873541bb549d806e10858922aed15a76c2c116",
+      "surface": "PCAP",
+      "status": "healed",
+      "lasik": [
+        "src/formats/pcap.ts"
+      ],
+      "note": "appended HTTP flood + deep-label DNS bait packets cut (BLA refuses pcapng)"
+    },
+    {
+      "path": "src/shields/formats/python-ast-weave.ts",
+      "sha256": "9dbe3ca6862190aaa5af8d3a173e696a8b8084de81b0d729dfb2067e4a6c97f8",
+      "surface": "Python",
+      "status": "healed",
+      "lasik": [
+        "src/formats/python.ts"
+      ],
+      "note": "slot-touch interlocks cut first, then proven-false guards and decoy calls removed"
+    },
+    {
+      "path": "src/shields/formats/python-pyc-weave.ts",
+      "sha256": "e635e46158082d9e2870560a94c7efa761cf23652cafa29dc11d4c962f4fd19a",
+      "surface": "Python",
+      "status": "healed",
+      "lasik": [
+        "src/formats/pyc.ts"
+      ],
+      "note": "decoy CODE objects removed from co_consts (3.8-3.12, 3.14), garbled strings repaired; 3.13 detect-only; original interning layout lost"
+    },
+    {
+      "path": "src/shields/formats/python.ts",
+      "sha256": "269fb4ca9a57f819a0bc1664956b16923cded8553120678efaafcd7bb5768fb1",
+      "surface": "Python",
+      "status": "healed",
+      "lasik": [
+        "src/formats/python.ts",
+        "src/formats/pyc.ts"
+      ],
+      "note": "honeypot block, canaries, cognitive-armor text stripped by exact template; .pyc honey trailer stripped"
+    },
+    {
+      "path": "src/shields/formats/sourcemap.ts",
+      "sha256": "5769078c6554e76345ebbd41d2b6b809e3259d7914826c1bfaf849a2478d57ce",
+      "surface": "Source maps",
+      "status": "healed",
+      "lasik": [
+        "src/formats/sourcemap.ts"
+      ],
+      "note": "honey map replaced by an empty valid v3 map; the original map is gone (BLA overwrote it)"
+    },
+    {
+      "path": "src/shields/formats/sqlite.ts",
+      "sha256": "98652ffb54bb8744320b57a54a89c50f031cbae5af88fc2d5d9c7826b8456280",
+      "surface": "SQLite",
+      "status": "healed",
+      "lasik": [
+        "src/formats/sqlite.ts"
+      ],
+      "note": "honey tables, trap columns and view dropped by exact DDL match, pages freed, schema rebuilt (pure byte parser; nothing in the file is evaluated); auto-vacuum DBs reported only"
+    },
+    {
+      "path": "src/shields/formats/wasm.ts",
+      "sha256": "feadb4e7ee6b4a45a664a7ce5920d15216f6f47f64ebcbc4e86d64f7c45c6868",
+      "surface": "WebAssembly",
+      "status": "healed",
+      "lasik": [
+        "src/formats/wasm.ts"
+      ],
+      "note": "bla.* + enclave.attestation.* sections, honey name section, decoy exports stripped; BLA-renamed real exports (ops_<hex>_*) and dropped debug sections are unrecoverable (reported)"
+    },
+    {
+      "path": "src/shields/javascript/ast-shield.ts",
+      "sha256": "4baeed7642fdafcd87f17addecfd1b343cf9d1276b9b1d7fea23828bc6d1a34f",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/opaque.ts",
+        "src/js/passes/dead-code.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/js/passes/rename.ts"
+      ],
+      "note": "opaque string/int splits, tarpit guards, decoy IPC functions undone; renamed identifiers and scrambled comments are unrecoverable (require handles restored)"
+    },
+    {
+      "path": "src/shields/runtime/memory-diff-shield.ts",
+      "sha256": "08e851530865e1419e07b79cae70c06151a76d092f9c04522836461b032a1418",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/private-state.ts",
+        "src/js/passes/tree-shake.ts"
+      ],
+      "note": "shadow heap and split-share decoy secret stripped"
+    },
+    {
+      "path": "src/shields/runtime/runtime-shield.ts",
+      "sha256": "a42b395ed52fc13359e3596c37cdce78af1816774402a4146e8777da55719923",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/runtime-decoys.ts"
+      ],
+      "note": "fake enclave-status IIFE stripped"
+    },
+    {
+      "path": "src/shields/runtime/self-seal.ts",
+      "sha256": "f8a08d353be9893921dd9aad3d0743f0ad9fbc358ae9f375c7fbcd7cbf32c32e",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/self-seal.ts",
+        "src/formats/wasm.ts"
+      ],
+      "note": "measure functions, interleaved sites, self-digest stripped"
+    },
+    {
+      "path": "src/shields/runtime/sidecar-entangle.ts",
+      "sha256": "9f69d607bcd9964dd050d548d3b7f78670a0c0b87d4208fb2f08cc5d2653dbd1",
+      "surface": "Sidecar entanglement",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/self-seal.ts",
+        "src/formats/python.ts",
+        "src/formats/wasm.ts",
+        "src/formats/bun.ts"
+      ],
+      "note": "JS + Python preambles (hard and soft-fold) cut, WASM note stripped; Bun companion note reported"
+    },
+    {
+      "path": "src/shields/tarpit/opaque-predicates.ts",
+      "sha256": "912d74b9ea9a7b29ec7b0fa418775c26a54e8e20d8c94da9c885d201b51243a4",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/opaque.ts",
+        "src/js/known-bits.ts"
+      ],
+      "note": "all four number-theoretic families folded by proof"
+    },
+    {
+      "path": "src/shields/tarpit/tarpit-generator.ts",
+      "sha256": "52a98e96423bd049b8c3d5ff6ff2b76ac101dfb723e043eca60a2b33b6367575",
+      "surface": "JavaScript / HTML",
+      "status": "healed",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/tree-shake.ts",
+        "src/formats/python.ts"
+      ],
+      "note": "alias/budget functions, chaff table, decoy ring and anchor stripped (JS); Python tarpit stripped"
+    },
+    {
+      "path": "src/shields/weave/weave-decoy.ts",
+      "sha256": "1cd2c97d3e6af9bf6fbe5403e7c148433a349796e6fa07317987a8b0ffd3c85e",
+      "surface": "JavaScript / HTML",
+      "status": "partial",
+      "lasik": [
+        "src/js/heal.ts",
+        "src/js/passes/weave.ts"
+      ],
+      "note": "provable weave (slot invariants, x & 0, acc |= 0) folded; free-form agent-written weave is source surgery and only detected"
+    },
+    {
+      "path": "src/ui/reporter.ts",
+      "sha256": "d92331f8afeff03089824d25d95155983f63027a01a9541513bfb5b805a0b050",
+      "surface": "BLA tooling",
+      "status": "n/a",
+      "lasik": [],
+      "note": "terminal output"
+    }
+  ]
+}

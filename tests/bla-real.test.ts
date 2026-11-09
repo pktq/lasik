@@ -2,6 +2,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "n
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
+import { createRequire } from "node:module";
 import { afterAll, describe, expect, it } from "vitest";
 import { run } from "../src/engine/run.js";
 
@@ -14,6 +15,14 @@ const clean = (f: string) => readFileSync(join(FIX, "clean", f));
 const EXACT = ["Pricing.class", "Pricing.dll", "bundle.zip", "capture.pcap", "contract.evm", "firmware.uf2", "hello.exe", "kernel.ptx", "model.safetensors", "tiny.gguf"];
 /** BLA strings that must not survive healing (none occur in the clean inputs). */
 const LEFTOVER = /\[BLA-|BLA_[A-Z]|bla\.(?:shield|enclave|canary|sidecar)|enclave_|_interlockSafetyCorpus_|system-reminder|<\|im_start\|>|tee_hardware/;
+
+// node:sqlite (Node 22.5+) is only used to read the databases back; Node 20 skips that check.
+let sqlite: typeof import("node:sqlite") | undefined;
+try {
+  sqlite = createRequire(import.meta.url)("node:sqlite");
+} catch {
+  sqlite = undefined;
+}
 
 const tmp: string[] = [];
 afterAll(() => tmp.forEach((d) => rmSync(d, { recursive: true, force: true })));
@@ -47,8 +56,8 @@ for (const set of ["default", "max"] as const) {
       for (const f of report.files) expect(f.bytesAfter, f.file).toBeLessThanOrEqual(Math.max(clean(f.file).length * 4, 600));
     });
 
-    it("SQLite keeps exactly the original schema and rows", async () => {
-      const { DatabaseSync } = await import("node:sqlite");
+    it.skipIf(!sqlite)("SQLite keeps exactly the original schema and rows", () => {
+      const { DatabaseSync } = sqlite!;
       const dir = mkdtempSync(join(tmpdir(), "lasik-sqlite-"));
       tmp.push(dir);
       const rows = (buf: Buffer, name: string) => {

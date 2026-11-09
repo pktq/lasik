@@ -30,16 +30,12 @@ const after = [
   'const fs = require("fs");',
   'const path = require("path");',
   'const crypto = require("crypto");',
-  "function decodeRemoteBundle_e2a(mirrorDurableSensor_d6c) {",
-  "  return crypto.createHash(\"sha256\")",
-  '    .update(mirrorDurableSensor_d6c).digest("hex");',
+  "function decodeRemoteBundle_e2a(p0) {",
+  '  return crypto.createHash("sha256").update(p0).digest("hex");',
   "}",
   "function transformInlineSample_6bd() {",
-  "  const decodeInlineBuffer_e42 = fs.readFileSync(",
-  '    path.join(__dirname, "core.wasm"));',
-  "  return WebAssembly.instantiate(decodeInlineBuffer_e42)",
-  "    .then(schedulePrivateWorker_1ef =>",
-  "      schedulePrivateWorker_1ef.instance.exports);",
+  '  const v7 = fs.readFileSync(path.join(__dirname, "core.wasm"));',
+  "  return WebAssembly.instantiate(v7).then(p0 => p0.instance.exports);",
   "}",
 ];
 
@@ -84,7 +80,7 @@ ${lines
   </g>`;
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="The same two functions of BLA CrackMe v6, BLA-hardened on the left and after LASIK on the right">
-  <rect width="${W}" height="${H}" rx="16" fill="#010409"/>${panel(pad, "BLA-hardened", "vault.cjs · 164 KB · 2,680 lines", before, true, "#f7768e")}${panel(pad + pw + gap, "After lasik heal", "5.5 KB · 99 lines", after, false, "#73daca")}
+  <rect width="${W}" height="${H}" rx="16" fill="#010409"/>${panel(pad, "BLA-hardened", "vault.cjs · 164 KB · 2,680 lines", before, true, "#f7768e")}${panel(pad + pw + gap, "After lasik heal", "3.4 KB · 99 lines", after, false, "#73daca")}
 </svg>
 `;
 writeFileSync(out, svg);

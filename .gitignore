@@ -1,5 +1,7 @@
 node_modules/
 dist/
-coverage/
+# test-coverage output; the BLA coverage ledger lives here too
+coverage/*
+!coverage/bla.json
 *.lasik-report.json
 .lasik-out/
