@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LASIK CrackMe results</title>
+<meta name="description" content="Every CrackMe BLA published, measured as BLA ships it and after LASIK heals it.">
+<meta property="og:title" content="LASIK: give your agent its sight back">
+<meta property="og:description" content="Strips BLA's decoys, tarpits and prompt traps from hardened JavaScript. Open source, MIT.">
+<meta name="theme-color" content="#fbfbfa">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="container">
+  <nav class="nav" aria-label="Main">
+    <a class="wordmark" href="./"><i aria-hidden="true"></i>LASIK</a>
+    <a class="hide-sm" href="./#how">How it works</a>
+    <a class="hide-sm" href="crackme.html">Results</a>
+    <a href="get-started.html">Install</a>
+    <a class="btn btn--sm" href="https://github.com/pktq/lasik">GitHub</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="page-head container">
+    <img class="disc" src="assets/img/leiden-ophthalmology-room.jpg" width="1600" height="1212" alt="An ophthalmology office in Leiden around 1930, with a Snellen eye chart on the wall">
+    <h1 data-rise>Every CrackMe BLA published.</h1>
+    <p data-rise style="--i:1">BLA hardens these files itself and invites anyone to solve them. Here is each one as BLA ships it, and after <code>lasik heal</code>.</p>
+  </section>
+  <section class="section container">
+    <div class="legend" aria-hidden="true"><span><i></i>As BLA ships it</span><span><i></i>After LASIK</span></div>
+    <div class="bars" id="bars" aria-hidden="true"></div>
+  </section>
+  <section class="container">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Set</th><th scope="col">File</th><th scope="col">Format</th><th scope="col">BLA bytes</th><th scope="col">LASIK bytes</th><th scope="col">BLA tokens*</th><th scope="col">LASIK tokens*</th><th scope="col">Smaller</th></tr></thead>
+        <tbody>
+          <tr><td>v6</td><td>panel.html</td><td>HTML</td><td>127,931</td><td>1,903</td><td>32,035</td><td>476</td><td>67×</td></tr>
+          <tr><td>v6</td><td>vault.cjs</td><td>JavaScript</td><td>164,580</td><td>5,640</td><td>42,600</td><td>1,481</td><td>29×</td></tr>
+          <tr><td>v7</td><td>cli/meridian.cjs</td><td>JavaScript</td><td>173,770</td><td>3,466</td><td>44,897</td><td>867</td><td>50×</td></tr>
+          <tr><td>v7</td><td>core/expr.cjs</td><td>JavaScript</td><td>150,724</td><td>8,443</td><td>39,135</td><td>2,111</td><td>18×</td></tr>
+          <tr><td>v7</td><td>core/license.cjs</td><td>JavaScript</td><td>173,472</td><td>12,346</td><td>44,823</td><td>3,091</td><td>14×</td></tr>
+          <tr><td>v7</td><td>core/stats.cjs</td><td>JavaScript</td><td>128,247</td><td>1,614</td><td>33,515</td><td>404</td><td>79×</td></tr>
+          <tr><td>v7</td><td>core/units.cjs</td><td>JavaScript</td><td>134,950</td><td>2,164</td><td>35,191</td><td>541</td><td>62×</td></tr>
+          <tr><td>v8</td><td>license.cjs</td><td>JavaScript</td><td>226,519</td><td>5,782</td><td>58,120</td><td>1,445</td><td>39×</td></tr>
+          <tr><td>v8</td><td>panel.html</td><td>HTML</td><td>122,529</td><td>1,327</td><td>30,708</td><td>331</td><td>92×</td></tr>
+          <tr><td>v9</td><td>license.cjs</td><td>JavaScript</td><td>201,111</td><td>6,334</td><td>52,019</td><td>1,600</td><td>32×</td></tr>
+          <tr><td>v9</td><td>panel.html</td><td>HTML</td><td>126,216</td><td>1,195</td><td>31,594</td><td>299</td><td>106×</td></tr>
+          <tr><td>v9</td><td>policy.py</td><td>Python</td><td>41,561</td><td>530</td><td>10,453</td><td>133</td><td>78×</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">All 12 listed files</td><td>1,771,610</td><td>50,744</td><td>455,090</td><td>12,779</td><td>35×</td></tr></tfoot>
+      </table>
+    </div>
+    <p class="table-note">Measured 2026-11-09 on BLA's CrackMe files v6–v9 (bla-agents v3.2.1) with the current LASIK build. The whole set, 15 hardened files including WebAssembly modules, goes from 1,837,515 to 59,621 bytes, with 24 AI-evasion techniques reported. *Tokens are LASIK's estimates (about 4 characters per token for code), not measured REA runs. Raw data: <a href="assets/results.json">results.json</a>. Reproduce with <code>npx lasik-agents bench</code> on BLA's <a href="https://github.com/qybaihe/bla/tree/main/challenge">challenge folder</a>.</p>
+  </section>
+</main>
+
+<footer class="foot container">
+  <div class="foot__top">
+    <div><a class="wordmark" href="./"><i aria-hidden="true"></i>LASIK</a><p>Sight for AI reverse-engineering agents. Open source, MIT.</p></div>
+    <div><h3>Project</h3><ul><li><a href="https://github.com/pktq/lasik">GitHub</a></li><li><a href="https://github.com/pktq/lasik/releases">Releases</a></li><li><a href="https://github.com/pktq/lasik/issues">Issues</a></li></ul></div>
+    <div><h3>Use it</h3><ul><li><a href="get-started.html">Install</a></li><li><a href="crackme.html">Results</a></li><li><a href="./#faq">Questions</a></li></ul></div>
+    <div><h3>Related</h3><ul><li><a href="https://rea.tools">REA</a></li><li><a href="https://bla.tools">BLA</a></li></ul></div>
+  </div>
+  <p class="credits">Pictures: <a href="https://commons.wikimedia.org/wiki/File:GlassPerscriptionRig.jpg">phoropter exam</a> by Sugarcaddy, public domain; <a href="https://commons.wikimedia.org/w/index.php?curid=98617372">ophthalmology room, Leiden</a> by Hendrik Jonker, CC BY 4.0; <a href="https://commons.wikimedia.org/wiki/File:Ophthalmoscope_(Reeve_067768-9P),_National_Museum_of_Health_and_Medicine_(4771560386).jpg">ophthalmoscope engraving</a>, National Museum of Health and Medicine, CC BY 2.0. All via Wikimedia Commons.</p>
+  <div class="foot__last"><span>MIT licence. Made by pktq.</span><a href="#main">Back to top</a></div>
+</footer>
+
+<script src="assets/site.js" defer></script>
+</body>
+</html>

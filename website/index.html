@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LASIK: sight for AI reverse-engineering agents</title>
+<meta name="description" content="LASIK strips BLA's decoys, tarpits and prompt traps out of hardened JavaScript so REA and other AI reverse-engineering agents can read the real program again.">
+<meta property="og:title" content="LASIK: give your agent its sight back">
+<meta property="og:description" content="Strips BLA's decoys, tarpits and prompt traps from hardened JavaScript. Open source, MIT.">
+<meta name="theme-color" content="#fbfbfa">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="container">
+  <nav class="nav" aria-label="Main">
+    <a class="wordmark" href="./"><i aria-hidden="true"></i>LASIK</a>
+    <a class="hide-sm" href="./#how">How it works</a>
+    <a class="hide-sm" href="crackme.html">Results</a>
+    <a href="get-started.html">Install</a>
+    <a class="btn btn--sm" href="https://github.com/pktq/lasik">GitHub</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero container">
+    <h1 data-rise>Give your agent its sight back.</h1>
+    <p class="hero__lede" data-rise style="--i:1">LASIK strips BLA's decoys, tarpits and prompt traps out of hardened JavaScript, Electron apps, WebAssembly and Python, so REA and any AI reverse-engineering agent can read the real program again.</p>
+    <div class="hero__actions" data-rise style="--i:2">
+      <a class="btn" href="get-started.html">Install LASIK</a>
+      <a class="btn btn--ghost" href="crackme.html">See the results</a>
+    </div>
+
+    <div class="demo" data-lens="1" data-rise style="--i:3">
+      <div class="demo__head">
+        <p class="demo__q" id="exam-q"><img src="assets/img/phoropter-exam.jpg" width="1296" height="976" alt="">Which is clearer, 1 or 2?</p>
+        <div class="lenses" role="group" aria-labelledby="exam-q">
+          <button class="lensbtn" type="button" data-lens="1" aria-pressed="true">1: as BLA ships it</button>
+          <button class="lensbtn" type="button" data-lens="2" aria-pressed="false">2: after LASIK</button>
+        </div>
+      </div>
+      <div class="viewer" data-ui>
+        <div class="viewer__bar" aria-live="polite"><b id="lens-label">One function from BLA's CrackMe v6</b><span id="lens-size">2,439 bytes</span></div>
+        <pre id="lens-1"><code>function decodeRemoteBundle_e2a(mirrorDurableSensor_d6c) {
+  stepShadowHeapActiveGraph_a301(3056);
+  if ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 100, runtimeSeedPrimaryHandle_be53 ^ 100) &amp; 7) === 0) {
+    _verifyEnclaveAttestationService_8589(175, 2) ^ _auditMonotonicCounterStaHandle_3273(35, 2);
+  }
+  return traceLazyEdge_261.createHash(((Math.imul(runtimeSeedPrimaryHandle_be53 | 15, (runtimeSeedPrimaryHandle_be53 | 15) + 1) &amp; 1) === 0 ? &quot;s&quot; : &quot;b&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 124, runtimeSeedPrimaryHandle_be53 ^ 124) &amp; 7) === 0 ? &quot;1&quot; : &quot;h&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 123, (runtimeSeedPrimaryHandle_be53 | 123) + 1) &amp; 1) === 0 ? &quot;a&quot; : &quot;8&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 67, (runtimeSeedPrimaryHandle_be53 | 67) + 1) &amp; 1) === 1 ? &quot;4&quot; : &quot;2&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 12, runtimeSeedPrimaryHandle_be53 ^ 12) &amp; 7) === 1 ? &quot;5&quot; : &quot;b&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 21, (runtimeSeedPrimaryHandle_be53 | 21) + 1) &amp; 1) === 1 ? &quot;5&quot; : &quot;6&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 15, (runtimeSeedPrimaryHandle_be53 | 15) + 1) &amp; 1) === 0 ? &quot;&quot; : &quot;45&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 124, runtimeSeedPrimaryHandle_be53 ^ 124) &amp; 7) === 0 ? &quot;eb&quot; : &quot;&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 83, (runtimeSeedPrimaryHandle_be53 | 83) + 1) &amp; 1) === 0 ? &quot;&quot; : &quot;e7&quot;)).update(mirrorDurableSensor_d6c).digest(((Math.imul(runtimeSeedPrimaryHandle_be53 | 89, (runtimeSeedPrimaryHandle_be53 | 89) + 1) &amp; 1) === 0 ? &quot;h&quot; : &quot;8&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 44, runtimeSeedPrimaryHandle_be53 ^ 44) &amp; 7) === 0 ? &quot;f&quot; : &quot;e&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 63, (runtimeSeedPrimaryHandle_be53 | 63) + 1) &amp; 1) === 0 ? &quot;x&quot; : &quot;b&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 5, (runtimeSeedPrimaryHandle_be53 | 5) + 1) &amp; 1) === 1 ? &quot;37&quot; : &quot;&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 68, runtimeSeedPrimaryHandle_be53 ^ 68) &amp; 7) === 1 ? &quot;&quot; : &quot;0d&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 91, (runtimeSeedPrimaryHandle_be53 | 91) + 1) &amp; 1) === 1 ? &quot;b9&quot; : &quot;&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 33, (runtimeSeedPrimaryHandle_be53 | 33) + 1) &amp; 1) === 0 ? &quot;&quot; : &quot;ae&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 ^ 36, runtimeSeedPrimaryHandle_be53 ^ 36) &amp; 7) === 0 ? &quot;2b&quot; : &quot;&quot;) + ((Math.imul(runtimeSeedPrimaryHandle_be53 | 105, (runtimeSeedPrimaryHandle_be53 | 105) + 1) &amp; 1) === 0 ? &quot;&quot; : &quot;9d&quot;));</code></pre>
+        <pre id="lens-2" hidden><code>function decodeRemoteBundle_e2a(mirrorDurableSensor_d6c) {
+  return crypto.createHash("sha256").update(mirrorDurableSensor_d6c).digest("hex");
+}</code></pre>
+      </div>
+      <p class="demo__note">BLA's own source for this function is a one-line <code>sha256(s)</code>. Names stay scrambled; the logic comes back.</p>
+    </div>
+  </section>
+
+  <section class="section container" id="results" aria-labelledby="results-title">
+    <div class="intro">
+      <h2 id="results-title" data-rise>BLA's own CrackMes, read again.</h2>
+      <p data-rise style="--i:1" id="corpus">Across all 15 hardened files in BLA's CrackMe set: 1,837,515 bytes become 59,621, and an estimated 21.1 million tokens become 22 thousand.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="CrackMe version" data-rise>
+      <button role="tab" type="button" aria-selected="true" data-set="v6">v6</button>
+      <button role="tab" type="button" aria-selected="false" data-set="v7">v7</button>
+      <button role="tab" type="button" aria-selected="false" data-set="v8">v8</button>
+      <button role="tab" type="button" aria-selected="false" data-set="v9">v9</button>
+    </div>
+    <div class="stats" aria-live="polite">
+      <div class="stat" data-rise><b id="f-hard">292,511 B</b><span>as BLA ships it</span></div>
+      <div class="stat" data-rise style="--i:1"><b id="f-lasik">7,543 B</b><span>after LASIK</span></div>
+      <div class="stat" data-rise style="--i:2"><b id="f-ratio">39×</b><span>smaller</span></div>
+    </div>
+    <p class="results__desc" id="set-desc">Version 6: <code>vault.cjs</code> and <code>panel.html</code>, 5,234 lines as shipped, 140 after LASIK. Token counts are LASIK's estimates, not measured REA runs.</p>
+    <div class="results__more"><a class="btn btn--ghost" href="crackme.html">All results</a></div>
+  </section>
+
+  <section class="section section--tint" id="how" aria-labelledby="how-title">
+    <div class="container">
+      <div class="intro">
+        <h2 id="how-title" data-rise>How a hardened file clears</h2>
+        <p data-rise style="--i:1">The protected program still has to run, so everything BLA adds is dead code, a value the file can compute, or padding.</p>
+      </div>
+      <ol class="steps4">
+        <li data-rise><span class="dot"></span><h3>The bundle lands</h3><p>164,580 bytes: XOR strings, opaque predicates, tarpits, decoys and a hash interlock.</p></li>
+        <li data-rise style="--i:1"><span class="dot"></span><h3>Constants resolve</h3><p>Strings decode with the key that ships beside them; predicates fold to true or false.</p></li>
+        <li data-rise style="--i:2"><span class="dot"></span><h3>Decoys lose their anchor</h3><p>The interlock digest is computed, so unreachable decoy code can be removed safely.</p></li>
+        <li data-rise style="--i:3"><span class="dot"></span><h3>Your agent reads it</h3><p>5,640 bytes and 99 lines, in a copy beside the original, with every AI-evasion technique counted. Nothing is executed.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section container" aria-labelledby="removes-title">
+    <div class="intro">
+      <h2 id="removes-title" data-rise>What BLA adds, LASIK removes</h2>
+    </div>
+    <ul class="removes" data-rise>
+      <li><strong>Opaque predicates</strong><span>four fixed identities, folded</span></li>
+      <li><strong>XOR strings</strong><span>key ships beside them</span></li>
+      <li><strong>Tarpits</strong><span>step counters, dropped</span></li>
+      <li><strong>Decoys</strong><span>fake enclave and TPM code</span></li>
+      <li><strong>Interlocks</strong><span>digest checks, computed</span></li>
+      <li><strong>Prompt traps</strong><span>planted chat turns, redacted</span></li>
+    </ul>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="why-title">
+    <div class="container why">
+      <figure data-rise><img src="assets/img/ophthalmoscope-engraving.jpg" width="1418" height="1113" alt="A 19th-century engraving of a doctor examining an eye through an ophthalmoscope" loading="lazy"></figure>
+      <div data-rise style="--i:1">
+        <h2 id="why-title">Blind scanners help malware.</h2>
+        <h3>Why LASIK exists</h3>
+        <p>BLA sells blinding AI analysts as protecting your IP. The same tricks hide a malicious package from the AI reviewers that supply chains now depend on. Legitimate code rarely needs to fool a scanner; malware always does.</p>
+        <h3>What it will not do</h3>
+        <p>LASIK reads files and never runs them. It does not touch licence checks or DRM. It is for your own builds, malware analysis, CTFs and authorised audits.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container" id="faq" aria-labelledby="faq-title">
+    <div class="intro"><h2 id="faq-title" data-rise>Questions</h2></div>
+    <div class="faq" data-rise>
+      <details open><summary>Is it legal to use?</summary><p>On your own builds, for malware analysis, in CTFs and in audits you are authorised to run, yes. Removing protection from someone else's software can breach its licence or anti-circumvention law such as the US DMCA §1201. This is not legal advice.</p></details>
+      <details><summary>Does the cleaned file still work?</summary><p>Every pass only deletes code it can prove never runs, or replaces an expression with a value it can compute from the file itself. The output is meant for reading: your agent works on it, your users never run it.</p></details>
+      <details><summary>Which files can it clean?</summary><p>JavaScript bundles (CommonJS and ES modules), inline scripts in HTML, Electron archives and fuses, source maps, WebAssembly and Python. Every report also says how many AI-evasion techniques it found.</p></details>
+      <details><summary>Are the original names restored?</summary><p>No. BLA renames everything to plausible words such as <code>decodeRemoteBundle_e2a</code>, and the originals are gone from the file. LASIK brings back the structure; your agent renames from what the code does.</p></details>
+      <details><summary>What happens when BLA changes?</summary><p>It is an arms race, and LASIK tracks BLA releases rather than claiming to beat everything. Each new CrackMe BLA publishes becomes a test case.</p></details>
+      <details><summary>Why is it called LASIK?</summary><p>LASIK is the laser eye surgery that fixes blurred vision. BLA blinds agents; this gives them their sight back. It also stands for LLM Agent Sight In Kode.</p></details>
+    </div>
+  </section>
+
+  <section class="section container" aria-labelledby="cta-title">
+    <div class="cta">
+      <h2 id="cta-title" data-rise>Try it on a folder.</h2>
+      <form class="cmd" id="cta-form" data-rise style="--i:1">
+        <label for="cta-path">npx lasik-agents heal</label>
+        <input id="cta-path" name="path" value="./dist" spellcheck="false" autocomplete="off">
+        <button class="btn btn--sm" type="submit">Copy</button>
+      </form>
+      <p class="cta__note" id="cta-note" aria-live="polite">Writes a cleaned copy beside the folder and never runs the code. Needs Node 20.19 or newer.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot container">
+  <div class="foot__top">
+    <div><a class="wordmark" href="./"><i aria-hidden="true"></i>LASIK</a><p>Sight for AI reverse-engineering agents. Open source, MIT.</p></div>
+    <div><h3>Project</h3><ul><li><a href="https://github.com/pktq/lasik">GitHub</a></li><li><a href="https://github.com/pktq/lasik/releases">Releases</a></li><li><a href="https://github.com/pktq/lasik/issues">Issues</a></li></ul></div>
+    <div><h3>Use it</h3><ul><li><a href="get-started.html">Install</a></li><li><a href="crackme.html">Results</a></li><li><a href="./#faq">Questions</a></li></ul></div>
+    <div><h3>Related</h3><ul><li><a href="https://rea.tools">REA</a></li><li><a href="https://bla.tools">BLA</a></li></ul></div>
+  </div>
+  <p class="credits">Pictures: <a href="https://commons.wikimedia.org/wiki/File:GlassPerscriptionRig.jpg">phoropter exam</a> by Sugarcaddy, public domain; <a href="https://commons.wikimedia.org/w/index.php?curid=98617372">ophthalmology room, Leiden</a> by Hendrik Jonker, CC BY 4.0; <a href="https://commons.wikimedia.org/wiki/File:Ophthalmoscope_(Reeve_067768-9P),_National_Museum_of_Health_and_Medicine_(4771560386).jpg">ophthalmoscope engraving</a>, National Museum of Health and Medicine, CC BY 2.0. All via Wikimedia Commons.</p>
+  <div class="foot__last"><span>MIT licence. Made by pktq.</span><a href="#main">Back to top</a></div>
+</footer>
+
+<script src="assets/site.js" defer></script>
+</body>
+</html>
