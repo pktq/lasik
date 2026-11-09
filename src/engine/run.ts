@@ -181,6 +181,8 @@ function formatOf(file: string, buf: Buffer): Format {
   const base = detectFormat(file, head);
   if (base === "wasm" || base === "sqlite" || base === "gguf" || base === "asar" || base === "safetensors") return base;
   const bin = BINARY.find((b) => b.is(file, head));
+  // Managed assemblies carry the CLI metadata signature; a plain native .exe/.dll does not.
+  if (bin?.format === "dotnet" && !buf.includes("BSJB")) return "native";
   if (bin) return bin.format;
   if (base === "unknown" && isSafetensors(file, head)) return "safetensors";
   return base;

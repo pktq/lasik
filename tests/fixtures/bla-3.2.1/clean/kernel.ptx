@@ -1,0 +1,15 @@
+.version 7.0
+.target sm_80
+.address_size 64
+
+.visible .entry scale(.param .u64 p, .param .f32 k)
+{
+	.reg .b64 %rd<2>;
+	.reg .f32 %f<3>;
+	ld.param.u64 %rd1, [p];
+	ld.param.f32 %f1, [k];
+	ld.global.f32 %f2, [%rd1];
+	mul.f32 %f2, %f2, %f1;
+	st.global.f32 [%rd1], %f2;
+	ret;
+}

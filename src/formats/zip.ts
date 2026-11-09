@@ -146,7 +146,7 @@ export const healZip: FormatHealer = (input, file, opts) => {
     const isMapping = inShield && /(^|\/)(proguard-)?mapping\.txt$/.test(e.name);
     const isManifestCopy = inShield && /AndroidManifest[^/]*\.xml$/.test(e.name);
     const isJni = e.name === JNI_NAME;
-    const generic = gated && (inShield || /^enclave\/shadow_module_[0-9a-f]{12}\.json$/.test(e.name));
+    const generic = gated && (inShield || /^enclave\/shadow_module_[0-9a-f]{6,16}\.json$/.test(e.name));
     if (!(generic || isDex || isMeta || isPlistName || isClass || isMapping || isManifestCopy || isJni)) continue;
 
     const data = read(input, e);

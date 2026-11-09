@@ -33,29 +33,29 @@
 <article class="doc">
   <h1>Results on BLA's CrackMes</h1>
   <p>The benchmark corpus is BLA's own published CrackMe outputs, v6 to v9, hardened by BLA's maintainers at <code>bankrupt</code> intensity and vendored unchanged in <a href="https://github.com/pktq/lasik/tree/main/bench/bla-crackme">bench/bla-crackme</a>. Nothing here is hand-written: this page is generated from <code>lasik bench</code>.</p>
-  <p class="muted"><!-- gen:stamp -->Generated 2026-11-09 with LASIK 0.1.0 on <code>bench/bla-crackme</code>: BLA's published CrackMe outputs v6–v9 (MIT), vendored unchanged. Verdict <strong>blinded</strong>, blindness 100/100, 24 AI-evasion techniques.<!-- /gen:stamp --></p>
+  <p class="muted"><!-- gen:stamp -->Generated 2026-11-09 with LASIK 0.1.0 on <code>bench/bla-crackme</code>: BLA's published CrackMe outputs v6–v9 (MIT), vendored unchanged. Verdict <strong>blinded</strong>, blindness 100/100, 27 AI-evasion techniques.<!-- /gen:stamp --></p>
 
   <h2 id="artifacts">Per artifact</h2>
   <!-- gen:results-table --><div class="table"><table>
 <thead><tr><th>Artifact</th><th>Format</th><th class="num">Before</th><th class="num">After</th><th class="num">Est. tokens before → after</th><th class="num">Cheaper</th></tr></thead>
 <tbody>
 <tr><td><code>v6/core.wasm.gz</code></td><td><span class="fmt">wasm</span></td><td class="num">17.7 KB</td><td class="num">117 B</td><td class="num">6,880,354 → 98</td><td class="num">70,208×</td></tr>
-<tr><td><code>v6/panel.html</code></td><td><span class="fmt">html</span></td><td class="num">124.9 KB</td><td class="num">1.9 KB</td><td class="num">32,035 → 476</td><td class="num">67×</td></tr>
-<tr><td><code>v6/vault.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">160.7 KB</td><td class="num">5.5 KB</td><td class="num">42,600 → 1,481</td><td class="num">29×</td></tr>
-<tr><td><code>v7/cli/meridian.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">169.7 KB</td><td class="num">3.4 KB</td><td class="num">44,897 → 867</td><td class="num">52×</td></tr>
-<tr><td><code>v7/core/expr.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">147.2 KB</td><td class="num">8.2 KB</td><td class="num">39,135 → 2,111</td><td class="num">19×</td></tr>
-<tr><td><code>v7/core/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">169.4 KB</td><td class="num">12.1 KB</td><td class="num">44,823 → 3,091</td><td class="num">15×</td></tr>
-<tr><td><code>v7/core/stats.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">125.2 KB</td><td class="num">1.6 KB</td><td class="num">33,515 → 404</td><td class="num">83×</td></tr>
-<tr><td><code>v7/core/units.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">131.8 KB</td><td class="num">2.1 KB</td><td class="num">35,191 → 541</td><td class="num">65×</td></tr>
+<tr><td><code>v6/panel.html</code></td><td><span class="fmt">html</span></td><td class="num">124.9 KB</td><td class="num">1.4 KB</td><td class="num">32,035 → 354</td><td class="num">90×</td></tr>
+<tr><td><code>v6/vault.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">160.7 KB</td><td class="num">3.4 KB</td><td class="num">42,600 → 946</td><td class="num">45×</td></tr>
+<tr><td><code>v7/cli/meridian.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">169.7 KB</td><td class="num">2.2 KB</td><td class="num">44,897 → 569</td><td class="num">79×</td></tr>
+<tr><td><code>v7/core/expr.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">147.2 KB</td><td class="num">3.9 KB</td><td class="num">39,135 → 994</td><td class="num">39×</td></tr>
+<tr><td><code>v7/core/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">169.4 KB</td><td class="num">5.9 KB</td><td class="num">44,823 → 1,524</td><td class="num">29×</td></tr>
+<tr><td><code>v7/core/stats.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">125.2 KB</td><td class="num">614 B</td><td class="num">33,515 → 154</td><td class="num">218×</td></tr>
+<tr><td><code>v7/core/units.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">131.8 KB</td><td class="num">968 B</td><td class="num">35,191 → 242</td><td class="num">145×</td></tr>
 <tr><td><code>v8/core.wasm.gz</code></td><td><span class="fmt">wasm</span></td><td class="num">20.9 KB</td><td class="num">1.8 KB</td><td class="num">6,883,663 → 3,506</td><td class="num">1,963×</td></tr>
-<tr><td><code>v8/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">221.2 KB</td><td class="num">5.6 KB</td><td class="num">58,120 → 1,445</td><td class="num">40×</td></tr>
+<tr><td><code>v8/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">221.2 KB</td><td class="num">3.6 KB</td><td class="num">58,120 → 911</td><td class="num">64×</td></tr>
 <tr><td><code>v8/panel.html</code></td><td><span class="fmt">html</span></td><td class="num">119.7 KB</td><td class="num">1.3 KB</td><td class="num">30,708 → 331</td><td class="num">93×</td></tr>
 <tr><td><code>v9/core.wasm.gz</code></td><td><span class="fmt">wasm</span></td><td class="num">20.9 KB</td><td class="num">1.8 KB</td><td class="num">6,883,604 → 3,496</td><td class="num">1,969×</td></tr>
-<tr><td><code>v9/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">196.4 KB</td><td class="num">6.2 KB</td><td class="num">52,019 → 1,600</td><td class="num">33×</td></tr>
+<tr><td><code>v9/license.cjs</code></td><td><span class="fmt">javascript</span></td><td class="num">196.4 KB</td><td class="num">3.9 KB</td><td class="num">52,019 → 1,013</td><td class="num">51×</td></tr>
 <tr><td><code>v9/panel.html</code></td><td><span class="fmt">html</span></td><td class="num">123.3 KB</td><td class="num">1.2 KB</td><td class="num">31,594 → 299</td><td class="num">106×</td></tr>
 <tr><td><code>v9/policy.py</code></td><td><span class="fmt">python</span></td><td class="num">40.6 KB</td><td class="num">530 B</td><td class="num">10,453 → 133</td><td class="num">79×</td></tr>
 </tbody>
-<tfoot><tr><td>15 hardened artifacts</td><td></td><td class="num">1.75 MB</td><td class="num">58.2 KB</td><td class="num">21.1 M → 22 k</td><td class="num">958×</td></tr></tfoot>
+<tfoot><tr><td>15 hardened artifacts</td><td></td><td class="num">1.75 MB</td><td class="num">37.5 KB</td><td class="num">21.1 M → 17 k</td><td class="num">1,262×</td></tr></tfoot>
 </table></div><!-- /gen:results-table -->
   <p class="muted">Token counts are estimates: about 4 characters per token for code, 2 for hex and base64, 1 per byte for binary (WASM is counted uncompressed, about 6.9 MB per module). They are not measured REA runs.</p>
   <p>LASIK makes every CrackMe readable. It does not publish keys or flags; solving them is still yours.</p>
@@ -66,11 +66,13 @@
 <div class="table"><table><tbody>
 <tr><td class="num">968</td><td>removed BLA decoy declaration (known stem) <span class="fmt">fingerprinted-decoy</span></td></tr>
 <tr><td class="num">519</td><td>removed top-level declaration unreachable from any live code <span class="fmt">unreachable-decl</span></td></tr>
+<tr><td class="num">267</td><td>replaced BLA's misleading realistic names with neutral ones (p0, v0, f0) <span class="fmt">neutral-rename</span></td></tr>
 <tr><td class="num">116</td><td>removed BLA's content-free replacement comments <span class="fmt">scrambled-comment</span></td></tr>
-<tr><td class="num">31</td><td>removed BLA's prepended Python tarpit, chaff tables and honeypots (unreferenced by real code) <span class="fmt">python-tarpit-prelude</span></td></tr>
 <tr><td class="num">24</td><td>removed <code>void decoy;</code> keep-alive anchors <span class="fmt">keep-alive-anchor</span></td></tr>
+<tr><td class="num">18</td><td>removed BLA's Python tarpit: decoy functions, chaff table, private state and warm-init <span class="fmt">python-tarpit-prelude</span></td></tr>
 <tr><td class="num">17</td><td>renamed BLA-renamed require() handles after their module <span class="fmt">renamed-module-handle</span></td></tr>
 <tr><td class="num">16</td><td>removed inline honey source map (fake enclave source tree) <span class="fmt">honey-sourcemap</span></td></tr>
+<tr><td class="num">13</td><td>restored BLA-renamed bindings to the key they are exported or imported under <span class="fmt">recovered-export-name</span></td></tr>
 <tr><td class="num">9</td><td>removed BLA custom section "enclave.attestation.*" <span class="fmt">wasm-custom:enclave.attestation.*</span></td></tr>
 <tr><td class="num">3</td><td>removed BLA custom section "name" <span class="fmt">wasm-custom:name</span></td></tr>
 <tr><td class="num">3</td><td>removed BLA custom section "bla.enclave.manifest" <span class="fmt">wasm-custom:bla.enclave.manifest</span></td></tr>
@@ -78,6 +80,7 @@
 <tr><td class="num">3</td><td>removed BLA custom section "bla.system.diagnostics" <span class="fmt">wasm-custom:bla.system.diagnostics</span></td></tr>
 <tr><td class="num">3</td><td>removed BLA custom section "bla.export.name.decoys" <span class="fmt">wasm-custom:bla.export.name.decoys</span></td></tr>
 <tr><td class="num">2</td><td>removed BLA's injected <code>void 0;</code> bootstrap &lt;script&gt; <span class="fmt">bootstrap-script</span></td></tr>
+<tr><td class="num">1</td><td>removed BLA's inert canary / diagnostic honeypot block <span class="fmt">python-honeypot-block</span></td></tr>
 </tbody></table></div>
 <h3>Encrypt</h3>
 <div class="table"><table><tbody>
@@ -88,6 +91,7 @@
 <div class="table"><table><tbody>
 <tr><td class="num">11</td><td>recomputed the decoy-corpus digest statically and folded the anti-strip seed bit <span class="fmt">corpus-digest-interlock</span></td></tr>
 <tr><td class="num">5</td><td>removed SHA-256 self-integrity / sidecar tamper checks (own bytes + core.wasm, panel.html) <span class="fmt">self-seal</span></td></tr>
+<tr><td class="num">2</td><td>removed BLA's shared-slot touches woven into real functions <span class="fmt">python-weave-touch</span></td></tr>
 </tbody></table></div>
 <h3>Exhaust</h3>
 <div class="table"><table><tbody>
@@ -101,7 +105,6 @@
 <h3>Runtime</h3>
 <div class="table"><table><tbody>
 <tr><td class="num">74</td><td>removed calls to a private-state churn function (shadow heap) that nothing observes <span class="fmt">memory-diff-churn</span></td></tr>
-<tr><td class="num">43</td><td>removed writes to BLA's private tarpit slot from real functions <span class="fmt">python-slot-churn</span></td></tr>
 <tr><td class="num">11</td><td>removed self-contained runtime decoy block (fake enclave status, decoy globals/listeners) <span class="fmt">runtime-deception-block</span></td></tr>
 </tbody></table></div>
 <h3>Tarpit</h3>
@@ -110,9 +113,9 @@
 <tr><td class="num">1,962</td><td>folded number-theoretic opaque predicate (proven int32 identity family) <span class="fmt">opaque-predicate</span></td></tr>
 <tr><td class="num">1,049</td><td>folded predicate proved constant by exhaustive enumeration of the low bits it depends on <span class="fmt">seed-bit-predicate</span></td></tr>
 <tr><td class="num">99</td><td>int32 predicate constant on 512 samples but not a known BLA family; left in place (use --aggressive to fold) <span class="fmt">opaque-predicate-suspected</span></td></tr>
-<tr><td class="num">20</td><td>removed blocks guarded by BLA's always-false Python tarpit predicate <span class="fmt">python-opaque-guard</span></td></tr>
 <tr><td class="num">3</td><td>folded agent-woven state-slot invariant guards (known bits over every write) <span class="fmt">weave-invariant</span></td></tr>
-<tr><td class="num">1</td><td>folded <code>x &amp; 0</code> entanglement terms to 0 <span class="fmt">weave-zero-entanglement</span></td></tr>
+<tr><td class="num">2</td><td>folded <code>x &amp; 0</code> entanglement terms to 0 <span class="fmt">weave-zero-entanglement</span></td></tr>
+<tr><td class="num">2</td><td>removed blocks guarded by BLA's always-false Python tarpit predicate <span class="fmt">python-opaque-guard</span></td></tr>
 </tbody></table></div><!-- /gen:techniques -->
 
   <h2 id="reproduce">Reproduce it</h2>

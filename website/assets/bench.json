@@ -4,15 +4,15 @@
  "corpus": "bench/bla-crackme",
  "verdict": "blinded",
  "blindness": 100,
- "evasionTechniques": 24,
+ "evasionTechniques": 27,
  "totals": {
   "files": 19,
   "blinded": 15,
-  "findings": 11667,
+  "findings": 11877,
   "bytesBefore": 1837515,
-  "bytesAfter": 59621,
+  "bytesAfter": 38390,
   "tokensBefore": 21104859,
-  "tokensAfter": 22027
+  "tokensAfter": 16718
  },
  "files": [
   {
@@ -27,57 +27,57 @@
    "file": "v6/panel.html",
    "format": "html",
    "bytesBefore": 127931,
-   "bytesAfter": 1903,
+   "bytesAfter": 1418,
    "tokensBefore": 32035,
-   "tokensAfter": 476
+   "tokensAfter": 354
   },
   {
    "file": "v6/vault.cjs",
    "format": "javascript",
    "bytesBefore": 164580,
-   "bytesAfter": 5640,
+   "bytesAfter": 3501,
    "tokensBefore": 42600,
-   "tokensAfter": 1481
+   "tokensAfter": 946
   },
   {
    "file": "v7/cli/meridian.cjs",
    "format": "javascript",
    "bytesBefore": 173770,
-   "bytesAfter": 3466,
+   "bytesAfter": 2275,
    "tokensBefore": 44897,
-   "tokensAfter": 867
+   "tokensAfter": 569
   },
   {
    "file": "v7/core/expr.cjs",
    "format": "javascript",
    "bytesBefore": 150724,
-   "bytesAfter": 8443,
+   "bytesAfter": 3973,
    "tokensBefore": 39135,
-   "tokensAfter": 2111
+   "tokensAfter": 994
   },
   {
    "file": "v7/core/license.cjs",
    "format": "javascript",
    "bytesBefore": 173472,
-   "bytesAfter": 12346,
+   "bytesAfter": 6078,
    "tokensBefore": 44823,
-   "tokensAfter": 3091
+   "tokensAfter": 1524
   },
   {
    "file": "v7/core/stats.cjs",
    "format": "javascript",
    "bytesBefore": 128247,
-   "bytesAfter": 1614,
+   "bytesAfter": 614,
    "tokensBefore": 33515,
-   "tokensAfter": 404
+   "tokensAfter": 154
   },
   {
    "file": "v7/core/units.cjs",
    "format": "javascript",
    "bytesBefore": 134950,
-   "bytesAfter": 2164,
+   "bytesAfter": 968,
    "tokensBefore": 35191,
-   "tokensAfter": 541
+   "tokensAfter": 242
   },
   {
    "file": "v8/core.wasm.gz",
@@ -91,9 +91,9 @@
    "file": "v8/license.cjs",
    "format": "javascript",
    "bytesBefore": 226519,
-   "bytesAfter": 5782,
+   "bytesAfter": 3646,
    "tokensBefore": 58120,
-   "tokensAfter": 1445
+   "tokensAfter": 911
   },
   {
    "file": "v8/panel.html",
@@ -115,9 +115,9 @@
    "file": "v9/license.cjs",
    "format": "javascript",
    "bytesBefore": 201111,
-   "bytesAfter": 6334,
+   "bytesAfter": 3988,
    "tokensBefore": 52019,
-   "tokensAfter": 1600
+   "tokensAfter": 1013
   },
   {
    "file": "v9/panel.html",
@@ -151,21 +151,27 @@
   },
   {
    "layer": "deceive",
+   "technique": "neutral-rename",
+   "detail": "replaced BLA's misleading realistic names with neutral ones (p0, v0, f0)",
+   "count": 267
+  },
+  {
+   "layer": "deceive",
    "technique": "scrambled-comment",
    "detail": "removed BLA's content-free replacement comments",
    "count": 116
   },
   {
    "layer": "deceive",
-   "technique": "python-tarpit-prelude",
-   "detail": "removed BLA's prepended Python tarpit, chaff tables and honeypots (unreferenced by real code)",
-   "count": 31
-  },
-  {
-   "layer": "deceive",
    "technique": "keep-alive-anchor",
    "detail": "removed `void decoy;` keep-alive anchors",
    "count": 24
+  },
+  {
+   "layer": "deceive",
+   "technique": "python-tarpit-prelude",
+   "detail": "removed BLA's Python tarpit: decoy functions, chaff table, private state and warm-init",
+   "count": 18
   },
   {
    "layer": "deceive",
@@ -178,6 +184,12 @@
    "technique": "honey-sourcemap",
    "detail": "removed inline honey source map (fake enclave source tree)",
    "count": 16
+  },
+  {
+   "layer": "deceive",
+   "technique": "recovered-export-name",
+   "detail": "restored BLA-renamed bindings to the key they are exported or imported under",
+   "count": 13
   },
   {
    "layer": "deceive",
@@ -222,6 +234,12 @@
    "count": 2
   },
   {
+   "layer": "deceive",
+   "technique": "python-honeypot-block",
+   "detail": "removed BLA's inert canary / diagnostic honeypot block",
+   "count": 1
+  },
+  {
    "layer": "encrypt",
    "technique": "split-literal",
    "detail": "re-joined strings, integers and byte arrays BLA split into fragments",
@@ -246,6 +264,12 @@
    "count": 5
   },
   {
+   "layer": "entangle",
+   "technique": "python-weave-touch",
+   "detail": "removed BLA's shared-slot touches woven into real functions",
+   "count": 2
+  },
+  {
    "layer": "exhaust",
    "technique": "wasm-decoy-exports",
    "detail": "removed decoy WASM exports aliasing real functions",
@@ -268,12 +292,6 @@
    "technique": "memory-diff-churn",
    "detail": "removed calls to a private-state churn function (shadow heap) that nothing observes",
    "count": 74
-  },
-  {
-   "layer": "runtime",
-   "technique": "python-slot-churn",
-   "detail": "removed writes to BLA's private tarpit slot from real functions",
-   "count": 43
   },
   {
    "layer": "runtime",
@@ -307,12 +325,6 @@
   },
   {
    "layer": "tarpit",
-   "technique": "python-opaque-guard",
-   "detail": "removed blocks guarded by BLA's always-false Python tarpit predicate",
-   "count": 20
-  },
-  {
-   "layer": "tarpit",
    "technique": "weave-invariant",
    "detail": "folded agent-woven state-slot invariant guards (known bits over every write)",
    "count": 3
@@ -321,7 +333,13 @@
    "layer": "tarpit",
    "technique": "weave-zero-entanglement",
    "detail": "folded `x & 0` entanglement terms to 0",
-   "count": 1
+   "count": 2
+  },
+  {
+   "layer": "tarpit",
+   "technique": "python-opaque-guard",
+   "detail": "removed blocks guarded by BLA's always-false Python tarpit predicate",
+   "count": 2
   }
  ]
 }

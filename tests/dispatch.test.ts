@@ -16,7 +16,8 @@ const pad = (b: Buffer, n = 128) => Buffer.concat([b, Buffer.alloc(Math.max(0, n
 const CLEAN: [string, Buffer, string][] = [
   ["app.elf", pad(Buffer.from([0x7f, 0x45, 0x4c, 0x46, 2, 1, 1])), "native"],
   ["tool.so", pad(Buffer.from([0x7f, 0x45, 0x4c, 0x46, 2, 1, 1])), "native"],
-  ["Lib.dll", pad(Buffer.from("MZ")), "dotnet"],
+  ["Native.dll", pad(Buffer.from("MZ")), "native"],
+  ["Lib.dll", pad(Buffer.concat([Buffer.from("MZ"), Buffer.alloc(62), Buffer.from("BSJB")])), "dotnet"],
   ["fw.uf2", pad(Buffer.concat([u32le(0x0a324655), u32le(0x9e5d5157)]), 512), "uf2"],
   ["cap.pcap", pad(u32le(0xa1b2c3d4), 24), "pcap"],
   ["m.beam", pad(Buffer.concat([Buffer.from("FOR1"), Buffer.from([0, 0, 0, 4]), Buffer.from("BEAM")]), 12), "beam"],

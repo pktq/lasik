@@ -36,7 +36,7 @@
 
 BLA 자체 CrackMe v6에서의 전/후:
 
-<p align="center"><img src="../assets/before-after.svg" alt="CrackMe v6 vault.cjs(164 KB)의 BLA 난독화 발췌와 복구된 로직(5.5 KB)" width="100%" /></p>
+<p align="center"><img src="../assets/before-after.svg" alt="CrackMe v6 vault.cjs(164 KB)의 BLA 난독화 발췌와 복구된 로직(3.4 KB)" width="100%" /></p>
 
 그리고 BLA의 CrackMe 전체 코퍼스에 적용한 결과입니다:
 
@@ -74,22 +74,22 @@ Node.js ≥ 20.19가 필요합니다. 네이티브 의존성도, 네트워크 �
 
 | 아티팩트 | 형식 | 이전 | 이후 | 토큰 이전 → 이후 | 절감 배율 |
 |---|---|---:|---:|---:|---:|
-| `v6/core.wasm.gz` | wasm | 17.7 KB (원본 6.9 MB) | 0.1 KB | 6,880,354 → 98 | **70,207×** |
-| `v6/panel.html` | html | 124.9 KB | 1.9 KB | 32,035 → 476 | 67.3× |
-| `v6/vault.cjs` | javascript | 160.7 KB | 5.5 KB | 42,600 → 1,481 | 28.8× |
-| `v7/cli/meridian.cjs` | javascript | 169.7 KB | 3.4 KB | 44,897 → 867 | 51.8× |
-| `v7/core/expr.cjs` | javascript | 147.2 KB | 8.2 KB | 39,135 → 2,111 | 18.5× |
-| `v7/core/license.cjs` | javascript | 169.4 KB | 12.1 KB | 44,823 → 3,091 | 14.5× |
-| `v7/core/stats.cjs` | javascript | 125.2 KB | 1.6 KB | 33,515 → 404 | 83.0× |
-| `v7/core/units.cjs` | javascript | 131.8 KB | 2.1 KB | 35,191 → 541 | 65.0× |
-| `v8/core.wasm.gz` | wasm | 20.9 KB (원본 6.9 MB) | 1.8 KB | 6,883,663 → 3,506 | 1,963× |
-| `v8/license.cjs` | javascript | 221.2 KB | 5.6 KB | 58,120 → 1,445 | 40.2× |
+| `v6/core.wasm.gz` | wasm | 17.7 KB | 0.1 KB | 6,880,354 → 98 | 70207.7× |
+| `v6/panel.html` | html | 124.9 KB | 1.4 KB | 32,035 → 354 | 90.5× |
+| `v6/vault.cjs` | javascript | 160.7 KB | 3.4 KB | 42,600 → 946 | 45.0× |
+| `v7/cli/meridian.cjs` | javascript | 169.7 KB | 2.2 KB | 44,897 → 569 | 78.9× |
+| `v7/core/expr.cjs` | javascript | 147.2 KB | 3.9 KB | 39,135 → 994 | 39.4× |
+| `v7/core/license.cjs` | javascript | 169.4 KB | 5.9 KB | 44,823 → 1,524 | 29.4× |
+| `v7/core/stats.cjs` | javascript | 125.2 KB | 0.6 KB | 33,515 → 154 | 217.6× |
+| `v7/core/units.cjs` | javascript | 131.8 KB | 0.9 KB | 35,191 → 242 | 145.4× |
+| `v8/core.wasm.gz` | wasm | 20.9 KB | 1.8 KB | 6,883,663 → 3,506 | 1963.4× |
+| `v8/license.cjs` | javascript | 221.2 KB | 3.6 KB | 58,120 → 911 | 63.8× |
 | `v8/panel.html` | html | 119.7 KB | 1.3 KB | 30,708 → 331 | 92.8× |
-| `v9/core.wasm.gz` | wasm | 20.9 KB (원본 6.9 MB) | 1.8 KB | 6,883,604 → 3,496 | 1,969× |
-| `v9/license.cjs` | javascript | 196.4 KB | 6.2 KB | 52,019 → 1,600 | 32.5× |
+| `v9/core.wasm.gz` | wasm | 20.9 KB | 1.8 KB | 6,883,604 → 3,496 | 1969.0× |
+| `v9/license.cjs` | javascript | 196.4 KB | 3.9 KB | 52,019 → 1,013 | 51.4× |
 | `v9/panel.html` | html | 123.3 KB | 1.2 KB | 31,594 → 299 | 105.7× |
 | `v9/policy.py` | python | 40.6 KB | 0.5 KB | 10,453 → 133 | 78.6× |
-| **합계** | | **1.75 MB** | **58 KB** | **21.1 M → 22 k** | **958×** |
+| **합계** | | **1.75 MB** | **37 KB** | **21.1 M → 17 k** | **1,262×** |
 
 </details>
 

@@ -13,11 +13,14 @@ Full parity with BLA 3.2.1: every file in BLA's `src/` is accounted for in `cove
 - `nested-modules` pass: heals BLA modules hardened per module inside esbuild bundles.
 - Prompt firewall: 40 rules (evidence lures, fake toolchain diagnostics, fixed canary URL shape).
 - `coverage/bla.json` + `scripts/bla-coverage.mjs` (`check`, `pin`, `docs`), generated `docs/coverage.md`, and a weekly `BLA drift` workflow that opens an issue when upstream BLA changes.
+- Verified on real `bla-agents@3.2.1` output (`tests/fixtures/bla-3.2.1`, default and all-opt-in runs over 21 formats): every file healed, no BLA marker or prompt decoy left, 10 formats restored byte for byte, SQLite schema and rows identical, `.pyc` code objects identical.
+- Name recovery: BLA-renamed bindings get back the key they are exported or `require`-destructured under; other BLA names become neutral `p0`/`v0`/`f0`.
 - README redesign with SVG diagrams (flow, pipeline, before/after, token chart) and a generated coverage table.
 
 ### Fixed
 
 - A runtime-decoy block, self-seal or bind-scope lock inside an IIFE/bundler wrapper no longer deletes the whole wrapper with the real code in it.
+- ZIP shadow modules matched with BLA's real 6-hex suffix; plain native `.exe`/`.dll` no longer labelled .NET.
 - Soft-fold sidecar preambles are stripped; literal `eval` strings no longer block decoy removal; folding refuses when `Math` is a local binding.
 
 ## [0.1.0] - 2026-11-09

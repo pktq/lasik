@@ -9,7 +9,7 @@ import { decryptStrings } from "./passes/decrypt-strings.js";
 import { stripPrivateStateSinks } from "./passes/private-state.js";
 import { stripSelfSeal } from "./passes/self-seal.js";
 import { foldWeaveInvariants } from "./passes/weave.js";
-import { renameRequireHandles } from "./passes/rename.js";
+import { renameBlaNames, renameRequireHandles } from "./passes/rename.js";
 import { healNestedModules } from "./passes/nested-modules.js";
 import { stripRuntimeDecoys } from "./passes/runtime-decoys.js";
 import { shakeUnreachable } from "./passes/tree-shake.js";
@@ -110,6 +110,7 @@ export function healJs(code: string, opts: JsHealOptions = {}): JsHealResult {
   }
 
   if (opts.rename !== false) changes += renameRequireHandles(ast, findings);
+  if (opts.rename !== false && hardened) changes += renameBlaNames(ast, findings);
   if (opts.firewall !== false) changes += firewallJs(ast, findings, { mode, hardened: true });
 
   return { code: changes ? printJs(ast) : code, findings: withInner(findings), warnings, changed: changes > 0 || nested > 0 };

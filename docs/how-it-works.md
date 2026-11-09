@@ -141,9 +141,9 @@ slot.epoch = slot.epoch | 2; // every write sets the same known bits
 
 *What BLA emits.* `const attestTransientCursor_e36 = require("fs")`.
 
-*How LASIK undoes it.* Renames to `fs`, and restores the hashed panel ABI where BLA renamed `derive`. Other identifiers are not recoverable.
+*How LASIK undoes it.* Renames to `fs`, and restores the hashed panel ABI where BLA renamed `derive`. In a proven-hardened file, a binding exported or destructured under a key gets that key back (`module.exports = { clampPan: primeSparseStack_719 }` → `function clampPan`, `const { contextBridge: reducePendingToken_a7e } = require("electron")` → `contextBridge`). Every other BLA-named local becomes a neutral `p0`/`v0`/`f0`: BLA's names are chosen to suggest the wrong meaning, so a neutral name reads better than a misleading one. Functions and classes keep their names if the file reads `.name`, `.toString()` or `.stack`; nothing is renamed if `eval` or `with` could reach a name.
 
-*Certainty:* fingerprint.
+*Certainty:* exact for the renaming (scope-aware, capture-checked); the recovered names are the ones the program itself publishes.
 
 ### 6. Prompt firewall (`firewall.ts`)
 

@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="646" viewBox="0 0 1100 646" role="img" aria-label="lasik scan output">
-<rect width="1100" height="646" rx="12" fill="#0b1020"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="836" viewBox="0 0 1100 836" role="img" aria-label="lasik scan output">
+<rect width="1100" height="836" rx="12" fill="#0b1020"/>
 <rect width="1100" height="36" rx="12" fill="#111a33"/>
 <rect y="24" width="1100" height="12" fill="#111a33"/>
 <circle cx="22" cy="18" r="6" fill="#f87171"/><circle cx="42" cy="18" r="6" fill="#fbbf24"/><circle cx="62" cy="18" r="6" fill="#34d399"/>
@@ -8,32 +8,42 @@
 <text x="24" y="68" fill="#7dd3fc">LASIK 0.1.0 · LLM Agent Sight In Kode</text>
 <text x="24" y="87" fill="#e2e8f0">Scanned 19 file(s) in bench/bla-crackme</text>
 <text x="24" y="106" fill="#fca5a5" font-weight="700">Verdict: BLINDED  ·  blindness 100/100  ·  15 file(s) carry BLA artifacts</text>
-<text x="24" y="125" fill="#86efac" font-weight="700">Sight restored: 1.8 MB → 58.2 KB (96.8% smaller), ~21,104,859 → ~22,027 tokens (958.1× cheaper for an agent to read)</text>
-<text x="24" y="144" fill="#94a3b8"></text>
-<text x="24" y="163" fill="#e2e8f0" font-weight="700">Tarpit (opaque predicates, dead branches)</text>
-<text x="74" y="182" fill="#fbbf24" text-anchor="end">3432</text><text x="88" y="182" fill="#94a3b8">removed branches made unreachable by folded predicates</text>
-<text x="74" y="201" fill="#fbbf24" text-anchor="end">1962</text><text x="88" y="201" fill="#94a3b8">folded number-theoretic opaque predicate (proven int32 identity family)</text>
-<text x="74" y="220" fill="#fbbf24" text-anchor="end">1049</text><text x="88" y="220" fill="#94a3b8">folded predicate proved constant by exhaustive enumeration of the low bits it depends on</text>
-<text x="74" y="239" fill="#fbbf24" text-anchor="end">99</text><text x="88" y="239" fill="#94a3b8">int32 predicate constant on 512 samples but not a known BLA family; left in place (use --aggressive to fold)</text>
-<text x="74" y="258" fill="#fbbf24" text-anchor="end">20</text><text x="88" y="258" fill="#94a3b8">removed blocks guarded by BLA's always-false Python tarpit predicate</text>
+<text x="24" y="125" fill="#e2e8f0" font-weight="700">AI-evasion techniques found: 27  (code built to hide from AI analysis is a risk signal in itself)</text>
+<text x="24" y="144" fill="#86efac" font-weight="700">Sight restored: 1.8 MB → 37.5 KB (97.9% smaller), ~21,104,859 → ~16,718 tokens (1262.4× cheaper for an agent to read)</text>
+<text x="24" y="163" fill="#94a3b8"></text>
+<text x="24" y="182" fill="#e2e8f0" font-weight="700">Tarpit (opaque predicates, dead branches)</text>
+<text x="74" y="201" fill="#fbbf24" text-anchor="end">3432</text><text x="88" y="201" fill="#94a3b8">removed branches made unreachable by folded predicates</text>
+<text x="74" y="220" fill="#fbbf24" text-anchor="end">1962</text><text x="88" y="220" fill="#94a3b8">folded number-theoretic opaque predicate (proven int32 identity family)</text>
+<text x="74" y="239" fill="#fbbf24" text-anchor="end">1049</text><text x="88" y="239" fill="#94a3b8">folded predicate proved constant by exhaustive enumeration of the low bits it depends on</text>
+<text x="74" y="258" fill="#fbbf24" text-anchor="end">99</text><text x="88" y="258" fill="#94a3b8">int32 predicate constant on 512 samples but not a known BLA family; left in place (use --aggressive to fold)</text>
 <text x="74" y="277" fill="#fbbf24" text-anchor="end">3</text><text x="88" y="277" fill="#94a3b8">folded agent-woven state-slot invariant guards (known bits over every write)</text>
-<text x="74" y="296" fill="#fbbf24" text-anchor="end">1</text><text x="88" y="296" fill="#94a3b8">folded `x &amp; 0` entanglement terms to 0</text>
-<text x="24" y="315" fill="#94a3b8"></text>
-<text x="24" y="334" fill="#e2e8f0" font-weight="700">Encrypt (XOR strings, split literals)</text>
-<text x="74" y="353" fill="#fbbf24" text-anchor="end">2465</text><text x="88" y="353" fill="#94a3b8">re-joined strings, integers and byte arrays BLA split into fragments</text>
-<text x="74" y="372" fill="#fbbf24" text-anchor="end">11</text><text x="88" y="372" fill="#94a3b8">decrypted XOR-keystream string table statically (key ships in the file)</text>
-<text x="24" y="391" fill="#94a3b8"></text>
-<text x="24" y="410" fill="#e2e8f0" font-weight="700">Entangle (anti-strip interlocks, self-seal)</text>
-<text x="74" y="429" fill="#fbbf24" text-anchor="end">11</text><text x="88" y="429" fill="#94a3b8">recomputed the decoy-corpus digest statically and folded the anti-strip seed bit</text>
-<text x="74" y="448" fill="#fbbf24" text-anchor="end">5</text><text x="88" y="448" fill="#94a3b8">removed SHA-256 self-integrity / sidecar tamper checks (own bytes + core.wasm, panel.html)</text>
-<text x="24" y="467" fill="#94a3b8"></text>
-<text x="24" y="486" fill="#e2e8f0" font-weight="700">Deceive (decoys, honey data, fake comments)</text>
-<text x="74" y="505" fill="#fbbf24" text-anchor="end">968</text><text x="88" y="505" fill="#94a3b8">removed BLA decoy declaration (known stem)</text>
-<text x="74" y="524" fill="#fbbf24" text-anchor="end">519</text><text x="88" y="524" fill="#94a3b8">removed top-level declaration unreachable from any live code</text>
-<text x="74" y="543" fill="#fbbf24" text-anchor="end">116</text><text x="88" y="543" fill="#94a3b8">removed BLA's content-free replacement comments</text>
-<text x="74" y="562" fill="#fbbf24" text-anchor="end">31</text><text x="88" y="562" fill="#94a3b8">removed BLA's prepended Python tarpit, chaff tables and honeypots (unreferenced by real code)</text>
-<text x="74" y="581" fill="#fbbf24" text-anchor="end">24</text><text x="88" y="581" fill="#94a3b8">removed `void decoy;` keep-alive anchors</text>
-<text x="74" y="600" fill="#fbbf24" text-anchor="end">17</text><text x="88" y="600" fill="#94a3b8">renamed BLA-renamed require() handles after their module</text>
-<text x="74" y="619" fill="#fbbf24" text-anchor="end">16</text><text x="88" y="619" fill="#94a3b8">removed inline honey source map (fake enclave source tree)</text>
+<text x="74" y="296" fill="#fbbf24" text-anchor="end">2</text><text x="88" y="296" fill="#94a3b8">folded `x &amp; 0` entanglement terms to 0</text>
+<text x="74" y="315" fill="#fbbf24" text-anchor="end">2</text><text x="88" y="315" fill="#94a3b8">removed blocks guarded by BLA's always-false Python tarpit predicate</text>
+<text x="24" y="334" fill="#94a3b8"></text>
+<text x="24" y="353" fill="#e2e8f0" font-weight="700">Encrypt (XOR strings, split literals)</text>
+<text x="74" y="372" fill="#fbbf24" text-anchor="end">2465</text><text x="88" y="372" fill="#94a3b8">re-joined strings, integers and byte arrays BLA split into fragments</text>
+<text x="74" y="391" fill="#fbbf24" text-anchor="end">11</text><text x="88" y="391" fill="#94a3b8">decrypted XOR-keystream string table statically (key ships in the file)</text>
+<text x="24" y="410" fill="#94a3b8"></text>
+<text x="24" y="429" fill="#e2e8f0" font-weight="700">Entangle (anti-strip interlocks, self-seal)</text>
+<text x="74" y="448" fill="#fbbf24" text-anchor="end">11</text><text x="88" y="448" fill="#94a3b8">recomputed the decoy-corpus digest statically and folded the anti-strip seed bit</text>
+<text x="74" y="467" fill="#fbbf24" text-anchor="end">5</text><text x="88" y="467" fill="#94a3b8">removed SHA-256 self-integrity / sidecar tamper checks (own bytes + core.wasm, panel.html)</text>
+<text x="74" y="486" fill="#fbbf24" text-anchor="end">2</text><text x="88" y="486" fill="#94a3b8">removed BLA's shared-slot touches woven into real functions</text>
+<text x="24" y="505" fill="#94a3b8"></text>
+<text x="24" y="524" fill="#e2e8f0" font-weight="700">Deceive (decoys, honey data, fake comments)</text>
+<text x="74" y="543" fill="#fbbf24" text-anchor="end">968</text><text x="88" y="543" fill="#94a3b8">removed BLA decoy declaration (known stem)</text>
+<text x="74" y="562" fill="#fbbf24" text-anchor="end">519</text><text x="88" y="562" fill="#94a3b8">removed top-level declaration unreachable from any live code</text>
+<text x="74" y="581" fill="#fbbf24" text-anchor="end">267</text><text x="88" y="581" fill="#94a3b8">replaced BLA's misleading realistic names with neutral ones (p0, v0, f0)</text>
+<text x="74" y="600" fill="#fbbf24" text-anchor="end">116</text><text x="88" y="600" fill="#94a3b8">removed BLA's content-free replacement comments</text>
+<text x="74" y="619" fill="#fbbf24" text-anchor="end">24</text><text x="88" y="619" fill="#94a3b8">removed `void decoy;` keep-alive anchors</text>
+<text x="74" y="638" fill="#fbbf24" text-anchor="end">18</text><text x="88" y="638" fill="#94a3b8">removed BLA's Python tarpit: decoy functions, chaff table, private state and warm-init</text>
+<text x="74" y="657" fill="#fbbf24" text-anchor="end">17</text><text x="88" y="657" fill="#94a3b8">renamed BLA-renamed require() handles after their module</text>
+<text x="74" y="676" fill="#fbbf24" text-anchor="end">16</text><text x="88" y="676" fill="#94a3b8">removed inline honey source map (fake enclave source tree)</text>
+<text x="74" y="695" fill="#fbbf24" text-anchor="end">13</text><text x="88" y="695" fill="#94a3b8">restored BLA-renamed bindings to the key they are exported or imported under</text>
+<text x="74" y="714" fill="#fbbf24" text-anchor="end">9</text><text x="88" y="714" fill="#94a3b8">removed BLA custom section "enclave.attestation.*"</text>
+<text x="74" y="733" fill="#fbbf24" text-anchor="end">3</text><text x="88" y="733" fill="#94a3b8">removed BLA custom section "name"</text>
+<text x="74" y="752" fill="#fbbf24" text-anchor="end">3</text><text x="88" y="752" fill="#94a3b8">removed BLA custom section "bla.enclave.manifest"</text>
+<text x="74" y="771" fill="#fbbf24" text-anchor="end">3</text><text x="88" y="771" fill="#94a3b8">removed BLA custom section "bla.canary.credentials"</text>
+<text x="74" y="790" fill="#fbbf24" text-anchor="end">3</text><text x="88" y="790" fill="#94a3b8">removed BLA custom section "bla.system.diagnostics"</text>
+<text x="74" y="809" fill="#fbbf24" text-anchor="end">3</text><text x="88" y="809" fill="#94a3b8">removed BLA custom section "bla.export.name.decoys"</text>
 </g>
 </svg>
