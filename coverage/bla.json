@@ -1,7 +1,7 @@
 {
   "bla": {
-    "version": "3.2.1",
-    "commit": "ea3d165ee37dfe4e1cd5f946e0dad73b9468a387"
+    "version": "3.2.2",
+    "commit": "38d26d52191300a127b113d44cd79ad5c97855d7"
   },
   "files": [
     {
@@ -222,7 +222,7 @@
     },
     {
       "path": "src/engine/harden.ts",
-      "sha256": "8d74551daae0106de912bc727a067f500ad54357cb36e8f5abfba5033fbb4451",
+      "sha256": "1538e0d80f2b279048d853accaea173fd0956cd46f5e84a89edc86e20cc3a9a4",
       "surface": "JavaScript / HTML",
       "status": "healed",
       "lasik": [
@@ -296,7 +296,7 @@
     },
     {
       "path": "src/engine/protector.ts",
-      "sha256": "80e050fcba3921be6281d12abb7e54fccae5ec7a09148ef1b83f25930c6bf6b0",
+      "sha256": "c1f033e75c1926529a556e5eb08c45e4fa1fb9555be2dea2b6c66f395b19bead",
       "surface": "JavaScript / HTML",
       "status": "healed",
       "lasik": [
@@ -364,7 +364,7 @@
     },
     {
       "path": "src/identity.ts",
-      "sha256": "84894427730d72b2cf94b8a7e5a1000087948352cccc1d34a276c6e7f8adbcb5",
+      "sha256": "03642d0a63d752ad987ea8202c1677960ae0338960874c2763cc65b82340f0a5",
       "surface": "BLA tooling",
       "status": "n/a",
       "lasik": [],
@@ -372,7 +372,7 @@
     },
     {
       "path": "src/index.ts",
-      "sha256": "2777d87296129a73e59591afa16309a4c2144e9b93bda91f1d3379c87cec1328",
+      "sha256": "f78331fb25325ba272cb3dbb70fbab613fcc4adb31479970366dd21a4ccfc07c",
       "surface": "BLA tooling",
       "status": "n/a",
       "lasik": [],
@@ -992,7 +992,7 @@
     },
     {
       "path": "src/shields/runtime/sidecar-entangle.ts",
-      "sha256": "9f69d607bcd9964dd050d548d3b7f78670a0c0b87d4208fb2f08cc5d2653dbd1",
+      "sha256": "3997b3a58e8ce122df2f2c7bf096cf1a767a089e5a7e81c30787a6070dd8aba7",
       "surface": "Sidecar entanglement",
       "status": "healed",
       "lasik": [
@@ -1000,9 +1000,10 @@
         "src/js/passes/self-seal.ts",
         "src/formats/python.ts",
         "src/formats/wasm.ts",
-        "src/formats/bun.ts"
+        "src/formats/bun.ts",
+        "src/formats/asar.ts"
       ],
-      "note": "JS + Python preambles (hard and soft-fold) cut, WASM note stripped; Bun companion note reported"
+      "note": "JS + Python preambles (hard and soft-fold) cut, WASM note stripped, ASAR archive note (3.2.2) removed; Bun companion note reported"
     },
     {
       "path": "src/shields/tarpit/opaque-predicates.ts",

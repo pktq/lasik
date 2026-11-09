@@ -5,15 +5,19 @@
 </p>
 
 <p align="center">
-  Lee código que fue construido para esconderse de la IA.<br />
-  LASIK elimina el endurecimiento antiagente de <a href="https://github.com/qybaihe/bla">BLA</a> para que los agentes de programación y <a href="https://github.com/morluto/rea">REA</a> puedan analizar el programa real.
+  Desofuscación estática del endurecimiento antiagente.<br />
+  LASIK elimina las capas de protección de <a href="https://github.com/qybaihe/bla">BLA</a> para que los agentes de programación y las herramientas de análisis puedan leer el programa real.
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/lasik-agents"><img src="https://img.shields.io/npm/v/lasik-agents?style=for-the-badge&label=npm&color=22d3ee" alt="npm version" /></a>
   <a href="https://github.com/pktq/lasik/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/pktq/lasik/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI" /></a>
-  <a href="../../docs/coverage.md"><img src="https://img.shields.io/badge/BLA_3.2.1-59%2F63_shields_healed-22d3ee?style=for-the-badge" alt="BLA coverage" /></a>
+  <a href="../../docs/coverage.md"><img src="https://img.shields.io/badge/BLA_3.2.2-59%2F63_shields_healed-22d3ee?style=for-the-badge" alt="BLA coverage" /></a>
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge" alt="MIT license" /></a>
+</p>
+
+<p align="center">
+  <b>0.3:</b> detección estructural. La protección se identifica por lo que hace, no por sus nombres, de modo que también se reparan las compilaciones con nombres cambiados. <a href="#resiliencia">Benchmark</a>
 </p>
 
 <p align="center">
@@ -25,23 +29,23 @@
 <br />
 
 <p align="center">
-  <img src="../assets/before-after.svg" alt="Las mismas dos funciones del CrackMe v6 de BLA, endurecidas y después de LASIK" width="100%" />
+  <img src="../assets/before-after.svg" alt="Las mismas dos funciones de una compilación protegida, antes y después de LASIK" width="100%" />
 </p>
 
-BLA protege una versión frente a los agentes de IA enterrándola: miles de predicados opacos, cadenas cifradas, código señuelo de "enclave de hardware", comprobaciones que rompen el programa si se quitan los señuelos, relleno de varios megabytes y texto escrito para que el modelo se rinda. LASIK lo retira todo de forma estática y entrega a tu agente el programa que realmente hay.
+LASIK lee una compilación protegida, demuestra qué partes son protección (predicados opacos, cadenas cifradas, código señuelo, comprobaciones de manipulación, relleno binario, texto de inyección de prompts), las elimina y escribe una copia limpia. Nunca ejecuta la entrada.
 
-<p align="center"><img src="../assets/flow.svg" alt="A BLA-hardened release goes through lasik heal, then an agent or REA reads the real logic" width="100%" /></p>
+<p align="center"><img src="../assets/flow.svg" alt="Una versión protegida pasa por lasik heal y después un agente o una herramienta de análisis lee la lógica real" width="100%" /></p>
 
 ## Puntos destacados
 
-- **1.262 veces menos tokens** para leer el corpus de CrackMes del propio BLA: de unos 21 millones a 17 mil.
-- **Demostrado, no adivinado.** Los predicados solo se pliegan cuando LASIK puede demostrar su valor; las comprobaciones anti-strip se recalculan antes de tocar ningún señuelo; los archivos sin BLA conservan su código sin cambios.
-- **Nunca ejecuta el objetivo.** Sin `eval`, sin sandbox, sin instanciar WebAssembly, así que es seguro con entradas hostiles, incluido el malware que adopte BLA.
-- **Un cortafuegos de prompts** que elimina el texto que BLA planta para el modelo: turnos de sistema falsos, cebos de rechazo, avisos de "nada que ver aquí".
-- **Todos los formatos que BLA soporta**, comprobado con salida real de BLA 3.2.1: JavaScript/TypeScript, HTML, WebAssembly, Electron ASAR/fuses, source maps, Python/`.pyc`, ELF/PE/Mach-O, Bun, SQLite, safetensors/GGUF, PCAP, JVM, .NET, BEAM, EVM, PTX, ZIP/APK/DEX, plist, IL2CPP, UF2.
-- **Recupera los nombres que el programa publica**: una función que BLA renombró a `primeSparseStack_719` pero exporta como `clampPan` vuelve a llamarse `clampPan`; el resto de nombres de BLA pasan a ser neutros (`p0`, `v0`) en lugar de engañosos.
-- **Sigue el ritmo de BLA**: cada archivo fuente de BLA tiene su hash en [coverage/bla.json](../../coverage/bla.json) y una tarea semanal abre un issue en cuanto BLA cambia.
-- **Pensado para agentes**: una CLI, un servidor MCP para Claude Code, Cursor, Codex y otros siete, y una API de biblioteca.
+- **1.262 veces menos tokens** en el corpus público de CrackMes de BLA: de unos 21 millones a 17 mil.
+- **Basado en demostraciones.** Una transformación solo se aplica cuando LASIK puede demostrar que conserva el comportamiento. Los archivos sin protección se devuelven idénticos byte a byte.
+- **Detección estructural.** La protección se reconoce por su comportamiento, no por los identificadores; un benchmark con compilaciones renombradas se ejecuta en CI.
+- **Solo análisis estático.** Sin `eval`, sin sandbox, sin instanciar WebAssembly; seguro con entradas hostiles.
+- **Cortafuegos de prompts** para el texto plantado con el fin de dirigir al modelo.
+- **21 formatos**: bundles de JavaScript y TypeScript, HTML en línea, WebAssembly, Electron ASAR y fuses, source maps, Python y `.pyc`, binarios nativos ELF/PE/Mach-O, Bun, SQLite, safetensors y GGUF, PCAP, JVM, .NET, BEAM, EVM, PTX, ZIP/APK/DEX, plist, IL2CPP y firmware UF2.
+- **Recuperación de nombres** cuando el programa aún publica el nombre original (exports, imports); nombres neutros en el resto de casos.
+- **Integración con agentes**: CLI, servidor MCP para Claude Code, Cursor, Codex y otros siete, y una API de biblioteca.
 
 ## Instalación
 
@@ -53,7 +57,7 @@ Requiere Node.js 20.19 o posterior. Para compilar desde el código fuente: `git 
 
 ## Uso
 
-Escanea una compilación para ver qué le hizo BLA y después escribe una copia limpia:
+Escanea una compilación y después escribe una copia limpia:
 
 ```console
 $ lasik scan bench/bla-crackme
@@ -64,13 +68,13 @@ Sight restored: 1.8 MB → 37.5 KB, ~21,104,859 → ~16,718 tokens
 $ lasik heal ./dist             # writes a cleaned copy to ./dist.lasik
 ```
 
-Apunta a tu agente, o a REA, a la copia reparada:
+Apunta tu agente o herramienta de análisis a la copia reparada, por ejemplo [REA](https://github.com/morluto/rea):
 
 ```bash
 npx -y rea-agents@latest analyze-javascript-application "$PWD/dist.lasik" --json
 ```
 
-Otros comandos: `lasik firewall` (elimina los señuelos de prompt de cualquier texto), `lasik bench`, `lasik doctor`. Añade `--json` o `--md` para informes legibles por máquina y `--fail-on blinded` para usarlo como control en CI.
+Otros comandos: `lasik firewall` (elimina las instrucciones plantadas de cualquier texto), `lasik bench`, `lasik doctor`. Añade `--json` o `--md` para informes legibles por máquina y `--fail-on blinded` para usarlo como control en CI.
 
 ### En tu agente de programación
 
@@ -80,16 +84,16 @@ lasik setup                     # registers the MCP server; --dry-run to preview
 
 | Herramienta | |
 |---|---|
-| `lasik_scan` | Qué capas de BLA lleva un archivo o carpeta, una puntuación de ceguera de 0 a 100 y las técnicas de evasión de IA encontradas |
-| `lasik_read` | Un archivo sin BLA, para que el agente lo lea en lugar del original |
-| `lasik_heal` | Una copia limpia de una aplicación completa, lista para REA |
+| `lasik_scan` | Las capas de protección de un archivo o carpeta, una puntuación de ceguera de 0 a 100 y las técnicas encontradas |
+| `lasik_read` | Un archivo sin protección, para que el agente lo lea en lugar del original |
+| `lasik_heal` | Una copia limpia de una aplicación completa |
 | `lasik_firewall` | Las instrucciones plantadas eliminadas de cualquier texto |
 
-El repositorio también incluye una [skill de agente](../../.agents/skills/lasik/SKILL.md) que enseña al agente a reconocer BLA y a usar estas herramientas.
+El repositorio también incluye una [skill de agente](../../.agents/skills/lasik/SKILL.md) para los agentes que se encuentren con compilaciones protegidas.
 
 ## Benchmark
 
-Medido sobre los CrackMes que los mantenedores de BLA publicaron como retos, incluidos sin cambios en [`bench/bla-crackme`](../../bench/bla-crackme):
+Los CrackMes públicos de BLA, incluidos sin cambios en [`bench/bla-crackme`](../../bench/bla-crackme):
 
 | CrackMe | Archivos | Antes | Después | Tokens (estimados) |
 |---|---:|---:|---:|---|
@@ -98,7 +102,7 @@ Medido sobre los CrackMes que los mantenedores de BLA publicaron como retos, inc
 | v8 | 3 | 362 KB | 6.7 KB | 6,972,491 → 4,748 |
 | v9 | 4 | 381 KB | 7.4 KB | 6,977,670 → 4,941 |
 
-<p align="center"><img src="../assets/tokens.svg" alt="Log-scale bar chart: estimated tokens per BLA CrackMe artifact before and after LASIK" width="100%" /></p>
+<p align="center"><img src="../assets/tokens.svg" alt="Gráfico de barras en escala logarítmica: tokens estimados por artefacto de cada CrackMe antes y después de LASIK" width="100%" /></p>
 
 <!-- realbench:start -->
 On a project we hardened ourselves with the published `bla-agents@3.2.1`, one file per format ([details](../benchmark.md#your-own-code-hardened-by-real-bla-321)):
@@ -111,28 +115,41 @@ On a project we hardened ourselves with the published `bla-agents@3.2.1`, one fi
 
 Las cifras por archivo, el método y sus limitaciones están en [docs/benchmark.md](../benchmark.md). LASIK hace legibles los CrackMes; no publica sus soluciones.
 
+### Resiliencia
+
+`npm run bench:renamed` repara las mismas compilaciones dos veces: tal como se distribuyen y con todos los identificadores generados, comentarios, secciones WASM, nombres de export largos y rutas ASAR reescritos con otros nombres, y con los operandos conmutativos reordenados, sin cambiar el comportamiento. Como la detección es estructural, ambas ejecuciones dan casi el mismo resultado. CI falla si la ejecución con nombres cambiados elimina más de un punto porcentual menos.
+
+<p align="center"><img src="../assets/renamed.svg" alt="Izquierda: ejemplos de lo que el benchmark reescribe con otros nombres. Derecha: tokens restantes por formato; las compilaciones con nombres cambiados se reparan hasta un tamaño casi igual al de las originales" width="100%" /></p>
+
+| Formato | Tal como se distribuye: eliminado | Con nombres cambiados: eliminado |
+|---|---:|---:|
+| JavaScript / TypeScript | 98.78% | 98.09% |
+| HTML | 99.29% | 99.17% |
+| WebAssembly | 99.98% | 99.98% |
+| Electron ASAR | 99.998% | 99.96% |
+
 ## Cómo funciona
 
-<p align="center"><img src="../assets/pipeline.svg" alt="LASIK pass order: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report" width="100%" /></p>
+<p align="center"><img src="../assets/pipeline.svg" alt="Orden de las pasadas de LASIK: detectar, cortar interbloqueos, eliminar señuelos, plegar hasta el punto fijo, renombrar, cortafuegos, informe" width="100%" /></p>
 
-| Capa de BLA | Qué hace LASIK |
+| Capa | Qué hace LASIK |
 |---|---|
-| Predicados opacos | Reconoce las identidades de teoría de números de BLA, demuestra con un análisis de bits conocidos los que dependen de la semilla y elimina las ramas muertas |
-| Interbloqueos anti-strip | Recalcula el resumen del corpus de señuelos y pliega la comprobación antes de quitar nada |
-| Literales cifrados y divididos | Decodifica las tablas de cadenas XOR con la clave que se distribuye junto a ellas; vuelve a unir cadenas y enteros divididos |
-| Señuelos | Elimina todo lo que no es alcanzable desde los puntos de entrada reales, respaldado por un catálogo de las familias de señuelos de BLA |
-| Autosellos y bloqueos | Elimina las comprobaciones de manipulación y de dominio de BLA, e informa de las condiciones del bloqueo |
-| Ruido en tiempo de ejecución | Elimina la agitación del heap sombra y los bloques de estado de enclave falsos que nadie lee |
-| Identificadores renombrados | Restaura los nombres con los que el programa exporta o importa un binding; nombres neutros para el resto |
-| Relleno y datos plantados | Elimina las secciones, trailers, tablas trampa, entradas señuelo y avalanchas de BLA en binarios, bases de datos, modelos y archivos, y reconstruye offsets y checksums para que el archivo siga siendo válido |
-| Cebo de prompt | Lo elimina con 40 reglas de cortafuegos |
+| Predicados opacos | Demuestra las condiciones constantes con un análisis de bits conocidos y elimina las ramas muertas |
+| Interbloqueos anti-strip | Evalúa la comprobación en un intérprete de un subconjunto cerrado y la pliega antes de quitar nada |
+| Literales cifrados y divididos | Decodifica las tablas de cadenas con la clave que se distribuye junto a ellas; vuelve a unir cadenas y enteros divididos |
+| Señuelos | Elimina todo lo que no es alcanzable desde los puntos de entrada reales |
+| Bloqueos de manipulación y de dominio | Los elimina e informa de las condiciones del bloqueo |
+| Ruido en tiempo de ejecución | Elimina la agitación de estado y los bloques de estado que nadie lee |
+| Identificadores renombrados | Restaura los nombres que el programa exporta o importa; nombres neutros para el resto |
+| Relleno y datos plantados | Elimina el relleno, los trailers y las entradas plantadas en binarios, bases de datos, modelos y archivos, y reconstruye offsets y checksums |
+| Instrucciones plantadas | Las elimina con 40 reglas de cortafuegos |
 
-El orden completo de las pasadas, las demostraciones y todas las huellas están en [docs/how-it-works.md](../how-it-works.md). Una revisión independiente buscó entradas en las que la reparación cambiara lo que hace un programa; cada caso que encontró está corregido y fijado en [`tests/soundness.test.ts`](../../tests/soundness.test.ts).
+Los detalles están en [docs/how-it-works.md](../how-it-works.md). Dos revisiones de corrección independientes buscaron entradas en las que la reparación cambiara el comportamiento o modificara un archivo sin protección; cada caso encontrado está corregido y fijado en [`tests/soundness.test.ts`](../../tests/soundness.test.ts).
 
 ## Cobertura de formatos
 
 <!-- coverage:start -->
-Pinned to BLA **3.2.1**. 59/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](../coverage.md).
+Pinned to BLA **3.2.2**. 59/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](../coverage.md).
 
 | Surface | Status |
 |---|---|
@@ -163,9 +180,9 @@ Pinned to BLA **3.2.1**. 59/63 BLA shield files fully healed; 44 more emit nothi
 
 ## Limitaciones
 
-- Los nombres locales, comentarios, source maps y las pocas secciones que BLA sobrescribió (un `.go.buildinfo` de Go, exports de WASM renombrados) no se pueden recuperar. LASIK lo indica en lugar de inventarlos.
-- Los reparadores de formatos reconocen con precisión la salida de BLA 3.2.1. Están comprobados con salida real de BLA para 21 formatos ([tests/fixtures/bla-3.2.1](../../tests/fixtures/bla-3.2.1)); Go, Flutter, Bun, BEAM, APK/DEX e IL2CPP, por ahora solo con fixtures construidos a partir del código de BLA.
-- Cuando BLA cambia, un reparador puede dejar de coincidir hasta que se actualice. La comprobación semanal de cambios indica el archivo que hay que revisar; el núcleo de JavaScript funciona por demostración y no depende de los nombres de BLA.
+- La información que la protección destruyó (nombres locales, comentarios, source maps originales, secciones sobrescritas) no se puede recuperar; LASIK lo indica en lugar de inventarla.
+- Los reparadores están validados con salida real de BLA 3.2.1 para 21 formatos ([tests/fixtures/bla-3.2.1](../../tests/fixtures/bla-3.2.1)); Go, Flutter, Bun, BEAM, APK/DEX e IL2CPP, por ahora, con fixtures construidos a partir del código fuente de BLA.
+- Las nuevas técnicas de protección pueden requerir una actualización. Los cambios de BLA se vigilan cada semana ([coverage/bla.json](../../coverage/bla.json)) y las compilaciones protegidas con versiones anteriores siguen siendo compatibles.
 
 ## Uso responsable
 
@@ -173,9 +190,9 @@ LASIK es un desofuscador. Úsalo con tu propio software, con malware y muestras 
 
 ## Contribuir
 
-Los informes de errores con una muestra (o la salida de `lasik scan --json`) son la contribución más útil, sobre todo para versiones nuevas de BLA. Consulta [CONTRIBUTING](../../.github/CONTRIBUTING.md).
+Los informes de errores con una muestra (o la salida de `lasik scan --json`) son la contribución más útil. Consulta [CONTRIBUTING](../../.github/CONTRIBUTING.md).
 
-[English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · Español
+También disponible en [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · Español.
 
 ## Licencia
 

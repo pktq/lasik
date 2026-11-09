@@ -38,6 +38,9 @@ function isDecoyPath(path: string): boolean {
   return path === "enclave/hardware-tee-bridge.js" || /^enclave\/shards\/ring0-slot-[^/]*$/.test(path);
 }
 
+/** BLA ≥ 3.2.2 opt-in sidecar entanglement: an in-archive digest note binding the decoy bridge (sidecar-entangle.ts). */
+const SIDECAR_NOTE = ".bla/sidecar.v1.json";
+
 function integrity(content: Buffer, blockSize: number): Integrity {
   const sha = (b: Buffer) => createHash("sha256").update(b).digest("hex");
   const blocks: string[] = [];
@@ -108,7 +111,7 @@ export const healAsar: FormatHealer = (input, file, opts) => {
     const list = (dir: Record<string, AsarNode>, prefix: string): void => {
       for (const [name, node] of Object.entries(dir)) {
         if (node.files) list(node.files, `${prefix + name}/`);
-        else if (node.link === undefined && node.unpacked !== true && !isDecoyPath(prefix + name)) entries.push({ path: prefix + name, node });
+        else if (node.link === undefined && node.unpacked !== true && !isDecoyPath(prefix + name) && prefix + name !== SIDECAR_NOTE) entries.push({ path: prefix + name, node });
       }
     };
     list(files, "");
@@ -166,6 +169,7 @@ export const healAsar: FormatHealer = (input, file, opts) => {
   const chunks: Buffer[] = [];
   let offset = 0;
   let decoys = 0;
+  let sidecarNotes = 0;
   let inlineMaps = 0;
   let honeyMaps = 0;
   let jsHealed = 0;
@@ -182,6 +186,11 @@ export const healAsar: FormatHealer = (input, file, opts) => {
       if (node.link !== undefined || node.unpacked === true) continue;
       if (isDecoyPath(path)) {
         decoys++;
+        delete dir[name];
+        continue;
+      }
+      if (path === SIDECAR_NOTE) {
+        sidecarNotes++;
         delete dir[name];
         continue;
       }
@@ -240,7 +249,7 @@ export const healAsar: FormatHealer = (input, file, opts) => {
     warnings.push(`asar parse failed (${(err as Error).message}); left unchanged`);
     return unchanged();
   }
-  if (decoys + unreachableDropped + inlineMaps + honeyMaps + jsHealed === 0) return unchanged();
+  if (decoys + sidecarNotes + unreachableDropped + inlineMaps + honeyMaps + jsHealed === 0) return unchanged();
 
   const json = Buffer.from(JSON.stringify(root), "utf8");
   const aligned = Math.ceil(json.length / 4) * 4;
@@ -251,6 +260,10 @@ export const healAsar: FormatHealer = (input, file, opts) => {
   header.writeUInt32LE(json.length, 12);
   json.copy(header, 16);
 
+  if (sidecarNotes) {
+    findings.add("entangle", "asar-sidecar-note", `removed BLA sidecar entanglement note ${SIDECAR_NOTE}`, sidecarNotes);
+    warnings.push(`removed ${SIDECAR_NOTE}; BLA host-side verifyAsarSidecarArchiveNote will no longer pass on this archive (intended)`);
+  }
   if (decoys) {
     findings.add(
       "exhaust",

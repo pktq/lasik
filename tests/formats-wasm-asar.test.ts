@@ -217,3 +217,13 @@ ${body}
     expect(Object.keys(read(healAsar(dyn, "app.asar", {}).output).header.files)).toContain("zz9");
   });
 });
+
+describe("BLA 3.2.2 ASAR sidecar note (sidecar-entangle.ts generateSidecarAsarArchiveNote)", () => {
+  it("removes the in-archive .bla/sidecar.v1.json note with the decoy bridge it binds", () => {
+    const note = Buffer.from(`${JSON.stringify({ schema: "bla-sidecar-entangle/v1", kind: "asar-archive-note", digest: "a".repeat(64), seedTag: "1", entryPath: "app.asar", sidecarPaths: ["enclave/hardware-tee-bridge.js"], softFold: false, mode: "sidecars" }, null, 2)}\n`);
+    const r = healAsar(layout({ "main.js": { content: Buffer.from("module.exports = 1;\n") }, "enclave/hardware-tee-bridge.js": { content: Buffer.from("x") }, ".bla/sidecar.v1.json": { content: note } }), "app.asar", {});
+    const files = read(r.output).header.files;
+    expect(Object.keys(files)).toEqual(["main.js"]);
+    expect(r.findings.list().map((f) => f.technique)).toContain("asar-sidecar-note");
+  });
+});

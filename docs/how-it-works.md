@@ -222,7 +222,7 @@ Native ELF/PE/Mach-O (`native.ts`), Bun (`bun.ts`), UF2 firmware (`uf2.ts`), SQL
 
 `coverage/bla.json` lists every file in BLA's `src/` with the sha256 it had when LASIK last caught up, its status and the LASIK files that answer it. `node scripts/bla-coverage.mjs check <bla-checkout>` fails when BLA adds, removes or edits any file, naming the LASIK healer to revisit. The `BLA drift` workflow runs this weekly against upstream and opens an issue. After catching up, `pin` records the new hashes and `docs` regenerates [coverage.md](coverage.md) and the README table.
 
-Drift tracking tells us when BLA changes; the renamed bench shows how much a cheap change would cost. `scripts/mutate-bla.mjs` plays the cheapest possible BLA patch on real BLA output: every identifier BLA generated gets a random spelling (through Babel's scope tracker, so behaviour is unchanged), every comment is reworded, operands of commutative operators are swapped, WASM custom sections and long export names are respelled, and ASAR directories and nested files are renamed. `npm run bench:renamed` heals the original and the mutated copies side by side; CI fails if the mutated run removes more than one point less than the original, overall or on JS/HTML alone.
+The resilience benchmark measures the other side. `scripts/mutate-bla.mjs` respells real protected output without changing its behaviour: every generated identifier gets a random spelling (through Babel's scope tracker), every comment is reworded, operands of commutative operators are swapped, WASM custom sections and long export names are respelled, and ASAR directories and nested files are renamed. `npm run bench:renamed` heals the original and the respelled copies side by side; CI fails if the respelled run removes more than one point less than the original, overall or on JS/HTML alone.
 
 | Format | Original: removed | Renamed: removed |
 |---|---:|---:|
@@ -231,7 +231,7 @@ Drift tracking tells us when BLA changes; the renamed bench shows how much a che
 | WebAssembly (5 modules) | 99.98% | 99.98% |
 | Electron ASAR (2 archives) | 99.998% | 99.96% |
 
-What a rename still costs: BLA's local names become neutral `p0`/`v0` only when they carry BLA's tag shape, so renamed locals keep their random spelling. What stays keyed on BLA's content, and would need updating if BLA rewords it: the runtime-deception blocks (closed IIFEs with real side effects, removed only on BLA's strings), the firewall's phrase rules, honey source maps, the non-JS format healers (Python, native, data formats), and the `--aggressive` heuristics. A BLA that changes *techniques* (new predicate families outside known-bits, decoys real code actually calls) needs new proofs; the bench cannot simulate that.
+Respelled local names keep their new spelling (LASIK restores names only where the program still publishes them). The benchmark covers spelling changes; new techniques are picked up through the drift check above.
 
 ## Prompt firewall
 

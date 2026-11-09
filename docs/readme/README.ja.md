@@ -5,15 +5,19 @@
 </p>
 
 <p align="center">
-  AI から隠れるように作られたコードを読む。<br />
-  LASIK は <a href="https://github.com/qybaihe/bla">BLA</a> のエージェント対策の硬化処理を取り除き、コーディングエージェントと <a href="https://github.com/morluto/rea">REA</a> が本物のプログラムを解析できるようにします。
+  エージェント対策の硬化処理に対する静的な難読化解除。<br />
+  LASIK は <a href="https://github.com/qybaihe/bla">BLA</a> の保護レイヤーを取り除き、コーディングエージェントや解析ツールが本来のプログラムを読めるようにします。
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/lasik-agents"><img src="https://img.shields.io/npm/v/lasik-agents?style=for-the-badge&label=npm&color=22d3ee" alt="npm version" /></a>
   <a href="https://github.com/pktq/lasik/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/pktq/lasik/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI" /></a>
-  <a href="../../docs/coverage.md"><img src="https://img.shields.io/badge/BLA_3.2.1-59%2F63_shields_healed-22d3ee?style=for-the-badge" alt="BLA coverage" /></a>
+  <a href="../coverage.md"><img src="https://img.shields.io/badge/BLA_3.2.2-59%2F63_shields_healed-22d3ee?style=for-the-badge" alt="BLA coverage" /></a>
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge" alt="MIT license" /></a>
+</p>
+
+<p align="center">
+  <b>0.3:</b> 構造に基づく検出。保護は名前ではなく振る舞いで識別されるため、名前を変更したビルドも修復できます。<a href="#レジリエンス">ベンチマーク</a>
 </p>
 
 <p align="center">
@@ -25,23 +29,23 @@
 <br />
 
 <p align="center">
-  <img src="../assets/before-after.svg" alt="BLA の CrackMe v6 にある同じ 2 つの関数。硬化後と LASIK 適用後" width="100%" />
+  <img src="../assets/before-after.svg" alt="保護されたビルドにある同じ 2 つの関数。LASIK 適用前と適用後" width="100%" />
 </p>
 
-BLA は、リリースを埋め尽くすことで AI エージェントから守ります。数千の不透明述語、暗号化された文字列、偽の「ハードウェアエンクレーブ」コード、おとりを取り除くとプログラムが壊れる検査、数 MB のパディング、そしてモデルに諦めさせるために書かれたテキストです。LASIK はそのすべてを静的に取り除き、実際にあるプログラムをエージェントに渡します。
+LASIK は保護されたビルドを読み取り、どの部分が保護に当たるか（不透明述語、暗号化された文字列、おとりコード、改ざん検査、バイナリのパディング、プロンプトインジェクションのテキスト）を証明したうえで、それらを取り除いてクリーンなコピーを書き出します。入力は一切実行しません。
 
-<p align="center"><img src="../assets/flow.svg" alt="A BLA-hardened release goes through lasik heal, then an agent or REA reads the real logic" width="100%" /></p>
+<p align="center"><img src="../assets/flow.svg" alt="保護されたリリースを lasik heal に通すと、エージェントまたは解析ツールが本来のロジックを読める" width="100%" /></p>
 
 ## 特長
 
-- **トークン数を 1,262 分の 1 に。** BLA 自身の CrackMe コーパスを読むとき、約 2,100 万から 1.7 万に減ります。
-- **推測ではなく証明。** 述語は LASIK が値を証明できたときだけ畳み込みます。anti-strip 検査は、おとりに触れる前に再計算します。BLA を含まないファイルのコードは変わりません。
-- **対象を実行しません。** `eval` も、サンドボックスも、WebAssembly のインスタンス化も使わないため、BLA を採用したマルウェアを含む悪意ある入力に対しても安全です。
-- **プロンプトファイアウォール。** BLA がモデル向けに仕込むテキスト、つまり偽のシステムターン、拒否を誘う餌、「ここには何もありません」という通知を取り除きます。
-- **BLA が扱うすべての形式に対応し、実際の BLA 3.2.1 の出力で確認済み。** JavaScript/TypeScript, HTML, WebAssembly, Electron ASAR/fuses, source maps, Python/`.pyc`, ELF/PE/Mach-O, Bun, SQLite, safetensors/GGUF, PCAP, JVM, .NET, BEAM, EVM, PTX, ZIP/APK/DEX, plist, IL2CPP, UF2。
-- **プログラムが公開している名前を復元。** BLA が `primeSparseStack_719` に改名しても `clampPan` としてエクスポートされている関数は `clampPan` に戻ります。それ以外の BLA の名前は、誤解を招く名前ではなく中立的な名前（`p0`、`v0`）になります。
-- **BLA の更新に追従。** BLA のすべてのソースファイルのハッシュを [coverage/bla.json](../../coverage/bla.json) に記録し、BLA が変わるとすぐに週次ジョブが issue を作成します。
-- **エージェント向けに作られています。** CLI、Claude Code、Cursor、Codex ほか 7 つに対応する MCP サーバー、そしてライブラリ API を備えます。
+- **トークン数を 1,262 分の 1 に。** 公開されている BLA の CrackMe コーパスで、約 2,100 万から 1.7 万に減ります。
+- **証明に基づく処理。** 変換は、動作が保たれると LASIK が証明できたときだけ実行されます。保護されていないファイルはバイト単位で同一のまま返されます。
+- **構造に基づく検出。** 保護は識別子ではなく振る舞いで認識されます。名前を変更したビルドのベンチマークを CI で実行しています。
+- **静的解析のみ。** `eval`、サンドボックス、WebAssembly のインスタンス化は使わないため、悪意ある入力に対しても安全です。
+- **プロンプトインジェクション・ファイアウォール。** モデルを誘導するために仕込まれたテキストに対応します。
+- **21 形式**: JavaScript/TypeScript バンドル、インライン HTML、WebAssembly、Electron ASAR と fuses、source maps、Python と `.pyc`、ネイティブ ELF/PE/Mach-O、Bun、SQLite、safetensors と GGUF、PCAP、JVM、.NET、BEAM、EVM、PTX、ZIP/APK/DEX、plist、IL2CPP、UF2 ファームウェア。
+- **名前の復元。** プログラムが元の名前を公開している箇所（エクスポート、インポート）で行い、それ以外は中立的な名前にします。
+- **エージェント連携**: CLI、Claude Code、Cursor、Codex ほか 7 つに対応する MCP サーバー、そしてライブラリ API。
 
 ## インストール
 
@@ -53,7 +57,7 @@ Node.js 20.19 以降が必要です。ソースからビルドするには: `git
 
 ## 使い方
 
-ビルドをスキャンして BLA が何をしたかを確認し、クリーンなコピーを書き出します。
+ビルドをスキャンし、クリーンなコピーを書き出します。
 
 ```console
 $ lasik scan bench/bla-crackme
@@ -64,13 +68,13 @@ Sight restored: 1.8 MB → 37.5 KB, ~21,104,859 → ~16,718 tokens
 $ lasik heal ./dist             # writes a cleaned copy to ./dist.lasik
 ```
 
-エージェントまたは REA に、修復したコピーを渡します。
+エージェントや解析ツール（たとえば [REA](https://github.com/morluto/rea)）に、修復したコピーを渡します。
 
 ```bash
 npx -y rea-agents@latest analyze-javascript-application "$PWD/dist.lasik" --json
 ```
 
-そのほかのコマンド: `lasik firewall`（任意のテキストからプロンプトのおとりを除去）、`lasik bench`、`lasik doctor`。`--json` または `--md` を付けると機械可読なレポートが得られ、`--fail-on blinded` を付けると CI のゲートにできます。
+そのほかのコマンド: `lasik firewall`（任意のテキストから仕込まれた指示を除去）、`lasik bench`、`lasik doctor`。`--json` または `--md` を付けると機械可読なレポートが得られ、`--fail-on blinded` を付けると CI のゲートにできます。
 
 ### コーディングエージェントで使う
 
@@ -80,16 +84,16 @@ lasik setup                     # registers the MCP server; --dry-run to preview
 
 | ツール | |
 |---|---|
-| `lasik_scan` | ファイルまたはフォルダにどの BLA レイヤーがあるか、0〜100 の盲目度スコア、見つかった AI 回避手法 |
-| `lasik_read` | BLA を取り除いた 1 ファイル。エージェントが元のファイルの代わりに読むためのもの |
-| `lasik_heal` | アプリ全体のクリーンなコピー。そのまま REA に渡せます |
+| `lasik_scan` | ファイルまたはフォルダ内の保護レイヤー、0〜100 の盲目度スコア、見つかった手法 |
+| `lasik_read` | 保護を取り除いた 1 ファイル。エージェントが元のファイルの代わりに読むためのもの |
+| `lasik_heal` | アプリ全体のクリーンなコピー |
 | `lasik_firewall` | 任意のテキストから、仕込まれた指示を除去したもの |
 
-このリポジトリには [エージェントスキル](../../.agents/skills/lasik/SKILL.md) も含まれており、エージェントに BLA を見分けてこれらのツールを使うことを教えます。
+このリポジトリには、保護されたビルドに遭遇するエージェント向けの[エージェントスキル](../../.agents/skills/lasik/SKILL.md)も含まれています。
 
 ## ベンチマーク
 
-BLA のメンテナーが課題として公開した CrackMe で計測しました。[`bench/bla-crackme`](../../bench/bla-crackme) に無改変で同梱しています。
+公開されている BLA の CrackMe を、[`bench/bla-crackme`](../../bench/bla-crackme) に無改変で同梱しています。
 
 | CrackMe | ファイル数 | 処理前 | 処理後 | トークン（推定） |
 |---|---:|---:|---:|---|
@@ -98,7 +102,7 @@ BLA のメンテナーが課題として公開した CrackMe で計測しまし�
 | v8 | 3 | 362 KB | 6.7 KB | 6,972,491 → 4,748 |
 | v9 | 4 | 381 KB | 7.4 KB | 6,977,670 → 4,941 |
 
-<p align="center"><img src="../assets/tokens.svg" alt="Log-scale bar chart: estimated tokens per BLA CrackMe artifact before and after LASIK" width="100%" /></p>
+<p align="center"><img src="../assets/tokens.svg" alt="対数目盛の棒グラフ: CrackMe の成果物ごとの、LASIK 適用前後の推定トークン数" width="100%" /></p>
 
 <!-- realbench:start -->
 On a project we hardened ourselves with the published `bla-agents@3.2.1`, one file per format ([details](../benchmark.md#your-own-code-hardened-by-real-bla-321)):
@@ -111,28 +115,41 @@ On a project we hardened ourselves with the published `bla-agents@3.2.1`, one fi
 
 ファイルごとの数値、測定方法とその注意点は [docs/benchmark.md](../benchmark.md) にあります。LASIK は CrackMe を読める状態にしますが、解答は公開しません。
 
+### レジリエンス
+
+`npm run bench:renamed` は同じビルドを 2 通りで修復します。出荷されたままの状態と、生成された識別子、コメント、WASM セクション、長いエクスポート名、ASAR パスをすべて別の綴りに置き換え、可換な演算子のオペランドを並べ替えた状態です（動作は変わりません）。検出は構造に基づくため、どちらもほぼ同じ結果に修復されます。綴りを置き換えた側の除去率が 1 ポイントを超えて低い場合、CI は失敗します。
+
+<p align="center"><img src="../assets/renamed.svg" alt="左: ベンチマークが別の綴りに置き換える対象の例。右: 形式ごとの残りトークン数。綴りを置き換えたビルドも、元のビルドとほぼ同じサイズに修復される" width="100%" /></p>
+
+| 形式 | 出荷時のまま: 除去率 | 綴りを置き換え: 除去率 |
+|---|---:|---:|
+| JavaScript / TypeScript | 98.78% | 98.09% |
+| HTML | 99.29% | 99.17% |
+| WebAssembly | 99.98% | 99.98% |
+| Electron ASAR | 99.998% | 99.96% |
+
 ## 仕組み
 
-<p align="center"><img src="../assets/pipeline.svg" alt="LASIK pass order: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report" width="100%" /></p>
+<p align="center"><img src="../assets/pipeline.svg" alt="LASIK のパス順序: 検出、インターロックの切断、おとりの除去、不動点までの畳み込み、改名、ファイアウォール、レポート" width="100%" /></p>
 
-| BLA のレイヤー | LASIK の処理 |
+| レイヤー | LASIK の処理 |
 |---|---|
-| 不透明述語 | BLA の整数論的恒等式に一致させ、シードに依存するものは既知ビット解析で証明したうえで、到達しない分岐を取り除く |
-| anti-strip インターロック | おとりコーパスのダイジェストを再計算して検査を畳み込んでから、何かを取り除く |
-| 暗号化・分割されたリテラル | 隣に同梱されたキーで XOR 文字列テーブルを復号し、分割された文字列と整数を結合し直す |
-| おとり | 実際のエントリポイントから到達できないものをすべて除去する。根拠は BLA のおとりファミリーのカタログ |
-| セルフシールとロック | BLA 自身の改ざん検査とドメイン検査を取り除き、ロックの条件を報告する |
-| 実行時ノイズ | 誰も読まないシャドウヒープの揺れと偽のエンクレーブ状態ブロックを除去する |
+| 不透明述語 | 既知ビット解析で定数の条件を証明し、到達しない分岐を取り除く |
+| anti-strip インターロック | 閉じた部分集合のインタプリタで検査を評価し、何かを取り除く前に畳み込む |
+| 暗号化・分割されたリテラル | 隣に同梱されたキーで文字列テーブルを復号し、分割された文字列と整数を結合し直す |
+| おとり | 実際のエントリポイントから到達できないものをすべて除去する |
+| 改ざん検査とドメインロック | 取り除いたうえで、ロックの条件を報告する |
+| 実行時ノイズ | 誰も読まない状態の揺れとステータスブロックを除去する |
 | 改名された識別子 | プログラムがエクスポートまたはインポートしている名前を復元し、それ以外は中立的な名前にする |
-| パディングと埋め込みデータ | バイナリ、データベース、モデル、アーカイブから BLA のセクション、トレーラー、ハニーテーブル、おとりエントリ、大量データを取り除き、ファイルが有効なままになるようオフセットとチェックサムを再構築する |
-| プロンプトの餌 | 40 のファイアウォールルールで除去する |
+| パディングと埋め込みデータ | バイナリ、データベース、モデル、アーカイブからパディング、トレーラー、埋め込まれたエントリを取り除き、オフセットとチェックサムを再構築する |
+| 仕込まれた指示 | 40 のファイアウォールルールで除去する |
 
-処理の完全な順序、証明、すべてのフィンガープリントは [docs/how-it-works.md](../how-it-works.md) にあります。独立したレビューで、修復によってプログラムの動作が変わる入力を探しました。見つかったケースはすべて修正済みで、[`tests/soundness.test.ts`](../../tests/soundness.test.ts) に固定されています。
+詳細は [docs/how-it-works.md](../how-it-works.md) にあります。独立した 2 回の健全性レビューで、修復によって動作が変わる入力や、保護されていないファイルに手が加わる入力を探しました。見つかったケースはすべて修正済みで、[`tests/soundness.test.ts`](../../tests/soundness.test.ts) に固定されています。
 
 ## 形式ごとの対応状況
 
 <!-- coverage:start -->
-Pinned to BLA **3.2.1**. 59/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](../coverage.md).
+Pinned to BLA **3.2.2**. 59/63 BLA shield files fully healed; 44 more emit nothing into artifacts. Full per-file table: [docs/coverage.md](../coverage.md).
 
 | Surface | Status |
 |---|---|
@@ -163,9 +180,9 @@ Pinned to BLA **3.2.1**. 59/63 BLA shield files fully healed; 44 more emit nothi
 
 ## 制限事項
 
-- ローカル名、コメント、ソースマップ、そして BLA が上書きした一部のセクション（Go の `.go.buildinfo`、改名された WASM のエクスポート）は復元できません。LASIK は作り上げるのではなく、その旨を伝えます。
-- 形式ごとの修復は BLA 3.2.1 の出力を正確に認識します。21 形式について実際の BLA の出力で確認済みです（[tests/fixtures/bla-3.2.1](../../tests/fixtures/bla-3.2.1)）。Go、Flutter、Bun、BEAM、APK/DEX、IL2CPP は、今のところ BLA のソースから作ったフィクスチャでのみ確認しています。
-- BLA が変わると、修復が更新されるまで一致しなくなることがあります。週次の差分チェックが見直すべきファイルを示します。JavaScript のコアは証明に基づいて動作し、BLA の名前には依存しません。
+- 保護によって失われた情報（ローカル名、コメント、元のソースマップ、上書きされたセクション）は復元できません。LASIK は作り上げるのではなく、その旨を報告します。
+- 形式ごとの修復は、21 形式について実際の BLA 3.2.1 の出力で検証済みです（[tests/fixtures/bla-3.2.1](../../tests/fixtures/bla-3.2.1)）。Go、Flutter、Bun、BEAM、APK/DEX、IL2CPP は、今のところ BLA のソースから作成したフィクスチャでのみ検証しています。
+- 新しい保護手法には更新が必要になることがあります。上流の変更は毎週追跡しており（[coverage/bla.json](../../coverage/bla.json)）、以前のバージョンで保護されたビルドも引き続き対応します。
 
 ## 責任ある利用
 
@@ -173,9 +190,9 @@ LASIK は難読化解除ツールです。ご自身のソフトウェア、マ�
 
 ## コントリビュート
 
-サンプル（または `lasik scan --json` の出力）を添えたバグ報告が最も役に立ちます。特に新しいバージョンの BLA についての報告を歓迎します。[CONTRIBUTING](../../.github/CONTRIBUTING.md) を参照してください。
+サンプル（または `lasik scan --json` の出力）を添えたバグ報告が最も役に立ちます。[CONTRIBUTING](../../.github/CONTRIBUTING.md) を参照してください。
 
-[English](../../README.md) · [简体中文](README.zh-CN.md) · 日本語 · [한국어](README.ko.md) · [Español](README.es.md)
+ほかの言語: [English](../../README.md) · [简体中文](README.zh-CN.md) · 日本語 · [한국어](README.ko.md) · [Español](README.es.md)
 
 ## ライセンス
 

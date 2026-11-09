@@ -15,8 +15,11 @@ LASIK no longer needs BLA's names: a BLA release that renames every identifier, 
 - A second independent soundness review of the structural rules: its 12 counterexamples (an empty array taken for a decoy corpus, a lost `</script` escape, evaluation order, hoisting/TDZ, call order, shadowed builtins, alias escapes, page-local edge cases, config-named ASAR entries, a license check taken for a self-seal, lone WASM aliases) are fixed and pinned in `tests/soundness.test.ts`, `tests/structural.test.ts` and `tests/formats-wasm-asar.test.ts`.
 - ASAR: directories of 64+ entries nothing in a hardened archive can reach are removed.
 
+- BLA 3.2.2: the opt-in ASAR sidecar note (`.bla/sidecar.v1.json`, an in-archive digest binding the decoy bridge) is removed; the coverage ledger is pinned to 3.2.2 with no pending files.
+
 ### Changed
 
+- README rewritten in a neutral tone; a resilience section and chart (`scripts/renamed-svg.mjs`) replace the long BLA narrative.
 - Anti-strip interlocks are found by shape and the file's own digest function is evaluated, instead of matching BLA's names and re-implementing BLA 3.2.1's digest.
 - The hardened-file gate also opens on 16+ predicates proven constant by known-bits, whatever their spelling.
 - Proven-hardened files lose every comment except those tools read (license banners, source maps, compiler/bundler directives); BLA replaces all original comments.
