@@ -1,3 +1,5 @@
+<p align="center"><a href="../../README.md">English</a> · <b>简体中文</b> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a> · <a href="README.es.md">Español</a></p>
+
 <p align="center">
   <img src="../assets/banner.svg" alt="LASIK" width="100%" />
 </p>
@@ -27,6 +29,8 @@
 </p>
 
 BLA 通过把发行版“埋起来”来防止 AI 智能体读取它：成千上万的不透明谓词、加密字符串、伪造的“硬件飞地”诱饵代码、移除诱饵就会破坏程序的校验、数 MB 的填充，以及专门写给模型看、让它知难而退的文本。LASIK 以纯静态方式把这一切全部移除，把真实存在的程序交给你的智能体。
+
+<p align="center"><img src="../assets/flow.svg" alt="A BLA-hardened release goes through lasik heal, then an agent or REA reads the real logic" width="100%" /></p>
 
 ## 亮点
 
@@ -94,9 +98,13 @@ lasik setup                     # registers the MCP server; --dry-run to preview
 | v8 | 3 | 362 KB | 6.7 KB | 6,972,491 → 4,748 |
 | v9 | 4 | 381 KB | 7.4 KB | 6,977,670 → 4,941 |
 
+<p align="center"><img src="../assets/tokens.svg" alt="Log-scale bar chart: estimated tokens per BLA CrackMe artifact before and after LASIK" width="100%" /></p>
+
 逐文件数据、方法及其局限见 [docs/benchmark.md](../benchmark.md)。LASIK 让 CrackMe 变得可读，但不会公布它们的解法。
 
 ## 工作原理
+
+<p align="center"><img src="../assets/pipeline.svg" alt="LASIK pass order: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report" width="100%" /></p>
 
 | BLA 层 | LASIK 的做法 |
 |---|---|

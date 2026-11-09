@@ -1,3 +1,5 @@
+<p align="center"><a href="../../README.md">English</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a> · <b>Español</b></p>
+
 <p align="center">
   <img src="../assets/banner.svg" alt="LASIK" width="100%" />
 </p>
@@ -27,6 +29,8 @@
 </p>
 
 BLA protege una versión frente a los agentes de IA enterrándola: miles de predicados opacos, cadenas cifradas, código señuelo de "enclave de hardware", comprobaciones que rompen el programa si se quitan los señuelos, relleno de varios megabytes y texto escrito para que el modelo se rinda. LASIK lo retira todo de forma estática y entrega a tu agente el programa que realmente hay.
+
+<p align="center"><img src="../assets/flow.svg" alt="A BLA-hardened release goes through lasik heal, then an agent or REA reads the real logic" width="100%" /></p>
 
 ## Puntos destacados
 
@@ -94,9 +98,13 @@ Medido sobre los CrackMes que los mantenedores de BLA publicaron como retos, inc
 | v8 | 3 | 362 KB | 6.7 KB | 6,972,491 → 4,748 |
 | v9 | 4 | 381 KB | 7.4 KB | 6,977,670 → 4,941 |
 
+<p align="center"><img src="../assets/tokens.svg" alt="Log-scale bar chart: estimated tokens per BLA CrackMe artifact before and after LASIK" width="100%" /></p>
+
 Las cifras por archivo, el método y sus limitaciones están en [docs/benchmark.md](../benchmark.md). LASIK hace legibles los CrackMes; no publica sus soluciones.
 
 ## Cómo funciona
+
+<p align="center"><img src="../assets/pipeline.svg" alt="LASIK pass order: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report" width="100%" /></p>
 
 | Capa de BLA | Qué hace LASIK |
 |---|---|

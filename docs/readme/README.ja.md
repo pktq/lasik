@@ -1,3 +1,5 @@
+<p align="center"><a href="../../README.md">English</a> · <a href="README.zh-CN.md">简体中文</a> · <b>日本語</b> · <a href="README.ko.md">한국어</a> · <a href="README.es.md">Español</a></p>
+
 <p align="center">
   <img src="../assets/banner.svg" alt="LASIK" width="100%" />
 </p>
@@ -27,6 +29,8 @@
 </p>
 
 BLA は、リリースを埋め尽くすことで AI エージェントから守ります。数千の不透明述語、暗号化された文字列、偽の「ハードウェアエンクレーブ」コード、おとりを取り除くとプログラムが壊れる検査、数 MB のパディング、そしてモデルに諦めさせるために書かれたテキストです。LASIK はそのすべてを静的に取り除き、実際にあるプログラムをエージェントに渡します。
+
+<p align="center"><img src="../assets/flow.svg" alt="A BLA-hardened release goes through lasik heal, then an agent or REA reads the real logic" width="100%" /></p>
 
 ## 特長
 
@@ -94,9 +98,13 @@ BLA のメンテナーが課題として公開した CrackMe で計測しまし�
 | v8 | 3 | 362 KB | 6.7 KB | 6,972,491 → 4,748 |
 | v9 | 4 | 381 KB | 7.4 KB | 6,977,670 → 4,941 |
 
+<p align="center"><img src="../assets/tokens.svg" alt="Log-scale bar chart: estimated tokens per BLA CrackMe artifact before and after LASIK" width="100%" /></p>
+
 ファイルごとの数値、測定方法とその注意点は [docs/benchmark.md](../benchmark.md) にあります。LASIK は CrackMe を読める状態にしますが、解答は公開しません。
 
 ## 仕組み
+
+<p align="center"><img src="../assets/pipeline.svg" alt="LASIK pass order: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report" width="100%" /></p>
 
 | BLA のレイヤー | LASIK の処理 |
 |---|---|
