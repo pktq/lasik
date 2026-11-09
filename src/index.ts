@@ -1,0 +1,11 @@
+export { run, type RunOptions } from "./engine/run.js";
+export { renderMarkdown, renderText } from "./engine/render.js";
+export { healJs, type JsHealOptions, type JsHealResult } from "./js/heal.js";
+export { healHtml } from "./js/html.js";
+export { firewallText, scanText, type FirewallHit, type FirewallResult } from "./firewall/index.js";
+export { healWasm } from "./formats/wasm.js";
+export { healAsar } from "./formats/asar.js";
+export { healSourceMap } from "./formats/sourcemap.js";
+export { healFuseSentinels } from "./formats/electron-fuses.js";
+export type { FileReport, Finding, Format, Layer, Report } from "./core/types.js";
+export { NAME, PACKAGE, TAGLINE, VERSION } from "./identity.js";
