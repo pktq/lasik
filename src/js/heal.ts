@@ -19,14 +19,23 @@ const UNIQUE = new Set(["corpus-digest-interlock", "interlock-safety-corpus", "r
 /** Proven BLA shapes that could, rarely, occur by coincidence: need several. */
 const REPEATED = new Set(["opaque-predicate", "fingerprinted-decoy"]);
 
-/** A file is treated as BLA-hardened (and gets the structural passes) only on this evidence. */
+/** Predicates proven constant by known-bits, whatever their printed shape. */
+const PROVEN = new Set(["opaque-predicate", "seed-bit-predicate"]);
+
+/**
+ * A file is treated as BLA-hardened (and gets the structural passes) only on this
+ * evidence. The last rule needs no BLA name or print shape: hand-written code almost
+ * never has even one branch that is provably constant, let alone dozens.
+ */
 function isHardened(f: Findings): boolean {
   let repeated = 0;
+  let proven = 0;
   for (const x of f.list()) {
     if (UNIQUE.has(x.technique)) return true;
     if (REPEATED.has(x.technique)) repeated += x.count;
+    if (PROVEN.has(x.technique)) proven += x.count;
   }
-  return repeated >= 3;
+  return repeated >= 3 || proven >= 16;
 }
 
 export interface JsHealOptions {

@@ -25,6 +25,21 @@ function freshComment(seed, text) {
   return ` ${WORDS[h[0] % 16]} ${WORDS[h[1] % 16]} ${h.subarray(2, 5).toString("hex")} `;
 }
 
+const COMMUTATIVE = new Set(["===", "!==", "==", "!=", "^", "&", "|", "*"]);
+const isImul = (n) => n.type === "CallExpression" && n.callee.type === "MemberExpression" && !n.callee.computed && n.callee.object.name === "Math" && n.callee.property.name === "imul";
+
+/** No side effects and no evaluation-order dependence. */
+function pure(n) {
+  switch (n.type) {
+    case "Identifier": case "NumericLiteral": case "StringLiteral": case "BooleanLiteral": case "NullLiteral": return true;
+    case "UnaryExpression": return n.operator !== "delete" && pure(n.argument);
+    case "BinaryExpression": return n.left.type !== "PrivateName" && pure(n.left) && pure(n.right);
+    case "ParenthesizedExpression": return pure(n.expression);
+    case "CallExpression": return isImul(n) && n.arguments.every(pure);
+    default: return false;
+  }
+}
+
 /** Words that occur in the clean original: those names are the user's, not BLA's. */
 export function wordsOf(src) {
   return new Set(src.match(/[A-Za-z_$][\w$]*/g) ?? []);
@@ -34,7 +49,7 @@ export function wordsOf(src) {
  * Rename every binding and rewrite every comment that the clean original (`clean`,
  * optional) does not contain. `keep` adds names that must stay.
  */
-export function mutateJs(code, { seed = "lasik", clean = "", keep = new Set(), filename = "input.js" } = {}) {
+export function mutateJs(code, { seed = "lasik", clean = "", keep = new Set(), filename = "input.js", shuffle = true } = {}) {
   keep = new Set([...keep, ...wordsOf(clean)]);
   const ast = parseJs(code, filename);
   const inStrings = new Set();
@@ -55,12 +70,31 @@ export function mutateJs(code, { seed = "lasik", clean = "", keep = new Set(), f
       }
     },
   });
+  // Swap operands of commutative operators when both sides are side-effect free, so the
+  // printed shape of every expression changes while its value does not.
+  let swapped = 0;
+  if (shuffle) {
+    traverse(ast, {
+      BinaryExpression(p) {
+        const n = p.node;
+        if (!COMMUTATIVE.has(n.operator) || !pure(n.left) || !pure(n.right) || pick(seed, `${n.start}`)[0] % 2) return;
+        [n.left, n.right] = [n.right, n.left];
+        swapped++;
+      },
+      CallExpression(p) {
+        const n = p.node;
+        if (!isImul(n) || n.arguments.length !== 2 || !n.arguments.every(pure) || pick(seed, `${n.start}`)[0] % 2) return;
+        n.arguments.reverse();
+        swapped++;
+      },
+    });
+  }
   for (const c of ast.comments ?? []) {
     if (clean && clean.includes(c.value.trim())) continue;
     c.value = freshComment(seed, c.value);
     comments++;
   }
-  return { code: printJs(ast), renamed, comments };
+  return { code: printJs(ast), renamed, comments, swapped };
 }
 
 const SCRIPT = /(<script(?:\s[^>]*)?>)([\s\S]*?)(<\/script\s*>)/gi;
