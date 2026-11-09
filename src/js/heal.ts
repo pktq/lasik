@@ -1,6 +1,6 @@
 import { Findings } from "../core/types.js";
 import { parseJs, printJs } from "./ast.js";
-import { stripScrambledComments } from "./passes/comments.js";
+import { stripHardenedComments, stripScrambledComments } from "./passes/comments.js";
 import { firewallJs } from "./passes/firewall.js";
 import { eliminateDeadBranches } from "./passes/dead-code.js";
 import { cutCorpusInterlocks } from "./passes/interlock.js";
@@ -38,6 +38,8 @@ export interface JsHealOptions {
    * its top-level names are closure locals nobody outside can reach.
    */
   closure?: boolean;
+  /** Inline script of a page without external scripts (see ShakeOptions.pageLocal). */
+  pageLocal?: boolean;
   /** Rename BLA-renamed module handles (default true). */
   rename?: boolean;
   /**
@@ -65,7 +67,7 @@ export function healJs(code: string, opts: JsHealOptions = {}): JsHealResult {
   // Bundled BLA modules first, each as its own program; the outer file is judged on its own evidence.
   const inner = new Findings();
   const nested = healNestedModules(ast, opts.filename, (body) => {
-    const r = healJs(body, { ...opts, closure: true, externalRoots: undefined });
+    const r = healJs(body, { ...opts, closure: true, externalRoots: undefined, pageLocal: undefined });
     for (const x of r.findings.list()) inner.add(x.layer, x.technique, x.detail, x.count);
     warnings.push(...r.warnings.map((w) => `bundled module: ${w}`));
     return r;
@@ -93,7 +95,7 @@ export function healJs(code: string, opts: JsHealOptions = {}): JsHealResult {
     round += stripPrivateStateSinks(ast, findings);
     round += decryptStrings(ast, findings);
     round += stripSelfSeal(ast, findings);
-    round += shakeUnreachable(ast, findings, { externalRoots: opts.externalRoots, blaHardened: isHardened(findings), closure: opts.closure });
+    round += shakeUnreachable(ast, findings, { externalRoots: opts.externalRoots, blaHardened: isHardened(findings), closure: opts.closure, pageLocal: opts.pageLocal });
     changes += round;
     if (!round) break;
   }
@@ -109,6 +111,7 @@ export function healJs(code: string, opts: JsHealOptions = {}): JsHealResult {
     return { code: redacted ? printJs(fresh) : code, findings: withInner(clean), warnings, changed: redacted > 0 || nested > 0 };
   }
 
+  changes += stripHardenedComments(ast, findings);
   if (opts.rename !== false) changes += renameRequireHandles(ast, findings);
   if (opts.rename !== false && hardened) changes += renameBlaNames(ast, findings);
   if (opts.firewall !== false) changes += firewallJs(ast, findings, { mode, hardened: true });

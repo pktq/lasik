@@ -13,6 +13,30 @@ export interface ShakeOptions {
   blaHardened?: boolean;
   /** The program is a function body (a bundled module): its top-level names are closure locals. */
   closure?: boolean;
+  /**
+   * The program is an inline script of a page with no external scripts: its globals
+   * are visible only to that page's own scripts and attributes, which the caller
+   * passes in `externalRoots`.
+   */
+  pageLocal?: boolean;
+}
+
+const GLOBAL_OBJECTS = new Set(["window", "globalThis", "self", "top", "parent", "frames"]);
+
+/** `window[k]` with a computed key: a global could be read under a name built at runtime. */
+function readsGlobalsDynamically(ast: t.File): boolean {
+  let dyn = false;
+  traverse(ast, {
+    "MemberExpression|OptionalMemberExpression"(p: NodePath<t.MemberExpression | t.OptionalMemberExpression>) {
+      const { object, property, computed } = p.node;
+      if (!computed || t.isStringLiteral(property) || t.isNumericLiteral(property)) return;
+      if ((t.isIdentifier(object) && GLOBAL_OBJECTS.has(object.name) && !p.scope.getBinding(object.name)) || (t.isThisExpression(object) && !p.getFunctionParent())) {
+        dyn = true;
+        p.stop();
+      }
+    },
+  });
+  return dyn;
 }
 
 /** BLA's generated names: camelCase stem (`verbAdjNoun`) + `_` + 3–4 hex. Not `show_404` or `cache_add`. */
@@ -239,6 +263,10 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
   }
   const moduleLike = opts.closure === true || isModuleLike(ast);
   const external = opts.externalRoots ?? new Set<string>();
+  // Page-local globals can also be read as `window.x` or `window["x"]`: a property name or
+  // string word in live code keeps a global alive (see markRefs). A computed key built at
+  // runtime could name anything, so then globals stay.
+  const pageLocal = opts.pageLocal === true && !moduleLike && !readsGlobalsDynamically(ast);
 
   for (let round = 0; round < 8; round++) {
     pp = programPath();
@@ -266,13 +294,28 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
     // In a plain script every global may be used by another script; only fingerprinted decoys are fair game.
     for (const [name, d] of decls) {
       const injected = DECOY_DECL.test(name) || (opts.blaHardened === true && BLA_TAG.test(name));
-      if (external.has(name) || evalRoots.has(name) || (!moduleLike && !injected)) roots.push(d);
+      if (external.has(name) || evalRoots.has(name) || (!moduleLike && !pageLocal && !injected)) roots.push(d);
     }
 
     const live = new Set<string>();
     const queue: NodePath[] = [...roots];
     const programScope = pp.scope;
+    const mark = (name: string): void => {
+      if (live.has(name) || !decls.has(name)) return;
+      live.add(name);
+      queue.push(decls.get(name)!);
+    };
+    const markWords = (s: string): void => { for (const w of s.match(/[A-Za-z_$][\w$]*/g) ?? []) mark(w); };
     const markRefs = (p: NodePath) => {
+      if (pageLocal) {
+        p.traverse({
+          "MemberExpression|OptionalMemberExpression"(mp: NodePath<t.MemberExpression | t.OptionalMemberExpression>) {
+            if (!mp.node.computed && t.isIdentifier(mp.node.property)) mark(mp.node.property.name);
+          },
+          StringLiteral(sp) { markWords(sp.node.value); },
+          TemplateElement(tp) { markWords(tp.node.value.raw); },
+        });
+      }
       p.traverse({
         JSXIdentifier(jp) {
           // <Button/> references the Button binding.

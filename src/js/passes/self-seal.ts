@@ -11,16 +11,21 @@ function isSealFunction(fn: t.Function): boolean {
   let hash = false;
   let marker = false;
   let sidecar = false;
+  let ownFile = false;
+  let reads = false;
   // Only the function's own body counts: a wrapper that merely contains a seal is real code.
   traverseOwn(fn, (n) => {
     if (t.isStringLiteral(n) && SEAL_ERRORS.includes(n.value)) err = true;
     if (t.isIdentifier(n, { name: "createHash" }) || t.isStringLiteral(n, { value: "sha256" })) hash = true;
     if (t.isIdentifier(n) && SEAL_MARKERS.has(n.name)) marker = true;
     if (t.isIdentifier(n, { name: "__blaSidecarDigest" })) sidecar = true;
+    if (t.isIdentifier(n, { name: "__filename" }) || (t.isMemberExpression(n) && t.isMetaProperty(n.object) && t.isIdentifier(n.property, { name: "url" }))) ownFile = true;
+    if (t.isIdentifier(n, { name: "readFileSync" })) reads = true;
   });
-  // A user's own integrity check has the first two; only BLA's has the markers too.
+  // A check that hashes the file's own bytes and throws on a mismatch fails on any healed
+  // output, whoever wrote it, so it cannot survive healing. Otherwise only BLA's markers count.
   // The soft-fold sidecar preamble never throws (sidecar-entangle.ts:320-332) but is still BLA's.
-  return (err || sidecar) && hash && marker;
+  return hash && ((err && ownFile && reads) || ((err || sidecar) && marker));
 }
 
 /**

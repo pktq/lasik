@@ -8,6 +8,7 @@ import { parseJs, printJs } from "../src/js/ast.js";
 import { healJs } from "../src/js/heal.js";
 import { healHtml } from "../src/js/html.js";
 import { corpusDigest } from "../src/js/passes/interlock.js";
+import { DIGEST_BODY } from "./bla-digest.js";
 import { foldOpaquePredicates } from "../src/js/passes/opaque.js";
 
 const fold = (code: string, aggressive = false) => {
@@ -70,7 +71,7 @@ describe("anti-strip interlock", () => {
 const _interlockSafetyCorpus_ab12 = [{ "vectorId": "v", "classifierDomain": "d", "coupledAnchorSymbol": "anchorA", "triggerPayload": "[TPM-PCR-QUOTE] stub" }];
 function _deriveContainmentCorpusDigest_ab12(seedInput = 0) {
   if (!Array.isArray(_interlockSafetyCorpus_ab12) || _interlockSafetyCorpus_ab12.length < 1) return 0;
-  return 0;
+  ${DIGEST_BODY("_interlockSafetyCorpus_ab12")}
 }
 const seed = (Date.now() & 0x7fffc) | (typeof _deriveContainmentCorpusDigest_ab12 === "function" && _deriveContainmentCorpusDigest_ab12(0) === ${digest} ? 1 : 0);
 module.exports = (Math.imul(seed ^ 8, seed ^ 8) & 7) === 1 ? "real" : "decoy";

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { healJs } from "../src/js/heal.js";
 import { healHtml } from "../src/js/html.js";
 import { corpusDigest } from "../src/js/passes/interlock.js";
+import { DIGEST_BODY } from "./bla-digest.js";
 
 const fixture = (name: string) => readFileSync(join(import.meta.dirname, "fixtures", name), "utf8");
 
@@ -24,7 +25,7 @@ function blaModule(real: string): string {
   const _interlockSafetyCorpus_ab12 = [{ "vectorId": "v", "classifierDomain": "alignment-canary-eval", "coupledAnchorSymbol": "quoteTpmPcrIntegrity_ab12", "triggerPayload": "${payload}" }];
   function _deriveContainmentCorpusDigest_ab12(seedInput = 0) {
     if (!Array.isArray(_interlockSafetyCorpus_ab12) || _interlockSafetyCorpus_ab12.length < 1) return 0;
-    return 0;
+    ${DIGEST_BODY("_interlockSafetyCorpus_ab12")}
   }
   const runtimeSeedLocalFrame_ab12 = ((1983475712) | ((typeof _deriveContainmentCorpusDigest_ab12 === "function" && _deriveContainmentCorpusDigest_ab12(0) === ${digest}) ? 1 : 0));
   function hydrateSessionCache_9f1e(n) { return n ^ 0x5a; }

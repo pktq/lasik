@@ -1,12 +1,13 @@
 import type { Findings } from "../../core/types.js";
-import { t, traverse } from "../ast.js";
+import { t, traverse, type NodePath } from "../ast.js";
+import { callPure, evalPure, type Globals, type Val } from "../pure-eval.js";
 
 interface Entry {
   anchor: string;
   payload: string;
 }
 
-/** BLA's corpus digest (cognitive-armor-trigger), reimplemented so nothing from the target is executed. */
+/** BLA 3.2.1's corpus digest (cognitive-armor-trigger). Reference for tests; the pass evaluates whatever digest the file carries. */
 export function corpusDigest(entries: Entry[], seedInput: number, minLength: number): number {
   if (entries.length < minLength) return 0;
   let acc = ((seedInput | 0) ^ 0x26b5c67b) >>> 0;
@@ -39,79 +40,119 @@ function readCorpus(node: t.Node | null | undefined): Entry[] | undefined {
   return out;
 }
 
-/** BLA's minimum-entries guard `xs.length < N` inside the digest function. */
-function minLengthOf(fn: t.FunctionDeclaration): number {
-  let min = 0;
-  const visit = (n: t.Node | null | undefined): void => {
-    if (!n || typeof n !== "object") return;
-    if (
-      t.isBinaryExpression(n, { operator: "<" }) &&
-      t.isMemberExpression(n.left) &&
-      t.isIdentifier(n.left.property, { name: "length" }) &&
-      t.isNumericLiteral(n.right)
-    ) {
-      min = Math.max(min, n.right.value);
-    }
-    for (const key of t.VISITOR_KEYS[n.type] ?? []) {
-      const child = (n as unknown as Record<string, unknown>)[key];
-      if (Array.isArray(child)) child.forEach((c) => visit(c as t.Node));
-      else visit(child as t.Node);
-    }
-  };
-  visit(fn.body);
-  return min;
+const READ_METHODS = new Set(["charCodeAt", "codePointAt", "slice", "indexOf", "includes", "startsWith", "endsWith", "at"]);
+
+/**
+ * True when this reference cannot change what the binding holds: `void x`, `typeof x`,
+ * `!x`, `Array.isArray(x)`, or a read chain like `x[i].a.length` used as an operand or
+ * a test. A `const` alias (`const e = x[i]`) is followed. Writes, deletes, escapes and
+ * unknown method calls are not read-only.
+ */
+function isReadOnlyUse(ref: NodePath, depth = 0): boolean {
+  let p: NodePath = ref;
+  while (p.parentPath?.isMemberExpression() && p.parentPath.node.object === p.node) p = p.parentPath;
+  const parent = p.parentPath;
+  if (!parent) return false;
+  if (parent.isUnaryExpression()) return parent.node.operator !== "delete";
+  if (parent.isArrayExpression()) return parent.parentPath?.isUnaryExpression({ operator: "void" }) === true;
+  if (parent.isCallExpression()) {
+    if (parent.node.callee === p.node) return p !== ref && t.isMemberExpression(p.node) && !p.node.computed && t.isIdentifier(p.node.property) && READ_METHODS.has(p.node.property.name);
+    const c = parent.node.callee;
+    return t.isMemberExpression(c) && t.isIdentifier(c.object, { name: "Array" }) && t.isIdentifier(c.property, { name: "isArray" }) && !parent.scope.getBinding("Array");
+  }
+  if (parent.isBinaryExpression() || parent.isTemplateLiteral()) return true;
+  if ((parent.isIfStatement() || parent.isConditionalExpression() || parent.isWhileStatement() || parent.isForStatement()) && (parent.node as { test?: t.Node }).test === p.node) return true;
+  if (parent.isVariableDeclarator() && parent.node.init === p.node && t.isIdentifier(parent.node.id) && depth < 3) {
+    const decl = parent.parentPath;
+    const b = parent.scope.getBinding(parent.node.id.name);
+    return decl?.isVariableDeclaration({ kind: "const" }) === true && !!b && b.referencePaths.every((r) => isReadOnlyUse(r, depth + 1));
+  }
+  return false;
+}
+
+/** Name D in `typeof D === "function"` (either operand order), else undefined. */
+function typeofFunctionOf(n: t.Node): string | undefined {
+  if (!t.isBinaryExpression(n) || (n.operator !== "===" && n.operator !== "==")) return undefined;
+  const [a, b] = t.isUnaryExpression(n.left, { operator: "typeof" }) ? [n.left, n.right] : [n.right, n.left];
+  return t.isUnaryExpression(a, { operator: "typeof" }) && t.isIdentifier(a.argument) && t.isStringLiteral(b, { value: "function" }) ? a.argument.name : undefined;
 }
 
 /**
- * BLA ties its decoy corpus to real code: a runtime seed's low bit is
- * `typeof D === "function" && D(s) === N ? 1 : 0`, so deleting the corpus
- * flips the bit. Recompute D(s) statically and fold the expression to the
- * value it has in the unmodified program, which frees the corpus for removal.
+ * Anti-strip interlocks: real code reads `typeof D === "function" && D(s) === N`, where D
+ * is a pure function over a constant decoy corpus, so deleting the corpus flips the
+ * result. Evaluate D(s) statically (pure-eval walks the AST; nothing is executed) and fold
+ * the comparison to the value it has in the unmodified program, which frees the corpus.
+ * Keyed on that shape and on proof, not on BLA's names or its digest algorithm.
  */
 export function cutCorpusInterlocks(ast: t.File, f: Findings): { folded: number; unresolved: number } {
-  const corpora = new Map<string, Entry[]>();
-  const digests = new Map<string, { corpus: string; min: number }>();
+  let program!: NodePath<t.Program>;
+  traverse(ast, { Program(p) { program = p; p.stop(); } });
+  const scope = program.scope;
 
-  traverse(ast, {
-    VariableDeclarator(p) {
-      if (t.isIdentifier(p.node.id) && /^_interlockSafetyCorpus_[0-9a-f]{3,6}$/.test(p.node.id.name)) {
-        const c = readCorpus(p.node.init);
-        if (c) corpora.set(p.node.id.name, c);
-      }
-    },
-    FunctionDeclaration(p) {
-      const id = p.node.id?.name;
-      if (!id || !/^_deriveContainmentCorpusDigest_[0-9a-f]{3,6}$/.test(id)) return;
-      digests.set(id, { corpus: `_interlockSafetyCorpus_${id.slice(id.lastIndexOf("_") + 1)}`, min: minLengthOf(p.node) });
-    },
-  });
+  // Top-level bindings that provably always hold their literal initializer.
+  const constant = new Map<string, { value: Val } | null>();
+  const globals: Globals = (name) => {
+    if (constant.has(name)) return constant.get(name) ?? undefined;
+    const b = scope.getBinding(name);
+    let out: { value: Val } | undefined;
+    if (b && b.constantViolations.length === 0 && b.path.isVariableDeclarator() && b.path.node.init && t.isIdentifier(b.path.node.id) && b.referencePaths.every((r) => isReadOnlyUse(r))) {
+      const r = evalPure(b.path.node.init);
+      if (r.ok) out = { value: r.value };
+    }
+    constant.set(name, out ?? null);
+    return out;
+  };
+  const topFunction = (name: string): t.FunctionDeclaration | undefined => {
+    const b = scope.getBinding(name);
+    return b && b.kind === "hoisted" && b.constantViolations.length === 0 && b.path.isFunctionDeclaration() && b.path.parentPath?.isProgram() ? b.path.node : undefined;
+  };
 
   let folded = 0;
   let unresolved = 0;
+  const foldedFns = new Set<string>();
   traverse(ast, {
-    ConditionalExpression(p) {
-      const { test, consequent, alternate } = p.node;
-      if (!t.isLogicalExpression(test, { operator: "&&" })) return;
-      const cmp = test.right;
-      if (!t.isBinaryExpression(cmp, { operator: "===" }) || !t.isCallExpression(cmp.left) || !t.isNumericLiteral(cmp.right)) return;
-      const callee = cmp.left.callee;
-      if (!t.isIdentifier(callee)) return;
-      const d = digests.get(callee.name);
-      if (!d) return;
-      const corpus = corpora.get(d.corpus);
-      const arg = cmp.left.arguments[0];
-      const seed = arg === undefined ? 0 : t.isNumericLiteral(arg) ? arg.value : undefined;
-      if (!corpus || seed === undefined) {
-        unresolved++;
+    BinaryExpression(p) {
+      const { operator, left, right } = p.node;
+      if (operator !== "===" && operator !== "!==" && operator !== "==" && operator !== "!=") return;
+      const call = t.isCallExpression(left) ? left : t.isCallExpression(right) ? right : undefined;
+      const lit = call === left ? right : left;
+      if (!call || !(t.isNumericLiteral(lit) || t.isStringLiteral(lit)) || !t.isIdentifier(call.callee)) return;
+      const name = call.callee.name;
+      if (p.scope.getBinding(name)?.scope !== scope) return;
+      const fn = topFunction(name);
+      if (!fn) return;
+      const interlock = t.isLogicalExpression(p.parent, { operator: "&&" }) && p.parent.right === p.node && typeofFunctionOf(p.parent.left) === name;
+      const args: Val[] = [];
+      for (const a of call.arguments) {
+        const r = t.isExpression(a) ? evalPure(a) : { ok: false as const };
+        if (!r.ok) { if (interlock) unresolved++; return; }
+        args.push(r.value);
+      }
+      const r = callPure(fn, args, globals);
+      if (!r.ok || (typeof r.value === "object" && r.value !== null)) {
+        if (interlock) unresolved++;
         return;
       }
-      // `typeof D === "function"` is true in the unmodified program.
-      const holds = corpusDigest(corpus, seed, d.min) === cmp.right.value;
-      p.replaceWith(holds ? consequent : alternate);
+      const v = r.value;
+      const want = lit.value;
+      const holds = operator === "===" ? v === want : operator === "!==" ? v !== want : operator === "==" ? v == want : v != want;
+      p.replaceWith(t.booleanLiteral(holds));
+      if (interlock) foldedFns.add(name);
       folded++;
     },
   });
-  if (folded) f.add("entangle", "corpus-digest-interlock", "recomputed the decoy-corpus digest statically and folded the anti-strip seed bit", folded);
-  if (corpora.size) f.add("prompt", "interlock-safety-corpus", "LLM-directed decoy corpus (vectorId / classifierDomain / triggerPayload)", corpora.size);
+  // `typeof D === "function" && <folded>`: D is a constant top-level function, so the guard holds.
+  traverse(ast, {
+    LogicalExpression(p) {
+      if (p.node.operator !== "&&" || !t.isBooleanLiteral(p.node.right)) return;
+      const name = typeofFunctionOf(p.node.left);
+      if (name && foldedFns.has(name)) p.replaceWith(p.node.right);
+    },
+  });
+
+  let corpora = 0;
+  traverse(ast, { VariableDeclarator(p) { if (readCorpus(p.node.init)) corpora++; } });
+  if (foldedFns.size) f.add("entangle", "corpus-digest-interlock", "evaluated the anti-strip interlock statically and folded it to its unmodified value", foldedFns.size);
+  if (corpora) f.add("prompt", "interlock-safety-corpus", "LLM-directed decoy corpus (vectorId / classifierDomain / triggerPayload)", corpora);
   return { folded, unresolved };
 }

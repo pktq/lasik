@@ -41,3 +41,28 @@ export function stripScrambledComments(ast: t.File, f: Findings): number {
   if (honey) f.add("deceive", "honey-sourcemap", "removed inline honey source map (fake enclave source tree)", honey);
   return scrambled + honey;
 }
+
+/** Comments that tools read: license banners, source maps, compiler/linter/bundler directives. */
+const FUNCTIONAL_COMMENT = /^(?:!|\s*[#@]\s*source(?:Mapping)?URL=|\s*[@#]__(?:PURE|NO_SIDE_EFFECTS)__|\s*@(?:ts-|jsx|license|preserve|vite-ignore|flow|refresh)|\s*(?:eslint|prettier-ignore|istanbul|c8|webpack[A-Z]|tslint|jshint|global\s))/;
+
+/**
+ * BLA replaces every original comment, so in a file proven hardened the only comments
+ * with information are the ones tools read. Drop the rest, whatever their wording.
+ */
+export function stripHardenedComments(ast: t.File, f: Findings): number {
+  let n = 0;
+  const keep = (c: t.Comment) => {
+    if (FUNCTIONAL_COMMENT.test(c.value)) return true;
+    n++;
+    return false;
+  };
+  ast.comments = ast.comments?.filter(keep) ?? null;
+  n = 0;
+  t.traverseFast(ast, (node) => {
+    if (node.leadingComments) node.leadingComments = node.leadingComments.filter(keep);
+    if (node.trailingComments) node.trailingComments = node.trailingComments.filter(keep);
+    if (node.innerComments) node.innerComments = node.innerComments.filter(keep);
+  });
+  if (n) f.add("deceive", "hardened-comment", "removed comments from a proven BLA-hardened file (BLA replaces every original comment)", n);
+  return n;
+}
