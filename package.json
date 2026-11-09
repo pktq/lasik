@@ -59,6 +59,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "bench": "node dist/cli.js bench",
+    "bench:renamed": "node scripts/bench-renamed.mjs",
     "prepublishOnly": "npm run build && npm test",
     "coverage:docs": "node scripts/bla-coverage.mjs docs",
     "coverage:check": "node scripts/bla-coverage.mjs check",

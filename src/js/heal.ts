@@ -27,7 +27,7 @@ const PROVEN = new Set(["opaque-predicate", "seed-bit-predicate"]);
  * evidence. The last rule needs no BLA name or print shape: hand-written code almost
  * never has even one branch that is provably constant, let alone dozens.
  */
-function isHardened(f: Findings): boolean {
+export function isHardened(f: Findings): boolean {
   let repeated = 0;
   let proven = 0;
   for (const x of f.list()) {

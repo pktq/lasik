@@ -150,3 +150,55 @@ describe.skipIf(!existsSync(DIST))("renamed real BLA output", () => {
     }
   });
 });
+
+describe("wasm without BLA names", () => {
+  const leb = (n: number): Buffer => {
+    const out: number[] = [];
+    do { let b = n & 0x7f; n = Math.floor(n / 128); if (n) b |= 0x80; out.push(b); } while (n);
+    return Buffer.from(out);
+  };
+  const str = (s: string) => Buffer.concat([leb(Buffer.byteLength(s)), Buffer.from(s)]);
+  const custom = (name: string, size: number) => {
+    const body = Buffer.concat([str(name), Buffer.alloc(size, 0x41)]);
+    return Buffer.concat([Buffer.from([0]), leb(body.length), body]);
+  };
+  const clean = readFileSync(join(import.meta.dirname, "fixtures", "bla-3.2.1", "clean", "add.wasm"));
+
+  it("drops an exhaustion section and its small companions whatever they are called", async () => {
+    const { healWasm } = await import("../src/formats/wasm.js");
+    const padded = Buffer.concat([clean, custom("qzvx.ledger", 2000), custom("kfrw", 400_000), custom("producers", 10)]);
+    const r = healWasm(padded);
+    expect(r.changed).toBe(true);
+    expect(r.output.length).toBe(clean.length + custom("producers", 10).length);
+  });
+
+  it("leaves clean modules with tool or small unknown sections byte-identical", async () => {
+    const { healWasm } = await import("../src/formats/wasm.js");
+    for (const extra of [custom("qzvx.ledger", 2000), custom(".debug_info", 900_000), custom("name", 300)]) {
+      const input = Buffer.concat([clean, extra]);
+      expect(healWasm(input).output.equals(input)).toBe(true);
+    }
+  });
+
+  it.skipIf(!existsSync(DIST))("heals renamed real BLA wasm to the same size", async () => {
+    const { mutateWasm } = await import("../scripts/mutate-bla.mjs");
+    const { healWasm } = await import("../src/formats/wasm.js");
+    const src = gunzipSync(readFileSync(join(import.meta.dirname, "fixtures", "bla-3.2.1", "default", "add.wasm.gz")));
+    const renamed = mutateWasm(src).code;
+    expect(renamed.toString("latin1")).not.toMatch(/bla\.|enclave_export_/);
+    expect(healWasm(renamed).output.length).toBe(healWasm(src).output.length);
+  });
+});
+
+describe.skipIf(!existsSync(DIST))("asar without BLA paths", () => {
+  it("drops a renamed shard flood and heals the renamed decoy bridge", async () => {
+    const { mutateAsar } = await import("../scripts/mutate-bla.mjs");
+    const { healAsar } = await import("../src/formats/asar.js");
+    const src = gunzipSync(readFileSync(join(import.meta.dirname, "fixtures", "bla-3.2.1", "default", "app.asar.gz")));
+    const renamed = mutateAsar(src).code;
+    expect(renamed.toString("latin1", 0, 4096)).not.toMatch(/enclave|shards|ring0/);
+    const r = healAsar(renamed, "app.asar", {});
+    expect(r.output.length).toBeLessThan(2048);
+    expect(r.findings.list().map((f) => f.technique)).toContain("asar-unreachable-entry");
+  });
+});

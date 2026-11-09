@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { Findings } from "../core/types.js";
-import { healJs } from "../js/heal.js";
+import { healJs, isHardened } from "../js/heal.js";
 import { isHoneySourceMap } from "../js/passes/comments.js";
 import { healSourceMap } from "./sourcemap.js";
 import type { FormatHealer } from "./types.js";
@@ -8,6 +8,8 @@ import type { FormatHealer } from "./types.js";
 /** REA refuses asar headers above this (DEFAULT_ASAR_MAX_HEADER_BYTES). */
 const REA_MAX_HEADER = 16 * 1024 * 1024;
 const DEFAULT_BLOCK = 4 * 1024 * 1024;
+/** Unreachable entries in one directory needed to call it a header flood. */
+const FLOOD = 64;
 const INLINE_MAP = /^[ \t]*\/\/[#@][ \t]*sourceMappingURL=data:application\/json[^,\n]*;base64,([A-Za-z0-9+/=]+)[ \t]*\r?\n?/gm;
 
 interface Integrity {
@@ -77,6 +79,83 @@ export const healAsar: FormatHealer = (input, file, opts) => {
     return unchanged();
   }
 
+  const contentOf = (node: AsarNode, path: string): Buffer => {
+    const start = dataBase + Number(node.offset);
+    const size = node.size ?? 0;
+    if (!Number.isSafeInteger(start) || start + size > input.length) throw new Error(`entry out of bounds: ${path}`);
+    return input.subarray(start, start + size);
+  };
+  const healCache = new Map<string, ReturnType<typeof healJs>>();
+  const healedJs = (path: string, content: Buffer) => {
+    let r = healCache.get(path);
+    if (!r) healCache.set(path, (r = healJs(content.toString("utf8"), { filename: path, aggressive: opts.aggressive })));
+    return r;
+  };
+
+  /**
+   * Flood entries nothing left in a proven-hardened archive can reach. Roots are package.json, its
+   * `main`, and every top-level file; a reached text reaches each entry whose file name, stem or
+   * directory it mentions. Code that names files at runtime (`require(x)`, `import(x)`,
+   * `readdir`) could reach anything, so then nothing is dropped.
+   */
+  const unreachableEntries = (files: Record<string, AsarNode>): Set<string> => {
+    const entries: { path: string; node: AsarNode }[] = [];
+    const list = (dir: Record<string, AsarNode>, prefix: string): void => {
+      for (const [name, node] of Object.entries(dir)) {
+        if (node.files) list(node.files, `${prefix + name}/`);
+        else if (node.link === undefined && node.unpacked !== true && !isDecoyPath(prefix + name)) entries.push({ path: prefix + name, node });
+      }
+    };
+    list(files, "");
+    let hardened = false;
+    const text = new Map<string, string>();
+    for (const { path, node } of entries) {
+      if (/\.[cm]?js$/.test(path)) {
+        const r = healedJs(path, contentOf(node, path));
+        hardened ||= isHardened(r.findings);
+        text.set(path, r.code);
+      } else if (/\.(?:json|html?|css|txt|xml|svg)$/i.test(path) || path.endsWith("/package.json") || path === "package.json") {
+        text.set(path, contentOf(node, path).toString("utf8"));
+      }
+    }
+    if (!hardened) return new Set();
+    const main = (() => {
+      try {
+        const m = (JSON.parse(text.get("package.json") ?? "{}") as { main?: unknown }).main;
+        return typeof m === "string" ? m.replace(/^\.\//, "") : undefined;
+      } catch {
+        return undefined;
+      }
+    })();
+    const reached = new Set(entries.filter((e) => !e.path.includes("/") || e.path === main || e.path === `${main}.js`).map((e) => e.path));
+    const queue = [...reached];
+    while (queue.length) {
+      const t = text.get(queue.pop()!);
+      if (t === undefined) continue;
+      if (/\b(?:require|import)\s*\(\s*[^'"`\s)]|readdir/.test(t)) return new Set();
+      for (const e of entries) {
+        if (reached.has(e.path)) continue;
+        const parts = e.path.split("/");
+        const file = parts[parts.length - 1]!;
+        const names = [file, file.replace(/\.[^.]+$/, ""), ...parts.slice(0, -1)];
+        if (names.some((n) => n && t.includes(n))) {
+          reached.add(e.path);
+          queue.push(e.path);
+        }
+      }
+    }
+    // Only floods: a lone unreachable file may still be worth reading, thousands of them never are.
+    const byDir = new Map<string, string[]>();
+    for (const e of entries) {
+      if (reached.has(e.path)) continue;
+      const dir = e.path.slice(0, e.path.lastIndexOf("/") + 1);
+      byDir.set(dir, [...(byDir.get(dir) ?? []), e.path]);
+    }
+    return new Set([...byDir.values()].filter((paths) => paths.length >= FLOOD).flat());
+  };
+
+  let unreachable = new Set<string>();
+  let unreachableDropped = 0;
   const chunks: Buffer[] = [];
   let offset = 0;
   let decoys = 0;
@@ -99,15 +178,17 @@ export const healAsar: FormatHealer = (input, file, opts) => {
         delete dir[name];
         continue;
       }
-      const start = dataBase + Number(node.offset);
-      const size = node.size ?? 0;
-      if (!Number.isSafeInteger(start) || start + size > input.length) throw new Error(`entry out of bounds: ${path}`);
-      let content = input.subarray(start, start + size);
+      if (unreachable.has(path)) {
+        unreachableDropped++;
+        delete dir[name];
+        continue;
+      }
+      let content = contentOf(node, path);
       let rewritten = false;
       if (/\.[cm]?js$/.test(name)) {
         // BLA runs its full JS shield over every .js entry (protector.ts electron-asar branch).
         try {
-          const r = healJs(content.toString("utf8"), { filename: path, aggressive: opts.aggressive });
+          const r = healedJs(path, content);
           if (r.changed) {
             content = Buffer.from(r.code, "utf8");
             for (const f of r.findings.list()) findings.add(f.layer, f.technique, f.detail, f.count);
@@ -146,12 +227,13 @@ export const healAsar: FormatHealer = (input, file, opts) => {
 
   if (!root.files) return unchanged();
   try {
+    unreachable = unreachableEntries(root.files);
     walk(root.files, "");
   } catch (err) {
     warnings.push(`asar parse failed (${(err as Error).message}); left unchanged`);
     return unchanged();
   }
-  if (decoys + inlineMaps + honeyMaps + jsHealed === 0) return unchanged();
+  if (decoys + unreachableDropped + inlineMaps + honeyMaps + jsHealed === 0) return unchanged();
 
   const json = Buffer.from(JSON.stringify(root), "utf8");
   const aligned = Math.ceil(json.length / 4) * 4;
@@ -170,6 +252,7 @@ export const healAsar: FormatHealer = (input, file, opts) => {
       decoys,
     );
   }
+  if (unreachableDropped) findings.add("exhaust", "asar-unreachable-entry", "removed entries nothing left in the hardened archive can reach", unreachableDropped);
   if (inlineMaps) findings.add("deceive", "honey-sourcemap", "removed inline honey source maps from .js entries", inlineMaps);
   if (honeyMaps) {
     findings.add("deceive", "honey-sourcemap-file", "replaced honey .map entries with empty maps", honeyMaps);

@@ -112,3 +112,100 @@ export function mutateHtml(html, opts = {}) {
   });
   return { code, renamed, comments };
 }
+
+function leb(buf, pos) {
+  let value = 0, shift = 0;
+  for (;;) {
+    const b = buf[pos++];
+    value += (b & 0x7f) * 2 ** shift;
+    if (!(b & 0x80)) return { value, next: pos };
+    shift += 7;
+  }
+}
+function uleb(value) {
+  const out = [];
+  do {
+    let b = value & 0x7f;
+    value = Math.floor(value / 128);
+    if (value) b |= 0x80;
+    out.push(b);
+  } while (value);
+  return Buffer.from(out);
+}
+const nameBytes = (s) => Buffer.concat([uleb(Buffer.byteLength(s)), Buffer.from(s)]);
+const TOOL_SECTIONS = /^(?:name|producers|target_features|sourceMappingURL|\.debug_.+)$/;
+
+/** Same length, letters only, nothing in common with the original spelling. */
+function respell(seed, s) {
+  let out = "";
+  for (let i = 0; out.length < s.length; i++) out += freshName(seed, `${s}#${i}`);
+  return out.slice(0, s.length);
+}
+
+/**
+ * The same patch for a wasm module: every non-tool custom section gets a random name and
+ * every long export name a random spelling of the same length. Code is untouched.
+ */
+export function mutateWasm(buf, { seed = "lasik" } = {}) {
+  const parts = [buf.subarray(0, 8)];
+  let renamed = 0;
+  for (let pos = 8; pos < buf.length; ) {
+    const id = buf[pos];
+    const size = leb(buf, pos + 1);
+    const end = size.next + size.value;
+    const payload = buf.subarray(size.next, end);
+    let out = payload;
+    if (id === 0) {
+      const n = leb(payload, 0);
+      const name = payload.subarray(n.next, n.next + n.value).toString();
+      if (!TOOL_SECTIONS.test(name)) {
+        out = Buffer.concat([nameBytes(respell(seed, name)), payload.subarray(n.next + n.value)]);
+        renamed++;
+      }
+    } else if (id === 7) {
+      const count = leb(payload, 0);
+      const items = [uleb(count.value)];
+      let p = count.next;
+      for (let i = 0; i < count.value; i++) {
+        const n = leb(payload, p);
+        let name = payload.subarray(n.next, n.next + n.value).toString();
+        const after = leb(payload, n.next + n.value + 1).next;
+        if (name.length > 64) { name = respell(seed, name); renamed++; }
+        items.push(nameBytes(name), payload.subarray(n.next + n.value, after));
+        p = after;
+      }
+      out = Buffer.concat(items);
+    }
+    parts.push(Buffer.from([id]), uleb(out.length), out);
+    pos = end;
+  }
+  return { code: Buffer.concat(parts), renamed };
+}
+
+/** The same patch for an Electron asar: every directory and nested file gets a random name. */
+export function mutateAsar(buf, { seed = "lasik" } = {}) {
+  const headerSize = buf.readUInt32LE(4);
+  const jsonSize = buf.readUInt32LE(12);
+  const root = JSON.parse(buf.subarray(16, 16 + jsonSize).toString("utf8"));
+  let renamed = 0;
+  const walk = (files, depth) => {
+    const out = {};
+    for (const [name, node] of Object.entries(files)) {
+      const ext = node.files ? "" : (name.match(/\.[^.]+$/)?.[0] ?? "");
+      const fresh = depth === 0 && !node.files ? name : freshName(seed, name) + ext;
+      if (fresh !== name) renamed++;
+      out[fresh] = node.files ? { ...node, files: walk(node.files, depth + 1) } : node;
+    }
+    return out;
+  };
+  root.files = walk(root.files, 0);
+  const json = Buffer.from(JSON.stringify(root), "utf8");
+  const aligned = Math.ceil(json.length / 4) * 4;
+  const header = Buffer.alloc(16 + aligned);
+  header.writeUInt32LE(4, 0);
+  header.writeUInt32LE(aligned + 8, 4);
+  header.writeUInt32LE(aligned + 4, 8);
+  header.writeUInt32LE(json.length, 12);
+  json.copy(header, 16);
+  return { code: Buffer.concat([header, buf.subarray(8 + headerSize)]), renamed };
+}

@@ -48,3 +48,6 @@ jobs:
       - name: Benchmark on real BLA 3.2.1 output (docs must match)
         if: matrix.os == 'ubuntu-latest'
         run: node scripts/bench-real.mjs --check
+      - name: Renamed BLA heals as well as the original (no name-keyed healing)
+        if: matrix.os == 'ubuntu-latest'
+        run: node scripts/bench-renamed.mjs --check
