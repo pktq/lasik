@@ -24,7 +24,7 @@ Also run `npm run typecheck`. `npm run dev -- <args>` runs the CLI from source.
 - `src/cli.ts`, `src/mcp/server.ts` interfaces
 - `tests/` Vitest suites and fixtures; `bench/` vendored BLA CrackMes
 
-See [docs/how-it-works.md](docs/how-it-works.md) for the design.
+See [docs/how-it-works.md](../docs/how-it-works.md) for the design.
 
 ## Adding a pass
 
