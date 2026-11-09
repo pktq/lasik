@@ -9,6 +9,7 @@ import { renderMarkdown } from "../engine/render.js";
 import { firewallText } from "../firewall/index.js";
 import { healJs } from "../js/heal.js";
 import { healHtml } from "../js/html.js";
+import { healPython } from "../formats/python.js";
 import { EXPANSION, NAME, TAGLINE, VERSION } from "../identity.js";
 
 const text = (s: string) => ({ content: [{ type: "text" as const, text: s }] });
@@ -48,10 +49,10 @@ export function createServer(): McpServer {
     {
       title: "Read a file with BLA removed",
       description:
-        "Return the healed source of one JS/TS/CJS/MJS or HTML file: opaque predicates folded, strings decrypted, decoys, " +
+        "Return the healed source of one JS/TS/CJS/MJS, HTML or Python file: opaque predicates folded, strings decrypted, decoys, " +
         "tarpits and tamper checks removed, prompt decoys redacted. Use this instead of reading a BLA-hardened file directly.",
       inputSchema: {
-        path: z.string().describe("Path to a .js/.cjs/.mjs/.ts/.html file"),
+        path: z.string().describe("Path to a .js/.cjs/.mjs/.ts/.html/.py file"),
         aggressive: z.boolean().optional().describe("Also fold predicates proven only by sampling"),
       },
       annotations: { readOnlyHint: true },
@@ -62,9 +63,18 @@ export function createServer(): McpServer {
       const buf = readFileSync(file);
       const fmt = detectFormat(file, buf.subarray(0, 64));
       const src = buf.toString("utf8");
+      const py = () => {
+        const h = healPython(buf, file, { aggressive });
+        const fw = firewallText(h.output.toString("utf8"));
+        for (const x of fw.hits) h.findings.add("prompt", `firewall:${x.category}`, `redacted LLM-directed decoy text (${x.rule})`, x.count);
+        return { code: fw.text, findings: h.findings, changed: h.changed || fw.redactions > 0 };
+      };
       const r =
-        fmt === "html" ? healHtml(src, { aggressive }) : fmt === "javascript" ? healJs(src, { filename: file, aggressive }) : undefined;
-      if (!r) return text(`lasik_read handles JavaScript/TypeScript/HTML; ${path} is ${fmt}. Use lasik_heal for other formats.`);
+        fmt === "html" ? healHtml(src, { aggressive, firewall: "strict" })
+        : fmt === "javascript" ? healJs(src, { filename: file, aggressive, firewall: "strict" })
+        : fmt === "python" ? py()
+        : undefined;
+      if (!r) return text(`lasik_read handles JavaScript/TypeScript/HTML/Python; ${path} is ${fmt}. Use lasik_heal for other formats.`);
       const summary = r.findings
         .list()
         .map((f) => `- ${f.count} × ${f.detail}`)

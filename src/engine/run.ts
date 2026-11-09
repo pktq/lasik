@@ -15,13 +15,16 @@ import { healWasm } from "../formats/wasm.js";
 import { healJs } from "../js/heal.js";
 import { healHtml } from "../js/html.js";
 import { NAME, VERSION } from "../identity.js";
-import { scoreBlindness } from "./score.js";
+import { evasionTechniques, isWeak, scoreBlindness } from "./score.js";
 
 export interface RunOptions {
   /** Fold heuristic (non-proven) predicates and shake files with no BLA fingerprints. */
   aggressive?: boolean;
-  /** Redact LLM-directed decoy text (default true). */
-  firewall?: boolean;
+  /**
+   * Prompt firewall. Default "safe": never changes runtime behaviour (comments, and BLA-specific
+   * strings in hardened JS); other matches are reported. "strict": redact every match (agent read view).
+   */
+  firewall?: boolean | "safe" | "strict";
   /** Rename BLA-renamed module handles (default true). */
   rename?: boolean;
   /** Where healed output goes (heal mode). Default: `<target>.lasik` next to the target. */
@@ -64,19 +67,32 @@ function healOne(file: string, buf: Buffer, format: Format, opts: RunOptions): F
       const r = healPython(buf, file, common);
       if (opts.firewall === false) return r;
       const fw = firewallText(r.output.toString("utf8"));
-      for (const h of fw.hits) r.findings.add("prompt", `firewall:${h.category}`, `redacted LLM-directed decoy text (${h.rule})`, h.count);
-      return fw.redactions ? { ...r, output: Buffer.from(fw.text, "utf8"), changed: true } : r;
+      return applyTextFirewall(fw, r, opts.firewall === "strict");
     }
     default: {
       // Text formats LASIK doesn't restructure: detect, and firewall the prompt decoys.
       const text = buf.toString("utf8");
       for (const d of DETECT_ONLY) if (d.re.test(text)) findings.add("deceive", d.technique, d.detail);
-      if (opts.firewall === false || !TEXT_FORMATS.has(format)) return { output: buf, findings, warnings, changed: false };
-      const r = firewallText(text);
-      for (const h of r.hits) findings.add("prompt", `firewall:${h.category}`, `redacted LLM-directed decoy text (${h.rule})`, h.count);
-      return { output: r.redactions ? Buffer.from(r.text, "utf8") : buf, findings, warnings, changed: r.redactions > 0 };
+      const base = { output: buf, findings, warnings, changed: false };
+      if (opts.firewall === false || !TEXT_FORMATS.has(format)) return base;
+      return applyTextFirewall(firewallText(text), base, opts.firewall === "strict");
     }
   }
+}
+
+/**
+ * Whole-file text firewall for formats LASIK doesn't parse into an AST. Strings
+ * there may be runtime values, so safe mode only reports; strict redacts.
+ */
+function applyTextFirewall(fw: ReturnType<typeof firewallText>, r: FormatHealResult, strict: boolean): FormatHealResult {
+  if (!fw.redactions) return r;
+  if (!strict) {
+    r.findings.add("prompt", "firewall-kept-runtime-string", "prompt-injection-shaped text left unchanged to keep behaviour (use --strict-firewall to redact)", fw.redactions);
+    for (const h of fw.hits) r.findings.add("prompt", `detected:${h.category}`, `LLM-directed decoy text detected (${h.rule})`, h.count);
+    return r;
+  }
+  for (const h of fw.hits) r.findings.add("prompt", `firewall:${h.category}`, `redacted LLM-directed decoy text (${h.rule})`, h.count);
+  return { ...r, output: Buffer.from(fw.text, "utf8"), changed: true };
 }
 
 function tokens(format: Format, buf: Buffer): number {
@@ -148,7 +164,7 @@ export function run(target: string, mode: "scan" | "heal", opts: RunOptions = {}
 
   const totals = {
     files: reports.length,
-    blinded: reports.filter((r) => r.findings.length > 0).length,
+    blinded: reports.filter((r) => r.findings.some((x) => !isWeak(x.technique))).length,
     findings: reports.reduce((s, r) => s + r.findings.reduce((a, f) => a + f.count, 0), 0),
     bytesBefore: reports.reduce((s, r) => s + r.bytesBefore, 0),
     bytesAfter: reports.reduce((s, r) => s + r.bytesAfter, 0),
@@ -156,5 +172,5 @@ export function run(target: string, mode: "scan" | "heal", opts: RunOptions = {}
     tokensAfter: reports.reduce((s, r) => s + r.tokensAfter, 0),
   };
   const { blindness, verdict } = scoreBlindness(reports);
-  return { tool: NAME, version: VERSION, mode, target: root, files: reports, totals, blindness, verdict };
+  return { tool: NAME, version: VERSION, mode, target: root, files: reports, totals, blindness, verdict, evasion: evasionTechniques(reports) };
 }

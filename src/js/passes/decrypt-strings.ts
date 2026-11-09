@@ -38,6 +38,66 @@ function byteTable(node: t.Node | null | undefined): number[][] | undefined {
   return rows;
 }
 
+/** `x[i] = …`, `x.push(…)`, `x[i]++`: the binding's contents change. */
+function isWriteTarget(ref: NodePath): boolean {
+  const m = ref.parentPath;
+  if (!m?.isMemberExpression() || m.node.object !== ref.node) return false;
+  const p = m.parentPath;
+  if (p?.isAssignmentExpression() && p.node.left === m.node) return true;
+  if (p?.isUpdateExpression() || p?.isUnaryExpression({ operator: "delete" })) return true;
+  const prop = m.node.property;
+  return !m.node.computed && t.isIdentifier(prop) && ["push", "pop", "shift", "unshift", "splice", "fill", "copyWithin", "reverse", "sort", "set"].includes(prop.name) && !!p?.isCallExpression();
+}
+
+/**
+ * Match BLA's decoder loop exactly:
+ *   var e = TABLE[i], k = KEY, o = new Uint8Array(e.length);
+ *   for (...) o[j] = (e[j] ^ k[j % k.length]) & 255;
+ * (the same `j` in every position, `e` bound to TABLE[param], `k` to KEY).
+ */
+function matchDecoderLoop(
+  fn: t.FunctionDeclaration,
+  param: string,
+  tables: Map<string, number[][]>,
+  keys: Map<string, number[]>,
+): { table: string; key: string } | undefined {
+  const locals = new Map<string, t.Node>();
+  t.traverseFast(fn.body, (n) => {
+    if (t.isVariableDeclarator(n) && t.isIdentifier(n.id) && n.init) locals.set(n.id.name, n.init);
+  });
+  const resolve = (name: string, depth = 0): { row?: string; key?: string } | undefined => {
+    if (depth > 4) return undefined;
+    if (keys.has(name) && !locals.has(name)) return { key: name };
+    const init = locals.get(name);
+    if (t.isIdentifier(init)) return resolve(init.name, depth + 1);
+    if (t.isMemberExpression(init) && init.computed && t.isIdentifier(init.object) && tables.has(init.object.name) && !locals.has(init.object.name) && t.isIdentifier(init.property, { name: param })) {
+      return { row: init.object.name };
+    }
+    return undefined;
+  };
+  let found: { table: string; key: string } | undefined;
+  t.traverseFast(fn.body, (n) => {
+    if (found || !t.isAssignmentExpression(n, { operator: "=" }) || !t.isMemberExpression(n.left) || !n.left.computed || !t.isIdentifier(n.left.property)) return;
+    const j = n.left.property.name;
+    let rhs: t.Node = n.right;
+    if (t.isBinaryExpression(rhs, { operator: "&" }) && t.isNumericLiteral(rhs.right, { value: 255 })) rhs = rhs.left;
+    if (!t.isBinaryExpression(rhs, { operator: "^" })) return;
+    const { left: a, right: b } = rhs;
+    if (!t.isMemberExpression(a) || !a.computed || !t.isIdentifier(a.object) || !t.isIdentifier(a.property, { name: j })) return;
+    if (!t.isMemberExpression(b) || !b.computed || !t.isIdentifier(b.object)) return;
+    const idx = b.property;
+    if (
+      !t.isBinaryExpression(idx, { operator: "%" }) || !t.isIdentifier(idx.left, { name: j }) ||
+      !t.isMemberExpression(idx.right) || idx.right.computed || !t.isIdentifier(idx.right.object, { name: b.object.name }) ||
+      !t.isIdentifier(idx.right.property, { name: "length" })
+    ) return;
+    const row = resolve(a.object.name)?.row;
+    const key = resolve(b.object.name)?.key;
+    if (row && key) found = { table: row, key };
+  });
+  return found;
+}
+
 function uses(fn: t.Node, pred: (n: t.Node) => boolean): boolean {
   let hit = false;
   t.traverseFast(fn, (n) => {
@@ -74,21 +134,14 @@ export function decryptStrings(ast: t.File, f: Findings): number {
         const fn = stmt.node;
         const param = fn.params[0];
         if (!t.isIdentifier(param)) continue;
-        // table[param]
-        let table: string | undefined;
-        t.traverseFast(fn.body, (n) => {
-          if (t.isMemberExpression(n) && n.computed && t.isIdentifier(n.object) && tables.has(n.object.name) && t.isIdentifier(n.property, { name: param.name })) {
-            table = n.object.name;
-          }
-        });
-        let key: string | undefined;
-        t.traverseFast(fn.body, (n) => {
-          if (t.isIdentifier(n) && keys.has(n.name) && n.name !== table) key ??= n.name;
-        });
-        const xors = uses(fn.body, (n) => t.isBinaryExpression(n, { operator: "^" }));
-        const modLen = uses(fn.body, (n) => t.isBinaryExpression(n, { operator: "%" }) && t.isMemberExpression(n.right) && t.isIdentifier(n.right.property, { name: "length" }));
-        const utf8 = uses(fn.body, (n) => t.isStringLiteral(n, { value: "utf8" }) || (t.isIdentifier(n, { name: "TextDecoder" })));
-        if (table && key && xors && modLen && utf8) decoders.set(fn.id!.name, { table, key });
+        const m = matchDecoderLoop(fn, param.name, tables, keys);
+        const utf8 = uses(fn.body, (n) => t.isStringLiteral(n, { value: "utf8" }) || t.isIdentifier(n, { name: "TextDecoder" }));
+        // The decode is only exact if table and key can't change at runtime.
+        const frozen = (name: string) => {
+          const b = pp.scope.getBinding(name);
+          return !!b && b.constant && b.referencePaths.every((r) => !isWriteTarget(r));
+        };
+        if (m && utf8 && frozen(m.table) && frozen(m.key)) decoders.set(fn.id!.name, m);
       }
       // var _blaS = D;  → alias
       for (const stmt of pp.get("body")) {

@@ -80,8 +80,11 @@ function topLevelKnownBits(ast: t.File): Map<string, KnownBits> {
       p.scope.crawl();
       for (const stmt of p.get("body")) {
         if (!stmt.isVariableDeclaration()) continue;
+        // Only `const` (a `var` can be rewritten by other scripts or eval), and only
+        // int32-valued initialisers, so the seed really is the int32 the bits describe.
+        if (stmt.node.kind !== "const") continue;
         for (const d of stmt.node.declarations) {
-          if (!t.isIdentifier(d.id) || !d.init || !p.scope.getBinding(d.id.name)?.constant) continue;
+          if (!t.isIdentifier(d.id) || !d.init || !int32Result(d.init)) continue;
           const kb = knownBits(d.init, (n) => seeds.get(n));
           if (kb.mask) seeds.set(d.id.name, kb);
         }
@@ -99,10 +102,12 @@ function int32Result(e: t.Node): boolean {
   return t.isCallExpression(e) && isLowBitClosed(e);
 }
 
+/** Literal mask of `x & m`, only when 0 ≤ m < 2^31 (so ToInt32 leaves it unchanged). */
 function maskOf(e: t.Node): number | undefined {
   if (!t.isBinaryExpression(e, { operator: "&" })) return undefined;
-  if (t.isNumericLiteral(e.right) && e.right.value >= 0) return e.right.value;
-  if (t.isNumericLiteral(e.left) && e.left.value >= 0) return e.left.value;
+  const ok = (n: t.Node): n is t.NumericLiteral => t.isNumericLiteral(n) && Number.isInteger(n.value) && n.value >= 0 && n.value <= 0x7fffffff;
+  if (ok(e.right)) return e.right.value;
+  if (ok(e.left)) return e.left.value;
   return undefined;
 }
 
@@ -162,6 +167,12 @@ export function foldOpaquePredicates(ast: t.File, f: Findings, opts: OpaqueOptio
     if (!["===", "!==", "==", "!="].includes(node.operator)) return;
     const vars = freeIdents(node);
     if (!vars || vars.size === 0 || vars.size > 2) return;
+    // The identities hold over int32. A raw `x + k` term sees x itself, so x must be an int32 seed.
+    const int32Vars = identsAreInt32Coerced(node) || [...vars].every((v) => {
+      const b = path.scope.getBinding(v);
+      return !!b && b.scope.path.isProgram() && seeds.has(v);
+    });
+    if (!int32Vars) return;
     const code = generate(node, { compact: true }).code;
     for (const fam of FAMILIES) {
       const m = code.match(fam.re);

@@ -43,6 +43,7 @@ export function renderText(r: Report, color = false): string {
   lines.push(`${r.mode === "heal" ? "Healed" : "Scanned"} ${t.files} file(s) in ${shown && !shown.startsWith("..") ? shown : r.target}`);
   const verdictColor = r.verdict === "blinded" ? "31" : r.verdict === "suspected" ? "33" : "32";
   lines.push(`Verdict: ${c(`1;${verdictColor}`, r.verdict.toUpperCase())}  ·  blindness ${r.blindness}/100  ·  ${t.blinded} file(s) carry BLA artifacts`);
+  if (r.evasion.length) lines.push(c("1;31", `AI-evasion techniques found: ${r.evasion.length}`) + c("2", "  (code built to hide from AI analysis is a risk signal in itself)"));
   if (t.blinded) {
     lines.push(
       `Sight restored: ${kb(t.bytesBefore)} → ${kb(t.bytesAfter)} (${pct(t.bytesBefore, t.bytesAfter)} smaller), ` +
@@ -80,6 +81,10 @@ export function renderMarkdown(r: Report): string {
   const out: string[] = [];
   out.push(`## ${NAME} report: ${r.verdict} (blindness ${r.blindness}/100)`);
   out.push("");
+  if (r.evasion.length) {
+    out.push(`**AI-evasion techniques found: ${r.evasion.length}**: ${r.evasion.map((e) => `\`${e}\``).join(", ")}`);
+    out.push("");
+  }
   out.push(`| | Before | After | |`);
   out.push(`|---|---:|---:|---:|`);
   out.push(`| Bytes | ${kb(t.bytesBefore)} | ${kb(t.bytesAfter)} | ${pct(t.bytesBefore, t.bytesAfter)} smaller |`);

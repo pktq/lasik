@@ -13,11 +13,20 @@ import { renameRequireHandles } from "./passes/rename.js";
 import { stripRuntimeDecoys } from "./passes/runtime-decoys.js";
 import { shakeUnreachable } from "./passes/tree-shake.js";
 
-/** Findings that only a BLA-hardened file produces. */
-const STRONG = new Set([
-  "corpus-digest-interlock", "interlock-safety-corpus", "opaque-predicate", "fingerprinted-decoy",
-  "xor-keystream-strings", "runtime-deception-block", "bind-scope", "honey-sourcemap", "self-seal",
-]);
+/** Evidence only BLA produces: one is enough. */
+const UNIQUE = new Set(["corpus-digest-interlock", "interlock-safety-corpus", "runtime-deception-block", "bind-scope", "honey-sourcemap"]);
+/** Proven BLA shapes that could, rarely, occur by coincidence: need several. */
+const REPEATED = new Set(["opaque-predicate", "fingerprinted-decoy"]);
+
+/** A file is treated as BLA-hardened (and gets the structural passes) only on this evidence. */
+function isHardened(f: Findings): boolean {
+  let repeated = 0;
+  for (const x of f.list()) {
+    if (UNIQUE.has(x.technique)) return true;
+    if (REPEATED.has(x.technique)) repeated += x.count;
+  }
+  return repeated >= 3;
+}
 
 export interface JsHealOptions {
   filename?: string;
@@ -25,8 +34,12 @@ export interface JsHealOptions {
   externalRoots?: Set<string>;
   /** Rename BLA-renamed module handles (default true). */
   rename?: boolean;
-  /** Redact LLM-directed decoy text in strings and comments (default true). */
-  firewall?: boolean;
+  /**
+   * Prompt firewall. true/"safe" (default): behaviour-preserving (comments, plus
+   * BLA-specific strings in hardened files). "strict": redact every match, for
+   * an agent read view. false: off.
+   */
+  firewall?: boolean | "safe" | "strict";
 }
 
 export interface JsHealResult {
@@ -57,24 +70,24 @@ export function healJs(code: string, opts: JsHealOptions = {}): JsHealResult {
     round += stripPrivateStateSinks(ast, findings);
     round += decryptStrings(ast, findings);
     round += stripSelfSeal(ast, findings);
-    const blaHardened = findings.list().some((x) => STRONG.has(x.technique));
-    round += shakeUnreachable(ast, findings, { externalRoots: opts.externalRoots, blaHardened });
+    round += shakeUnreachable(ast, findings, { externalRoots: opts.externalRoots, blaHardened: isHardened(findings) });
     changes += round;
     if (!round) break;
   }
 
+  const mode = opts.firewall === "strict" ? "strict" : "safe";
   // Structural passes only touch files proven BLA-hardened; clean code is left byte-identical.
-  const hardened = findings.list().some((x) => STRONG.has(x.technique));
+  const hardened = isHardened(findings);
   if (!hardened && !opts.aggressive) {
     const clean = new Findings();
     if (opts.firewall === false) return { code, findings: clean, warnings, changed: false };
     const fresh = parseJs(code, opts.filename);
-    const redacted = firewallJs(fresh, clean);
+    const redacted = firewallJs(fresh, clean, { mode, hardened: false });
     return { code: redacted ? printJs(fresh) : code, findings: clean, warnings, changed: redacted > 0 };
   }
 
   if (opts.rename !== false) changes += renameRequireHandles(ast, findings);
-  if (opts.firewall !== false) changes += firewallJs(ast, findings);
+  if (opts.firewall !== false) changes += firewallJs(ast, findings, { mode, hardened: true });
 
   return { code: changes ? printJs(ast) : code, findings, warnings, changed: changes > 0 };
 }

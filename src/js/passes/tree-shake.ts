@@ -13,25 +13,42 @@ export interface ShakeOptions {
   blaHardened?: boolean;
 }
 
-const BLA_TAG = /_[0-9a-f]{3,6}$/;
+/** BLA's generated names: camelCase stem (`verbAdjNoun`) + `_` + 3–4 hex. Not `show_404` or `cache_add`. */
+const BLA_TAG = /^_?[a-z][a-z0-9]*[A-Z][A-Za-z0-9]*_[0-9a-f]{3,4}$/;
 
 type DeclPath = NodePath<t.FunctionDeclaration> | NodePath<t.ClassDeclaration> | NodePath<t.VariableDeclarator>;
 
 /** True when the file is a module (ESM/CJS), so unreferenced top-level code can't be used from elsewhere. */
 function isModuleLike(ast: t.File): boolean {
   if (ast.program.sourceType === "module") return true;
-  let found = false;
+  let cjs = false;
+  let umd = false;
   traverse(ast, {
     Identifier(p) {
-      if (found) return p.stop();
       const n = p.node.name;
-      if ((n === "require" || n === "module" || n === "exports") && !p.scope.hasBinding(n) && p.isReferencedIdentifier()) {
-        found = true;
-        p.stop();
+      if ((n === "require" || n === "module" || n === "exports" || n === "define") && !p.scope.getBinding(n) && p.isReferencedIdentifier()) {
+        // `typeof module !== "undefined"` / `define.amd`: a UMD wrapper that also runs as a browser script.
+        if (p.parentPath?.isUnaryExpression({ operator: "typeof" }) || n === "define") umd = true;
+        else cjs = true;
       }
     },
   });
-  return found;
+  return cjs && !umd;
+}
+
+/** `eval`, `with`, `new Function`, string timers: names can be reached dynamically, so nothing is provably dead. */
+function hasDynamicNameAccess(ast: t.File): boolean {
+  let dyn = false;
+  t.traverseFast(ast, (n) => {
+    if (dyn) return;
+    if (t.isWithStatement(n)) dyn = true;
+    else if ((t.isCallExpression(n) || t.isNewExpression(n)) && t.isIdentifier(n.callee)) {
+      const c = n.callee.name;
+      if (c === "eval" || c === "Function") dyn = true;
+      if ((c === "setTimeout" || c === "setInterval") && (t.isStringLiteral(n.arguments[0]) || t.isTemplateLiteral(n.arguments[0]))) dyn = true;
+    }
+  });
+  return dyn;
 }
 
 /** Like scope.isPure, but also treats `Object.freeze(<pure>)` and literal containers as pure. */
@@ -179,6 +196,10 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
     }
   }
 
+  if (hasDynamicNameAccess(ast)) {
+    f.add("deceive", "shake-skipped-dynamic", "unreachable-code removal skipped: file uses eval/with/new Function/string timers");
+    return removed;
+  }
   const moduleLike = isModuleLike(ast);
   const external = opts.externalRoots ?? new Set<string>();
 
@@ -216,6 +237,13 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
     const programScope = pp.scope;
     const markRefs = (p: NodePath) => {
       p.traverse({
+        JSXIdentifier(jp) {
+          // <Button/> references the Button binding.
+          const name = jp.node.name;
+          if (live.has(name) || !decls.has(name) || jp.scope.getBinding(name)?.scope !== programScope) return;
+          live.add(name);
+          queue.push(decls.get(name)!);
+        },
         Identifier(ip) {
           const name = ip.node.name;
           if (live.has(name) || !decls.has(name)) return;

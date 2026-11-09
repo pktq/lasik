@@ -36,7 +36,8 @@ export function foldWeaveInvariants(ast: t.File, f: Findings): number {
           const fields = new Map<string, KnownBits>();
           let ok = true;
           for (const p of d.init.properties) {
-            if (!t.isObjectProperty(p) || p.computed || !t.isIdentifier(p.key)) { ok = false; break; }
+            // Methods can write through `this`, which this analysis can't see.
+            if (!t.isObjectProperty(p) || p.computed || !t.isIdentifier(p.key) || t.isFunction(p.value)) { ok = false; break; }
             fields.set(p.key.name, t.isExpression(p.value) ? knownBits(p.value, () => undefined) : { mask: 0, value: 0 });
           }
           if (!ok) continue;

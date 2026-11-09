@@ -30,6 +30,45 @@ function unwrap(stmt: t.Statement | null | undefined): t.Statement[] {
   return lexical ? [stmt] : stmt.body;
 }
 
+/** True when only the truthiness of this expression's value matters. */
+function inBooleanContext(path: NodePath): boolean {
+  const p = path.parentPath;
+  if (!p) return false;
+  if ((p.isIfStatement() || p.isWhileStatement() || p.isDoWhileStatement() || p.isConditionalExpression()) && p.node.test === path.node) return true;
+  if (p.isForStatement() && p.node.test === path.node) return true;
+  if (p.isUnaryExpression({ operator: "!" })) return true;
+  if (p.isLogicalExpression() && p.node.operator !== "??") return inBooleanContext(p);
+  return false;
+}
+
+/**
+ * `var` declarations (and sloppy-mode block functions) inside a removed
+ * statement are still hoisted to the function scope; dropping them can turn
+ * a later read into a ReferenceError. Returns `var a, b;` or undefined.
+ */
+function hoistedVars(stmt: t.Node | null | undefined): t.VariableDeclaration | undefined {
+  if (!stmt) return undefined;
+  const names = new Set<string>();
+  const visit = (n: t.Node | null | undefined, top: boolean): void => {
+    if (!n || typeof n !== "object") return;
+    if (t.isFunction(n) && !top) {
+      if (t.isFunctionDeclaration(n) && n.id) names.add(n.id.name);
+      return; // its own scope
+    }
+    if (t.isVariableDeclaration(n) && n.kind === "var") {
+      for (const d of n.declarations) for (const id of Object.keys(t.getBindingIdentifiers(d.id))) names.add(id);
+    }
+    if (t.isClass(n)) return;
+    for (const key of t.VISITOR_KEYS[n.type] ?? []) {
+      const child = (n as unknown as Record<string, unknown>)[key];
+      if (Array.isArray(child)) child.forEach((c) => visit(c as t.Node, false));
+      else visit(child as t.Node, false);
+    }
+  };
+  visit(stmt, true);
+  return names.size ? t.variableDeclaration("var", [...names].map((name) => t.variableDeclarator(t.identifier(name)))) : undefined;
+}
+
 /** Remove branches whose condition is now a literal (after opaque folding). */
 export function eliminateDeadBranches(ast: t.File, f: Findings): number {
   let n = 0;
@@ -94,12 +133,13 @@ export function eliminateDeadBranches(ast: t.File, f: Findings): number {
         if (operator === "&&") {
           if (l === false) { path.replaceWith(left); n++; return; }
           if (l === true) { path.replaceWith(right); n++; return; }
-          // x && false: falsy either way; safe to drop x only when it's pure.
-          if (r === false && path.scope.isPure(left)) { path.replaceWith(t.booleanLiteral(false)); n++; }
+          // `x && false` is falsy either way, but its *value* is x when x is falsy:
+          // only fold where the result is consumed as a boolean.
+          if (r === false && path.scope.isPure(left) && inBooleanContext(path)) { path.replaceWith(t.booleanLiteral(false)); n++; }
         } else if (operator === "||") {
           if (l === true) { path.replaceWith(left); n++; return; }
           if (l === false) { path.replaceWith(right); n++; return; }
-          if (r === true && path.scope.isPure(left)) { path.replaceWith(t.booleanLiteral(true)); n++; }
+          if (r === true && path.scope.isPure(left) && inBooleanContext(path)) { path.replaceWith(t.booleanLiteral(true)); n++; }
         }
       },
     },
@@ -116,6 +156,9 @@ export function eliminateDeadBranches(ast: t.File, f: Findings): number {
         const v = truthiness(path.node.test);
         if (v === undefined) return;
         const keep = unwrap(v ? path.node.consequent : path.node.alternate);
+        // `var`s in the dropped branch are still hoisted: keep their declarations.
+        const hoisted = hoistedVars(v ? path.node.alternate : path.node.consequent);
+        if (hoisted) keep.unshift(hoisted);
         if (!Array.isArray(path.container)) {
           // Single-statement slot (e.g. `else if`, loop body): must stay one statement.
           path.replaceWith(keep.length === 0 ? t.emptyStatement() : keep.length === 1 ? keep[0]! : t.blockStatement(keep));
@@ -128,7 +171,9 @@ export function eliminateDeadBranches(ast: t.File, f: Findings): number {
     WhileStatement: {
       exit(path) {
         if (truthiness(path.node.test) !== false) return;
-        if (Array.isArray(path.container)) path.remove();
+        const hoisted = hoistedVars(path.node.body);
+        if (hoisted) path.replaceWith(hoisted);
+        else if (Array.isArray(path.container)) path.remove();
         else path.replaceWith(t.emptyStatement());
         n++;
       },

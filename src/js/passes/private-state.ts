@@ -9,6 +9,29 @@ const MATH_PURE = new Set(["imul", "abs", "min", "max", "floor", "ceil", "round"
  */
 function isClosedOver(fn: NodePath<t.FunctionDeclaration>, state: string, programScope: NodePath["scope"]): boolean {
   let ok = true;
+  // Locals that alias part of the state (`const _w = state.slots[i].words`): writes through them stay private.
+  const aliases = new Set<string>([state]);
+  fn.traverse({
+    VariableDeclarator(p) {
+      if (t.isIdentifier(p.node.id) && p.node.init && aliases.has(rootName(p.node.init) ?? "")) aliases.add(p.node.id.name);
+    },
+  });
+  const privateTarget = (target: t.Node, scope: NodePath["scope"]): boolean => {
+    if (t.isIdentifier(target)) {
+      // Plain locals (incl. block-scoped loop vars) are fine; parameters and outer bindings are not.
+      const b = scope.getBinding(target.name);
+      return !!b && b.scope !== programScope && b.kind !== "param";
+    }
+    const root = rootName(target);
+    if (!root || !aliases.has(root)) return false;
+    const b = scope.getBinding(root);
+    return root === state ? b?.scope === programScope : !!b && b.kind !== "param";
+  };
+  fn.traverse({
+    AssignmentExpression(p) { if (!privateTarget(p.node.left, p.scope)) ok = false; },
+    UpdateExpression(p) { if (!privateTarget(p.node.argument, p.scope)) ok = false; },
+    UnaryExpression(p) { if (p.node.operator === "delete" && !privateTarget(p.node.argument, p.scope)) ok = false; },
+  });
   fn.traverse({
     ThisExpression() { ok = false; },
     NewExpression() { ok = false; },
@@ -35,6 +58,12 @@ function isClosedOver(fn: NodePath<t.FunctionDeclaration>, state: string, progra
     },
   });
   return ok;
+}
+
+/** `a.b[c].d` → "a" (the base identifier of a member chain). */
+function rootName(n: t.Node): string | undefined {
+  while (t.isMemberExpression(n) || t.isOptionalMemberExpression(n)) n = n.object;
+  return t.isIdentifier(n) ? n.name : undefined;
 }
 
 /** Literals, identifiers, `x.length`, and arithmetic over them: evaluating them has no effect. */

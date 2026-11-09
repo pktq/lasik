@@ -79,7 +79,8 @@ export function knownBits(node: t.Node, lookup: (name: string) => KnownBits | un
 export function isLowBitClosed(node: t.Node): boolean {
   switch (node.type) {
     case "NumericLiteral":
-      return Number.isInteger(node.value);
+      // Sums of values below 2^32 stay exact doubles; at 2^53 rounding would leak higher bits down.
+      return Number.isInteger(node.value) && Math.abs(node.value) < 2 ** 32;
     case "Identifier":
       return true;
     case "ParenthesizedExpression":

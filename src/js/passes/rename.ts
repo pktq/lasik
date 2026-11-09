@@ -19,6 +19,7 @@ export function renameRequireHandles(ast: t.File, f: Findings): number {
   let n = 0;
   traverse(ast, {
     Program(pp) {
+      pp.scope.crawl();
       for (const stmt of pp.get("body")) {
         if (!stmt.isVariableDeclaration()) continue;
         for (const d of stmt.node.declarations) {
@@ -26,7 +27,10 @@ export function renameRequireHandles(ast: t.File, f: Findings): number {
           const init = d.init;
           if (!t.isCallExpression(init) || !t.isIdentifier(init.callee, { name: "require" }) || !t.isStringLiteral(init.arguments[0])) continue;
           const name = moduleIdent(init.arguments[0].value);
-          if (!name || pp.scope.hasBinding(name) || pp.scope.hasGlobal(name)) continue;
+          if (!name || !t.isValidIdentifier(name) || pp.scope.hasBinding(name) || pp.scope.hasGlobal(name)) continue;
+          // A reference inside a scope that declares its own `name` would be captured.
+          const binding = pp.scope.getBinding(d.id.name);
+          if (!binding || binding.referencePaths.some((r) => r.scope.getBinding(name) !== undefined)) continue;
           pp.scope.rename(d.id.name, name);
           n++;
         }

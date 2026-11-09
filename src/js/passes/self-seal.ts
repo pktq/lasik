@@ -3,14 +3,20 @@ import { t, traverse, type NodePath } from "../ast.js";
 
 const SEAL_ERRORS = ["integrity check failed", "integrity binding mismatch"];
 
+/** Names only BLA's seal emitter uses (it injects them after renaming, so they survive). */
+const SEAL_MARKERS = new Set(["__blaSidecarDigest", "selfExpected", "envNote"]);
+
 function isSealFunction(fn: t.Function): boolean {
   let err = false;
   let hash = false;
+  let marker = false;
   t.traverseFast(fn, (n) => {
     if (t.isStringLiteral(n) && SEAL_ERRORS.includes(n.value)) err = true;
     if (t.isIdentifier(n, { name: "createHash" }) || t.isStringLiteral(n, { value: "sha256" })) hash = true;
+    if (t.isIdentifier(n) && SEAL_MARKERS.has(n.name)) marker = true;
   });
-  return err && hash;
+  // A user's own integrity check has the first two; only BLA's has the markers too.
+  return err && hash && marker;
 }
 
 /**

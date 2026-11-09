@@ -61,6 +61,8 @@ export interface Report {
   /** 0 = clean, 100 = heavily BLA-hardened. Based on findings, not on file size. */
   blindness: number;
   verdict: "clean" | "suspected" | "blinded";
+  /** Distinct AI-evasion techniques found (`layer/technique`): a risk signal. */
+  evasion: string[];
 }
 
 /** Collects findings while a file is processed. */

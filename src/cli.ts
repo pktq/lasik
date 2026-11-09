@@ -23,7 +23,8 @@ Options
   --md                   Markdown report
   -o, --out <dir>        Output directory for heal
   --aggressive           Also fold predicates proven only by sampling, and shake files without BLA fingerprints
-  --no-firewall          Keep LLM-directed decoy text instead of redacting it
+  --no-firewall          Don't run the prompt firewall
+  --strict-firewall      Redact every prompt-decoy match, even in runtime strings (read view; may change behaviour)
   --no-rename            Keep BLA's renamed module handles
   --fail-on <level>      Exit 3 when the verdict is at least <suspected|blinded> (for CI)
   --client <id>          setup: only this client (repeatable): claude-code, claude-desktop, cursor, codex,
@@ -67,7 +68,7 @@ function report(a: Args, mode: "scan" | "heal"): number {
   const r = run(target, mode, {
     outDir: get(a, "-o", "--out"),
     aggressive: has(a, "--aggressive"),
-    firewall: !has(a, "--no-firewall"),
+    firewall: has(a, "--no-firewall") ? false : has(a, "--strict-firewall") ? "strict" : "safe",
     rename: !has(a, "--no-rename"),
   });
   if (has(a, "--json")) process.stdout.write(JSON.stringify(r, null, 2) + "\n");
