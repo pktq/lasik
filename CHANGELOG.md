@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-11-09
+
+LASIK no longer needs BLA's names: a BLA release that renames every identifier, comment, section and path still heals.
+
+### Added
+
+- `npm run bench:renamed` (`scripts/mutate-bla.mjs`, `scripts/bench-renamed.mjs`): heals real BLA output and a copy with every BLA identifier, comment, WASM section, long export name and ASAR path respelled and commutative operands swapped. Checked in CI: the renamed run may cost at most one point of reduction.
+- `src/js/pure-eval.ts`: an evaluator for a closed subset of JS (numbers, strings, plain arrays/objects, loops) that walks the AST and refuses anything else. Nothing from the target is executed.
+- Inline scripts of pages without external scripts drop unreachable globals; mentions from attributes, other scripts and live property/string reads keep them.
+- WASM: export aliases with names over 1 KB and oversized unknown custom sections prove a padded module, and then every non-tool custom section is removed.
+- ASAR: directories of 64+ entries nothing in a hardened archive can reach are removed.
+
+### Changed
+
+- Anti-strip interlocks are found by shape and the file's own digest function is evaluated, instead of matching BLA's names and re-implementing BLA 3.2.1's digest.
+- The hardened-file gate also opens on 16+ predicates proven constant by known-bits, whatever their spelling.
+- Proven-hardened files lose every comment except those tools read (license banners, source maps, compiler/bundler directives); BLA replaces all original comments.
+- Self-seals are recognised as a check that hashes its own file and throws, without BLA's marker names.
+
 ## [0.2.1] - 2026-11-09
 
 ### Added

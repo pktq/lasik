@@ -8,7 +8,8 @@ Contents: [Design rules](#design-rules) · [Pass order](#pass-order-and-why-it-m
 
 1. **Proof over heuristics.** A transform runs by default only when LASIK can prove it preserves behaviour. Fingerprints select candidates; proofs authorise changes.
 2. **Never execute the target.** This is what makes LASIK safe on malware that adopts BLA.
-3. **Clean code is byte-identical.** Structural passes only touch files proven BLA-hardened: one BLA-unique marker (interlock corpus, bind-scope, runtime decoy block, honey map) or at least three proven predicates/decoys. A file without that evidence comes back unchanged, except that the prompt firewall may redact planted text in its comments.
+3. **Clean code is byte-identical.** Structural passes only touch files proven BLA-hardened: an anti-strip interlock or another BLA-unique marker (interlock corpus, bind-scope, runtime decoy block, honey map), at least three recognised predicates/decoys, or at least 16 predicates the known-bits prover shows constant whatever their spelling. A file without that evidence comes back unchanged, except that the prompt firewall may redact planted text in its comments.
+5. **Key on behaviour, not on BLA's spelling.** Since 0.3 the core passes find BLA's constructs by what they do (a pure digest over constant data, code nothing reaches, a check that hashes its own file), so a BLA release that renames everything still heals. `npm run bench:renamed` measures this; see [Keeping up with BLA](#keeping-up-with-bla).
 4. **Say what you did.** Every pass records findings with a layer, a technique and a count; the report and the blindness score are built from them.
 
 Certainty levels used below: **exact** (a proof or a structural identity), **fingerprint** (a recognised BLA shape), **labelled** (reported but not changed, or changed only behind an opt-in flag).
@@ -33,7 +34,7 @@ BLA stacks layers: it poisons control flow, entangles the decoys with the real c
 | 5 | Rename BLA-renamed `require` handles (hardened files only) | `rename.ts` |
 | 6 | Prompt firewall over strings, template text and comments | `firewall.ts` |
 
-**Why the interlock comes first.** BLA derives the low bit of its runtime seed from a digest of its own decoy corpus (`digest(corpus) === N`). Every opaque predicate depends on that seed. If a tool deleted the corpus first, the digest would change, the seed bit would flip, and every predicate would flip with it: the healed program would take different branches than the original. LASIK re-implements the digest, evaluates it on the untouched corpus, folds the seed bit to its true value, and only then lets the decoy passes delete anything. The healed program keeps exactly the seed BLA's real code expects.
+**Why the interlock comes first.** BLA derives the low bit of its runtime seed from a digest of its own decoy corpus (`digest(corpus) === N`). Every opaque predicate depends on that seed. If a tool deleted the corpus first, the digest would change, the seed bit would flip, and every predicate would flip with it: the healed program would take different branches than the original. LASIK evaluates the file's own digest function on the untouched corpus, folds the seed bit to its true value, and only then lets the decoy passes delete anything. The healed program keeps exactly the seed BLA's real code expects.
 
 **Why the loop.** Folding a predicate exposes a dead branch; removing it makes a literal chain collapse; the collapsed literal is a key for the next decryption; removing decoys makes more declarations unreachable. Each pass feeds the next, so the passes repeat until nothing changes.
 
@@ -51,7 +52,7 @@ function _deriveContainmentCorpusDigest_f637(seedInput = 0) { /* int32 multiply-
 const runtimeSeed = (/* ... */) ^ (_deriveContainmentCorpusDigest_f637(/* ... */) === N ? 1 : 0);
 ```
 
-*How LASIK undoes it.* It reimplements the digest, recomputes it over the corpus exactly as shipped, and replaces the seed bit with its constant. If the digest cannot be resolved statically, the pass warns and keeps the corpus rather than guess.
+*How LASIK undoes it.* It looks for the shape, not the names: a comparison `F(literal…) === N` (any operand order, optionally behind `typeof F === "function"`) where `F` is a top-level function that is never reassigned. `pure-eval.ts` then evaluates `F` on LASIK's own interpreter for a closed subset of JS (numbers, strings, plain arrays and objects, local variables, loops, `Math.imul`, `charCodeAt`, `Array.isArray`). Any constant `F` reads must be a top-level binding whose every use is a read (`void x`, `typeof x`, `x[i].a.length`, a `const` alias that is itself only read); a write, a method call, an escape or anything outside the subset makes the evaluator refuse. The comparison is replaced by its value in the unmodified program, which frees the corpus for the decoy passes. Because the file's own function is evaluated, a changed digest algorithm or renamed identifiers do not matter. If evaluation refuses, the pass warns and keeps the corpus rather than guess.
 
 *Certainty:* exact.
 
@@ -59,7 +60,7 @@ const runtimeSeed = (/* ... */) ^ (_deriveContainmentCorpusDigest_f637(/* ... */
 
 *What BLA emits.* Real comments replaced by plausible-looking noise such as `/* project quota policy (35c544) */`, and a honey source-map reference (see [source maps](#source-maps)).
 
-*How LASIK undoes it.* Comments carry no behaviour, so scrambled ones are dropped. The originals are gone from the input, so nothing is restored.
+*How LASIK undoes it.* Comments carry no behaviour, so scrambled ones are dropped. BLA replaces every original comment (checked on real 3.2.1 output), so once a file is proven hardened every comment goes, whatever its wording, except the ones tools read: `/*!` banners, `sourceMappingURL`, `#__PURE__`, `@ts-`, `eslint`, `webpack*` and similar directives. The originals are gone from the input, so nothing is restored.
 
 *Certainty:* exact (removal); the original text is unrecoverable.
 
@@ -127,7 +128,7 @@ slot.epoch = slot.epoch | 2; // every write sets the same known bits
 
 *What BLA emits.* An IIFE that SHA-256s the file (and, for sidecar entanglement, its siblings) and throws or perturbs behaviour if any byte changed.
 
-*How LASIK undoes it.* Detected by shape and removed. Its digests only ever fed seed bits that the earlier passes already proved irrelevant. Bind-scope locks (domain or date IIFEs) are removed too, and the contract they enforced (domains, validity window) is reported.
+*How LASIK undoes it.* Detected by shape and removed: a function that SHA-256s its own file (`__filename` or `import.meta.url` plus `readFileSync`) and throws on a mismatch fails on any healed output, so it cannot be kept; in a BLA-hardened file it can only be BLA's, since BLA's rewrite would already have broken a user's own check. Its digests only ever fed seed bits that the earlier passes already proved irrelevant. A user's integrity check over other data is kept. Bind-scope locks (domain or date IIFEs) are removed too, and the contract they enforced (domains, validity window) is reported.
 
 *Certainty:* exact for BLA's shape; bind-scope is fingerprint.
 
@@ -135,7 +136,7 @@ slot.epoch = slot.epoch | 2; // every write sets the same known bits
 
 *What BLA emits.* Around 140 injected blocks: honeypot credentials, fake gRPC enclaves, shadow business logic, call-graph labyrinths, token sinks, regex magnets, decoy diagnostics, `void [decoy]` keep-alive anchors.
 
-*How LASIK undoes it.* After folding, the real entry points are the roots; whatever is unreachable goes. In a proven-hardened plain script BLA keeps real top-level names and only its own injections carry a `_<hex>` tag, so unreachable tagged globals are BLA's. A catalog of 25 decoy families supplies fingerprints for names and keys. Identifiers used from outside the file (for example HTML `on*` attributes) are always kept.
+*How LASIK undoes it.* After folding, the real entry points are the roots; whatever is unreachable goes. In a proven-hardened plain script BLA keeps real top-level names and only its own injections carry a `_<hex>` tag, so unreachable tagged globals are BLA's. Inline scripts on a page without external `<script src>` need no tags: every reader of a global is on that page, so a global stays only if an `on*`/`javascript:` attribute, another inline script's surviving code, or a property name or string in live code (`window.x`, `window["x"]`) mentions it; the scripts are re-healed until those mentions stop shrinking. A script that reads globals by a computed name (`window[k]`) keeps all of them. A catalog of 25 decoy families supplies fingerprints for names and keys. Identifiers used from outside the file are always kept.
 
 *Certainty:* exact (reachability), with fingerprints choosing candidates.
 
@@ -185,13 +186,13 @@ BLA also pads binary containers past the budgets REA enforces. LASIK rebuilds th
 ### WebAssembly (`src/formats/wasm.ts`)
 
 *BLA:* about 7 MB of padding in custom sections (name section, `bla.*` manifests, fake attestations, canary credentials, an interface-exhaustion payload) and about 250 decoy exports with very long names that alias real function indices.
-*LASIK:* parses the binary, drops BLA's custom sections and decoy exports (an export that aliases a real function index but carries BLA's decoy shape), re-encodes, and checks the result with `WebAssembly.validate`. The module is never instantiated. `.wasm.gz` is handled transparently.
+*LASIK:* parses the binary, drops BLA's custom sections and decoy exports (an export that aliases a real function index but carries BLA's decoy shape), re-encodes, and checks the result with `WebAssembly.validate`. Without BLA's names: export aliases with names over 1 KB (no toolchain emits those), or an unknown custom section over 256 KB and eight times the code, prove the module was padded for readers; then the oversized aliases and every custom section that is not a known tool section (`name`, `producers`, `.debug_*`, `sourceMappingURL`, …) go, since custom sections never affect execution. A warning lists them in case JS reads one through `WebAssembly.Module.customSections()`. The module is never instantiated. `.wasm.gz` is handled transparently.
 *Limits:* real exports BLA renamed to `ops_<hex>_...` keep that name (reported); original custom sections were stripped by BLA.
 
 ### ASAR (`src/formats/asar.ts`)
 
 *BLA:* thousands of decoy entries with very long paths inflate the archive header (up to 16 MiB) and a decoy `enclave/` tree is added; every `.js` inside gets a honey source map.
-*LASIK:* parses the header, removes decoy entries, rewrites file offsets, heals the contained JS, and writes a valid archive. Tested on synthetic archives; no public BLA ASAR sample exists yet.
+*LASIK:* parses the header, heals the contained JS, removes decoy entries, rewrites file offsets, and writes a valid archive. Without BLA's paths: in an archive whose JS is proven hardened, a directory holding 64 or more entries that nothing reachable from `package.json`, its `main` or a top-level file mentions (by file name, stem or directory) is a header flood and goes. Lone unreachable files are kept and healed. Code that names files at runtime (`require(x)`, `import(x)`, `readdir`) turns this off. Checked on real BLA 3.2.1 output.
 
 ### Electron fuses (`src/formats/electron-fuses.ts`)
 
@@ -220,6 +221,17 @@ Native ELF/PE/Mach-O (`native.ts`), Bun (`bun.ts`), UF2 firmware (`uf2.ts`), SQL
 ## Keeping up with BLA
 
 `coverage/bla.json` lists every file in BLA's `src/` with the sha256 it had when LASIK last caught up, its status and the LASIK files that answer it. `node scripts/bla-coverage.mjs check <bla-checkout>` fails when BLA adds, removes or edits any file, naming the LASIK healer to revisit. The `BLA drift` workflow runs this weekly against upstream and opens an issue. After catching up, `pin` records the new hashes and `docs` regenerates [coverage.md](coverage.md) and the README table.
+
+Drift tracking tells us when BLA changes; the renamed bench shows how much a cheap change would cost. `scripts/mutate-bla.mjs` plays the cheapest possible BLA patch on real BLA output: every identifier BLA generated gets a random spelling (through Babel's scope tracker, so behaviour is unchanged), every comment is reworded, operands of commutative operators are swapped, WASM custom sections and long export names are respelled, and ASAR directories and nested files are renamed. `npm run bench:renamed` heals the original and the mutated copies side by side; CI fails if the mutated run removes more than one point less than the original, overall or on JS/HTML alone.
+
+| Format | Original: removed | Renamed: removed |
+|---|---:|---:|
+| JavaScript / TypeScript (14 files) | 98.78% | 98.09% |
+| HTML (5 pages) | 99.29% | 99.17% |
+| WebAssembly (5 modules) | 99.98% | 99.98% |
+| Electron ASAR (2 archives) | 99.998% | 99.96% |
+
+What a rename still costs: BLA's local names become neutral `p0`/`v0` only when they carry BLA's tag shape, so renamed locals keep their random spelling. What stays keyed on BLA's content, and would need updating if BLA rewords it: the runtime-deception blocks (closed IIFEs with real side effects, removed only on BLA's strings), the firewall's phrase rules, honey source maps, the non-JS format healers (Python, native, data formats), and the `--aggressive` heuristics. A BLA that changes *techniques* (new predicate families outside known-bits, decoys real code actually calls) needs new proofs; the bench cannot simulate that.
 
 ## Prompt firewall
 

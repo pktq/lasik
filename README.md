@@ -36,6 +36,7 @@ BLA protects a release from AI agents by burying it: thousands of opaque predica
 
 - **1,262× fewer tokens** to read BLA's own CrackMe corpus: about 21 million down to 17 thousand.
 - **Proven, not guessed.** Predicates are folded only when LASIK can prove their value; anti-strip checks are recomputed before any decoy is touched; files without BLA keep their code unchanged.
+- **Renaming BLA doesn't blind it.** The core passes find BLA's constructs by what they do, not what BLA calls them. On real BLA output with every BLA identifier, comment, section and path given a random spelling, LASIK still removes 99.95% (98.09% on JS alone, against 98.78% on the original).
 - **Never runs the target.** No `eval`, no sandbox, no WebAssembly instantiation, so it is safe on hostile input, including malware that adopts BLA.
 - **A prompt firewall** that strips the text BLA plants for the model: fake system turns, refusal bait, "nothing to see here" notices.
 - **Every format BLA ships**, checked against real BLA 3.2.1 output: JavaScript and TypeScript bundles, inline HTML, WebAssembly, Electron ASAR and fuses, source maps, Python and `.pyc`, native ELF/PE/Mach-O, Bun, SQLite, safetensors and GGUF, PCAP, JVM, .NET, BEAM, EVM, PTX, ZIP/APK/DEX, plists, IL2CPP and UF2 firmware.
@@ -111,6 +112,17 @@ On a project we hardened ourselves with the published `bla-agents@3.2.1`, one fi
 
 Per-file numbers, the method and its caveats are in [docs/benchmark.md](docs/benchmark.md). LASIK makes the CrackMes readable; it does not publish their solutions.
 
+**If BLA renames everything.** The cheapest way to break a fingerprinting tool is a find-and-replace. `npm run bench:renamed` simulates exactly that on the real BLA 3.2.1 output and the CrackMes: random spellings for every BLA identifier, comment, WASM section, long export name and ASAR path, and swapped operands, without changing behaviour. CI fails if that costs more than one point:
+
+| Format | Original: removed | Renamed: removed |
+|---|---:|---:|
+| JavaScript / TypeScript | 98.78% | 98.09% |
+| HTML | 99.29% | 99.17% |
+| WebAssembly | 99.98% | 99.98% |
+| Electron ASAR | 99.998% | 99.96% |
+
+What it does not cover is in [How it works](docs/how-it-works.md#keeping-up-with-bla).
+
 ## How it works
 
 <p align="center"><img src="docs/assets/pipeline.svg" alt="LASIK pass order: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report" width="100%" /></p>
@@ -118,9 +130,9 @@ Per-file numbers, the method and its caveats are in [docs/benchmark.md](docs/ben
 | BLA layer | What LASIK does |
 |---|---|
 | Opaque predicates | Matches BLA's number-theoretic identities and proves seed-dependent ones with a known-bits analysis, then drops the dead branches |
-| Anti-strip interlocks | Recomputes the decoy-corpus digest and folds the check before removing anything |
+| Anti-strip interlocks | Finds `F(literal) === N` checks by shape, evaluates the file's own `F` on a closed-subset interpreter, and folds the check before removing anything |
 | Encrypted and split literals | Decodes XOR string tables with the key shipped beside them; re-joins split strings and integers |
-| Decoys | Removes everything unreachable from real entry points, backed by a catalog of BLA's decoy families |
+| Decoys | Removes everything unreachable from real entry points, including globals of self-contained HTML pages and floods in archives, backed by a catalog of BLA's decoy families |
 | Self-seals and locks | Removes BLA's own tamper and domain checks, and reports the lock's terms |
 | Runtime noise | Drops shadow-heap churn and fake enclave status blocks that nothing reads |
 | Renamed identifiers | Restores names the program exports or imports a binding under; neutral names for the rest |
@@ -165,7 +177,8 @@ Pinned to BLA **3.2.1**. 59/63 BLA shield files fully healed; 44 more emit nothi
 
 - Local names, comments, source maps and the few sections BLA overwrote (a Go `.go.buildinfo`, renamed WASM exports) cannot be recovered. LASIK says so rather than inventing them.
 - Format healers recognise BLA 3.2.1's output precisely. They are checked on real BLA output for 21 formats ([tests/fixtures/bla-3.2.1](tests/fixtures/bla-3.2.1)); Go, Flutter, Bun, BEAM, APK/DEX and IL2CPP so far only on fixtures built from BLA's source.
-- When BLA changes, a healer can stop matching until it is updated. The weekly drift check names the file to revisit; the JavaScript core works by proof and does not depend on BLA's names.
+- When BLA changes, a healer can stop matching until it is updated. The weekly drift check names the file to revisit. The JavaScript, HTML, WASM and ASAR cores survive renaming (see the renamed bench); runtime-deception blocks, the firewall's phrase rules and the other format healers still recognise BLA 3.2.1's content, and a new BLA *technique* needs a new proof.
+- Output made from BLA ≤ 3.2.1 stays healable whatever BLA does next: hardened files do not change until their owner re-hardens them with a newer BLA.
 
 ## Responsible use
 
