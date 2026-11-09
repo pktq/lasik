@@ -164,12 +164,28 @@ describe("wasm without BLA names", () => {
   };
   const clean = readFileSync(join(import.meta.dirname, "fixtures", "bla-3.2.1", "clean", "add.wasm"));
 
-  it("drops an exhaustion section and its small companions whatever they are called", async () => {
+  /** `clean` with its single export replaced by `add` plus `n` aliases of it, each `len` bytes long. */
+  const withAliases = (n: number, len: number): Buffer => {
+    const exp = (name: string) => Buffer.concat([str(name), Buffer.from([0]), leb(0)]);
+    const names = ["add", ...Array.from({ length: n }, (_, i) => `${String(i).padStart(4, "0")}${"q".repeat(len - 4)}`)];
+    const payload = Buffer.concat([leb(names.length), ...names.map(exp)]);
+    const at = clean.indexOf(Buffer.from([7, 7])); // export section: id 7, 7 bytes
+    return Buffer.concat([clean.subarray(0, at), Buffer.from([7]), leb(payload.length), payload, clean.subarray(at + 9)]);
+  };
+
+  it("drops an alias flood, the exhaustion section and its small companions whatever they are called", async () => {
     const { healWasm } = await import("../src/formats/wasm.js");
-    const padded = Buffer.concat([clean, custom("qzvx.ledger", 2000), custom("kfrw", 400_000), custom("producers", 10)]);
+    const padded = Buffer.concat([withAliases(20, 2000), custom("qzvx.ledger", 2000), custom("kfrw", 400_000), custom("producers", 10)]);
     const r = healWasm(padded);
     expect(r.changed).toBe(true);
     expect(r.output.length).toBe(clean.length + custom("producers", 10).length);
+  });
+
+  it("keeps a lone long alias and a big unknown section: neither proves padding", async () => {
+    const { healWasm } = await import("../src/formats/wasm.js");
+    for (const input of [withAliases(1, 2000), Buffer.concat([clean, custom("assets", 400_000), custom("app.config", 50)])]) {
+      expect(healWasm(input).output.equals(input)).toBe(true);
+    }
   });
 
   it("leaves clean modules with tool or small unknown sections byte-identical", async () => {
@@ -200,5 +216,20 @@ describe.skipIf(!existsSync(DIST))("asar without BLA paths", () => {
     const r = healAsar(renamed, "app.asar", {});
     expect(r.output.length).toBeLessThan(2048);
     expect(r.findings.list().map((f) => f.technique)).toContain("asar-unreachable-entry");
+  });
+});
+
+describe("pure-eval follows JS evaluation order and scoping", () => {
+  const val = (src: string, g: Record<string, unknown> = {}) => callPure(fnOf(src), [], (n) => (n in g ? { value: g[n] as never } : undefined));
+  it("evaluates left before right, object before key, receiver before arguments", () => {
+    expect(val(`function F() { let x = 1; x += (x = 5); return x; }`)).toEqual({ ok: true, value: 6 });
+    expect(val(`function F() { let a = [1]; return a[(a = [9], 0)]; }`)).toEqual({ ok: true, value: 1 });
+    expect(val(`function F() { let s = "a"; return s.charCodeAt((s = "b", 0)); }`)).toEqual({ ok: true, value: 97 });
+  });
+  it("refuses hoisting and temporal-dead-zone reads instead of using the global", () => {
+    expect(val(`function F() { return K; var K = 1; }`, { K: 5 }).ok).toBe(false);
+    expect(val(`function F() { return K; function K() {} }`, { K: 5 }).ok).toBe(false);
+    expect(val(`function F() { const r = K; const K = 3; return r; }`, { K: 5 }).ok).toBe(false);
+    expect(val(`function F(a = b, b = 1) { return a; }`, { b: 7 }).ok).toBe(false);
   });
 });

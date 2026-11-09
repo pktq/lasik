@@ -11,7 +11,8 @@ LASIK no longer needs BLA's names: a BLA release that renames every identifier, 
 - `npm run bench:renamed` (`scripts/mutate-bla.mjs`, `scripts/bench-renamed.mjs`): heals real BLA output and a copy with every BLA identifier, comment, WASM section, long export name and ASAR path respelled and commutative operands swapped. Checked in CI: the renamed run may cost at most one point of reduction.
 - `src/js/pure-eval.ts`: an evaluator for a closed subset of JS (numbers, strings, plain arrays/objects, loops) that walks the AST and refuses anything else. Nothing from the target is executed.
 - Inline scripts of pages without external scripts drop unreachable globals; mentions from attributes, other scripts and live property/string reads keep them.
-- WASM: export aliases with names over 1 KB and oversized unknown custom sections prove a padded module, and then every non-tool custom section is removed.
+- WASM: a flood of 16+ export aliases with names over 1 KB proves a padded module; then those aliases and every non-tool custom section are removed.
+- A second independent soundness review of the structural rules: its 12 counterexamples (an empty array taken for a decoy corpus, a lost `</script` escape, evaluation order, hoisting/TDZ, call order, shadowed builtins, alias escapes, page-local edge cases, config-named ASAR entries, a license check taken for a self-seal, lone WASM aliases) are fixed and pinned in `tests/soundness.test.ts`, `tests/structural.test.ts` and `tests/formats-wasm-asar.test.ts`.
 - ASAR: directories of 64+ entries nothing in a hardened archive can reach are removed.
 
 ### Changed

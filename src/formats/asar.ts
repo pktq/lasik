@@ -10,6 +10,11 @@ const REA_MAX_HEADER = 16 * 1024 * 1024;
 const DEFAULT_BLOCK = 4 * 1024 * 1024;
 /** Unreachable entries in one directory needed to call it a header flood. */
 const FLOOD = 64;
+/**
+ * Live code that names files at runtime could reach any entry: `require(x)`, `import(x)`,
+ * directory listings, or a file API whose path is not a plain string literal.
+ */
+const DYNAMIC_FILE_ACCESS = /\b(?:require|import)\s*\(\s*[^'"`\s)]|readdir|opendir|\bglob(?:Sync)?\s*\(|\b(?:readFileSync|readFile|createReadStream|openSync|open|loadFile|loadURL|statSync|existsSync|accessSync)\s*\(\s*(?!["'][^"'\n]*["']\s*[,)])/;
 const INLINE_MAP = /^[ \t]*\/\/[#@][ \t]*sourceMappingURL=data:application\/json[^,\n]*;base64,([A-Za-z0-9+/=]+)[ \t]*\r?\n?/gm;
 
 interface Integrity {
@@ -114,8 +119,9 @@ export const healAsar: FormatHealer = (input, file, opts) => {
         const r = healedJs(path, contentOf(node, path));
         hardened ||= isHardened(r.findings);
         text.set(path, r.code);
-      } else if (/\.(?:json|html?|css|txt|xml|svg)$/i.test(path) || path.endsWith("/package.json") || path === "package.json") {
-        text.set(path, contentOf(node, path).toString("utf8"));
+      } else {
+        // Any entry can name another (a YAML config, a binary index): scan every byte.
+        text.set(path, contentOf(node, path).toString("latin1"));
       }
     }
     if (!hardened) return new Set();
@@ -130,9 +136,10 @@ export const healAsar: FormatHealer = (input, file, opts) => {
     const reached = new Set(entries.filter((e) => !e.path.includes("/") || e.path === main || e.path === `${main}.js`).map((e) => e.path));
     const queue = [...reached];
     while (queue.length) {
-      const t = text.get(queue.pop()!);
+      const path = queue.pop()!;
+      const t = text.get(path);
       if (t === undefined) continue;
-      if (/\b(?:require|import)\s*\(\s*[^'"`\s)]|readdir/.test(t)) return new Set();
+      if (/\.[cm]?js$/.test(path) && DYNAMIC_FILE_ACCESS.test(t)) return new Set();
       for (const e of entries) {
         if (reached.has(e.path)) continue;
         const parts = e.path.split("/");

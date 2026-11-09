@@ -43,7 +43,7 @@ export function stripScrambledComments(ast: t.File, f: Findings): number {
 }
 
 /** Comments that tools read: license banners, source maps, compiler/linter/bundler directives. */
-const FUNCTIONAL_COMMENT = /^(?:!|\s*[#@]\s*source(?:Mapping)?URL=|\s*[@#]__(?:PURE|NO_SIDE_EFFECTS)__|\s*@(?:ts-|jsx|license|preserve|vite-ignore|flow|refresh)|\s*(?:eslint|prettier-ignore|istanbul|c8|webpack[A-Z]|tslint|jshint|global\s))/;
+const FUNCTIONAL_COMMENT = /^(?:!|\s*[#@]\s*source(?:Mapping)?URL=|\s*[@#]__(?:PURE|NO_SIDE_EFFECTS)__|\s*@(?:ts-|jsx|license|preserve|vite-ignore|flow|refresh|cc_on)|\s*(?:eslint|prettier-ignore|istanbul|c8|v8 ignore|biome-ignore|webpack[A-Z]|tslint|jshint|globals?\b|exported\b))/;
 
 /**
  * BLA replaces every original comment, so in a file proven hardened the only comments

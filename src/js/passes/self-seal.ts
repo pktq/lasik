@@ -11,21 +11,19 @@ function isSealFunction(fn: t.Function): boolean {
   let hash = false;
   let marker = false;
   let sidecar = false;
-  let ownFile = false;
-  let reads = false;
   // Only the function's own body counts: a wrapper that merely contains a seal is real code.
   traverseOwn(fn, (n) => {
     if (t.isStringLiteral(n) && SEAL_ERRORS.includes(n.value)) err = true;
     if (t.isIdentifier(n, { name: "createHash" }) || t.isStringLiteral(n, { value: "sha256" })) hash = true;
     if (t.isIdentifier(n) && SEAL_MARKERS.has(n.name)) marker = true;
     if (t.isIdentifier(n, { name: "__blaSidecarDigest" })) sidecar = true;
-    if (t.isIdentifier(n, { name: "__filename" }) || (t.isMemberExpression(n) && t.isMetaProperty(n.object) && t.isIdentifier(n.property, { name: "url" }))) ownFile = true;
-    if (t.isIdentifier(n, { name: "readFileSync" })) reads = true;
   });
-  // A check that hashes the file's own bytes and throws on a mismatch fails on any healed
-  // output, whoever wrote it, so it cannot survive healing. Otherwise only BLA's markers count.
   // The soft-fold sidecar preamble never throws (sidecar-entangle.ts:320-332) but is still BLA's.
-  return hash && ((err && ownFile && reads) || ((err || sidecar) && marker));
+  if (hash && (err || sidecar) && marker) return true;
+  // Without markers: a check that hashes the file's own bytes and throws on a mismatch fails on
+  // any healed output, and BLA's rewrite would already have broken a user's own such check. It
+  // goes only if it does nothing else (no writes outside itself, no side-effecting calls).
+  return hash && err && readsOwnFile(fn) && onlyChecks(fn);
 }
 
 /**
@@ -96,4 +94,65 @@ function collectSiblings(fn: t.Node, out: Set<string>): void {
       for (const e of n.elements) out.add((e as t.StringLiteral).value);
     }
   });
+}
+
+const unbound = (n: t.Node, name: string) => t.isIdentifier(n, { name });
+const isImportMetaUrl = (n: t.Node) => t.isMemberExpression(n) && t.isMetaProperty(n.object) && t.isIdentifier(n.property, { name: "url" });
+
+/** `__filename`, `import.meta.url`, `fileURLToPath(import.meta.url)`, or a guard choosing one of them or null. */
+function isOwnPath(n: t.Node | null | undefined): boolean {
+  if (!n) return false;
+  if (unbound(n, "__filename") || isImportMetaUrl(n)) return true;
+  if (t.isCallExpression(n) && n.arguments.length === 1 && isImportMetaUrl(n.arguments[0]!)) return true;
+  if (t.isNewExpression(n) && t.isIdentifier(n.callee, { name: "URL" }) && n.arguments.length === 1 && isImportMetaUrl(n.arguments[0]!)) return true;
+  if (t.isConditionalExpression(n)) return [n.consequent, n.alternate].every((b) => t.isNullLiteral(b) || isOwnPath(b));
+  return false;
+}
+
+/** Some `readFileSync` in the function reads the file's own path (directly or through a local initialised to it). */
+function readsOwnFile(fn: t.Function): boolean {
+  const inits = new Map<string, t.Node | null | undefined>();
+  t.traverseFast(fn.body, (n) => { if (t.isVariableDeclarator(n) && t.isIdentifier(n.id)) inits.set(n.id.name, n.init); });
+  let own = false;
+  t.traverseFast(fn.body, (n) => {
+    if (!t.isCallExpression(n)) return;
+    const c = n.callee;
+    const name = t.isIdentifier(c) ? c.name : t.isMemberExpression(c) && t.isIdentifier(c.property) ? c.property.name : "";
+    if (name !== "readFileSync") return;
+    const a = n.arguments[0];
+    if (isOwnPath(a) || (t.isIdentifier(a) && isOwnPath(inits.get(a.name)))) own = true;
+  });
+  return own;
+}
+
+/** Calls that act on the world rather than compute a digest. */
+const EFFECT_CALL = /^(?:write|append|unlink|rm|mkdir|rename|copyFile|chmod|chown|symlink|send|postMessage|exit|abort|kill|spawn|exec|fork|fetch|request|connect|listen|setTimeout|setInterval|setImmediate|queueMicrotask|addEventListener|removeEventListener|dispatchEvent|emit|on|once|defineProperty|defineProperties|assign|setPrototypeOf|push|unshift|splice|log|warn|error|info|debug|open|close|eval|Function|require\.cache)/;
+
+/** The function only computes: it writes nothing but its own locals and calls nothing with effects. */
+function onlyChecks(fn: t.Function): boolean {
+  const locals = new Set<string>();
+  const collect = (n: t.Node) => t.traverseFast(n, (x) => { if (t.isIdentifier(x)) locals.add(x.name); });
+  for (const p of fn.params) collect(p);
+  t.traverseFast(fn.body, (n) => {
+    if (t.isVariableDeclarator(n)) collect(n.id);
+    if (t.isCatchClause(n) && n.param) collect(n.param);
+    if (t.isFunctionDeclaration(n) && n.id) locals.add(n.id.name);
+  });
+  const root = (n: t.Node): t.Node => (t.isMemberExpression(n) ? root(n.object) : n);
+  let ok = true;
+  t.traverseFast(fn.body, (n) => {
+    if (!ok) return;
+    const target = t.isAssignmentExpression(n) ? n.left : t.isUpdateExpression(n) ? n.argument : t.isUnaryExpression(n, { operator: "delete" }) ? n.argument : undefined;
+    if (target) {
+      const r = root(target);
+      if (!t.isIdentifier(r) || !locals.has(r.name) || t.isMemberExpression(target)) ok = t.isIdentifier(target) && locals.has(target.name);
+    }
+    if (t.isCallExpression(n) || t.isNewExpression(n)) {
+      const c = n.callee;
+      const name = t.isIdentifier(c) ? c.name : t.isMemberExpression(c) && t.isIdentifier(c.property) ? c.property.name : "";
+      if (EFFECT_CALL.test(name)) ok = false;
+    }
+    if (t.isFunction(n) && n !== fn) ok = false; // a callback could be registered and run later
+  });
+  return ok;
 }

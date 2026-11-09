@@ -31,7 +31,16 @@ const isRecord = (v: Val): v is { [k: string]: Val } => v !== null && typeof v =
 const OBJECT_PROTO = new Set(Object.getOwnPropertyNames(Object.prototype));
 
 /** Evaluate `fn(...args)`; undefined result means "could not prove a value" (use `ok`). */
-export function callPure(fn: t.Function, args: Val[], globals: Globals, fuel = 5_000_000): { ok: true; value: Val } | { ok: false } {
+/**
+ * Evaluate `fn(...args)`. `shadowed(name)` must say whether the program declares or
+ * patches `name` (`Math`, `String`, `NaN` …): then the real builtin is not what runs.
+ */
+export function callPure(fn: t.Function, args: Val[], globals: Globals, opts: { shadowed?: (name: string) => boolean; fuel?: number } = {}): { ok: true; value: Val } | { ok: false } {
+  const fuel = opts.fuel ?? 5_000_000;
+  const shadowed = opts.shadowed ?? (() => false);
+  // Every name the function declares: a read that misses the scope chain but hits one of
+  // these is a hoisting or TDZ case (`return K; var K`, `(a = b, b)`), not a global.
+  const locals = new Set<string>();
   let steps = 0;
   const tick = (): void => { if (++steps > fuel) refuse(); };
 
@@ -40,6 +49,7 @@ export function callPure(fn: t.Function, args: Val[], globals: Globals, fuel = 5
   const lookup = (s: Scope, name: string): Val => {
     const v = s.find(name);
     if (v) return v.value;
+    if (locals.has(name) || shadowed(name)) return refuse();
     if (name === "undefined") return undefined;
     if (name === "NaN") return NaN;
     if (name === "Infinity") return Infinity;
@@ -74,10 +84,11 @@ export function callPure(fn: t.Function, args: Val[], globals: Globals, fuel = 5
 
   const call = (node: t.CallExpression, s: Scope): Val => {
     const c = node.callee;
-    const args = node.arguments.map((a) => (t.isExpression(a) ? expr(a, s) : refuse()));
+    const argsOf = () => node.arguments.map((a) => (t.isExpression(a) ? expr(a, s) : refuse()));
     if (t.isMemberExpression(c) && !c.computed && t.isIdentifier(c.property)) {
       const m = c.property.name;
-      if (t.isIdentifier(c.object) && !s.find(c.object.name) && !globals(c.object.name)) {
+      if (t.isIdentifier(c.object) && !s.find(c.object.name) && !locals.has(c.object.name) && !shadowed(c.object.name) && !globals(c.object.name)) {
+        const args = argsOf();
         const o = c.object.name;
         if (o === "Array" && m === "isArray") return Array.isArray(args[0]);
         const n = args.map((a) => prim(a));
@@ -88,7 +99,9 @@ export function callPure(fn: t.Function, args: Val[], globals: Globals, fuel = 5
         if (o === "String" && m === "fromCharCode") return String.fromCharCode(...n.map(Number));
         return refuse();
       }
+      // The receiver is evaluated before the arguments, as in JS.
       const self = t.isExpression(c.object) ? expr(c.object, s) : refuse();
+      const args = argsOf();
       if (typeof self === "string" && m === "charCodeAt") return self.charCodeAt(Number(prim(args[0] ?? 0)));
       return refuse();
     }
@@ -146,8 +159,9 @@ export function callPure(fn: t.Function, args: Val[], globals: Globals, fuel = 5
       return o;
     }
     if (t.isMemberExpression(n)) {
+      const obj = t.isExpression(n.object) ? expr(n.object, s) : refuse();
       const key = n.computed ? expr(n.property as t.Expression, s) : t.isIdentifier(n.property) ? n.property.name : refuse();
-      return member(t.isExpression(n.object) ? expr(n.object, s) : refuse(), key);
+      return member(obj, key);
     }
     if (t.isCallExpression(n)) return call(n, s);
     if (t.isUnaryExpression(n)) {
@@ -180,8 +194,10 @@ export function callPure(fn: t.Function, args: Val[], globals: Globals, fuel = 5
     if (t.isAssignmentExpression(n)) {
       if (!t.isIdentifier(n.left)) return refuse();
       const name = n.left.name;
+      // `x op= y` reads x before evaluating y.
+      const old = n.operator === "=" ? undefined : lookup(s, name);
       const rhs = expr(n.right, s);
-      const v = n.operator === "=" ? rhs : binary(n.operator.slice(0, -1), lookup(s, name), rhs);
+      const v = n.operator === "=" ? rhs : binary(n.operator.slice(0, -1), old, rhs);
       assign(s, name, v);
       return v;
     }
@@ -262,6 +278,26 @@ export function callPure(fn: t.Function, args: Val[], globals: Globals, fuel = 5
 
   try {
     if (fn.async || fn.generator) return { ok: false };
+    // `var` and nested declarations hoist; refuse them rather than model hoisting.
+    for (const p of fn.params) t.traverseFast(p, (x) => { if (t.isIdentifier(x)) locals.add(x.name); });
+    let hoists = false;
+    const scan = (n: t.Node, top: boolean): void => {
+      if (!top && (t.isFunction(n) || t.isClass(n))) {
+        if (t.isFunctionDeclaration(n) || t.isClassDeclaration(n)) hoists = true;
+        return;
+      }
+      if (t.isVariableDeclaration(n)) {
+        if (n.kind !== "let" && n.kind !== "const") hoists = true;
+        for (const d of n.declarations) t.traverseFast(d.id, (x) => { if (t.isIdentifier(x)) locals.add(x.name); });
+      }
+      for (const key of t.VISITOR_KEYS[n.type] ?? []) {
+        const child = (n as unknown as Record<string, unknown>)[key];
+        if (Array.isArray(child)) child.forEach((c) => c && typeof c === "object" && scan(c as t.Node, false));
+        else if (child && typeof child === "object") scan(child as t.Node, false);
+      }
+    };
+    scan(fn.body, true);
+    if (hoists) return { ok: false };
     const s = new Scope();
     fn.params.forEach((p, i) => {
       if (t.isIdentifier(p)) s.declare(p.name, args[i], true);
@@ -279,5 +315,5 @@ export function callPure(fn: t.Function, args: Val[], globals: Globals, fuel = 5
 
 /** Evaluate a closed expression (a literal initializer) with the same rules. */
 export function evalPure(node: t.Expression, globals: Globals = () => undefined): { ok: true; value: Val } | { ok: false } {
-  return callPure(t.arrowFunctionExpression([], node), [], globals);
+  return callPure(t.arrowFunctionExpression([], node), [], globals, { shadowed: () => true });
 }

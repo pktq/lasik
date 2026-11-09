@@ -194,3 +194,26 @@ describe("healAsar vs BLA protector electron-asar branch", () => {
     expect(r.output.equals(clean)).toBe(true);
   });
 });
+
+describe("asar reachability (0.3 review regressions)", () => {
+  // Proven hardened: an interlock corpus plus proven predicates (as in soundness.test.ts).
+  const hardened = (body: string) =>
+    Buffer.from(`const _interlockSafetyCorpus_f637 = [{ "vectorId": "v", "classifierDomain": "d", "coupledAnchorSymbol": "s", "triggerPayload": "[TPM-PCR-QUOTE] stub" }];
+const k_1 = (Date.now() & 0xff) | 1;
+if ((k_1 | ~k_1 | 0) === -1) { globalThis.z = 1; }
+${body}
+`);
+  const many = (dir: string) => Object.fromEntries(Array.from({ length: 70 }, (_, i) => [`${dir}/shard-${i}.dat`, { content: Buffer.from(String(i)) }]));
+
+  it("drops a directory flood nothing mentions", () => {
+    const r = healAsar(layout({ "main.js": { content: hardened("module.exports = 1;") }, ...many("zz9") }), "app.asar", {});
+    expect(Object.keys(read(r.output).header.files)).toEqual(["main.js"]);
+  });
+
+  it("keeps entries a config file names, or that code reaches through a computed path", () => {
+    const cfg = layout({ "main.js": { content: hardened('const fs = require("fs"); module.exports = fs.readFileSync("settings.yml", "utf8");') }, "settings.yml": { content: Buffer.from("dir: q7\n") }, ...many("q7") });
+    expect(Object.keys(read(healAsar(cfg, "app.asar", {}).output).header.files)).toContain("q7");
+    const dyn = layout({ "main.js": { content: hardened('const fs = require("fs"); module.exports = (n) => fs.readFileSync(__dirname + "/" + n);') }, ...many("zz9") });
+    expect(Object.keys(read(healAsar(dyn, "app.asar", {}).output).header.files)).toContain("zz9");
+  });
+});

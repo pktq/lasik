@@ -139,7 +139,7 @@ What it does not cover is in [How it works](docs/how-it-works.md#keeping-up-with
 | Padding and planted data | Strips BLA's sections, trailers, honey tables, decoy entries and floods from binaries, databases, models and archives, and rebuilds offsets and checksums so the file stays valid |
 | Prompt bait | Redacts it with 40 firewall rules |
 
-The full pass order, the proofs and every fingerprint are in [docs/how-it-works.md](docs/how-it-works.md). An independent review hunted for inputs where healing changes what a program does; every case it found is fixed and pinned in [`tests/soundness.test.ts`](tests/soundness.test.ts).
+The full pass order, the proofs and every fingerprint are in [docs/how-it-works.md](docs/how-it-works.md). Two independent reviews hunted for inputs where healing changes what a program does or touches a clean file; every case they found is fixed and pinned in [`tests/soundness.test.ts`](tests/soundness.test.ts).
 
 ## Format coverage
 

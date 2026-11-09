@@ -37,10 +37,14 @@ function readCorpus(node: t.Node | null | undefined): Entry[] | undefined {
     if (anchor === undefined || payload === undefined) return undefined;
     out.push({ anchor, payload });
   }
-  return out;
+  return out.length ? out : undefined;
 }
 
-const READ_METHODS = new Set(["charCodeAt", "codePointAt", "slice", "indexOf", "includes", "startsWith", "endsWith", "at"]);
+/** Methods that return a primitive, so their result cannot alias the binding. */
+const READ_METHODS = new Set(["charCodeAt", "codePointAt", "indexOf", "includes", "startsWith", "endsWith"]);
+const GLOBAL_OBJECTS = new Set(["window", "globalThis", "self", "top", "parent", "frames"]);
+/** Builtins pure-eval models; a program that declares or patches one gets no folds through it. */
+const BUILTINS = new Set(["Math", "String", "Array", "Number", "Object", "NaN", "undefined", "Infinity"]);
 
 /**
  * True when this reference cannot change what the binding holds: `void x`, `typeof x`,
@@ -60,7 +64,8 @@ function isReadOnlyUse(ref: NodePath, depth = 0): boolean {
     const c = parent.node.callee;
     return t.isMemberExpression(c) && t.isIdentifier(c.object, { name: "Array" }) && t.isIdentifier(c.property, { name: "isArray" }) && !parent.scope.getBinding("Array");
   }
-  if (parent.isBinaryExpression() || parent.isTemplateLiteral()) return true;
+  if (parent.isTemplateLiteral()) return !parent.parentPath?.isTaggedTemplateExpression();
+  if (parent.isBinaryExpression()) return true;
   if ((parent.isIfStatement() || parent.isConditionalExpression() || parent.isWhileStatement() || parent.isForStatement()) && (parent.node as { test?: t.Node }).test === p.node) return true;
   if (parent.isVariableDeclarator() && parent.node.init === p.node && t.isIdentifier(parent.node.id) && depth < 3) {
     const decl = parent.parentPath;
@@ -88,6 +93,44 @@ export function cutCorpusInterlocks(ast: t.File, f: Findings): { folded: number;
   let program!: NodePath<t.Program>;
   traverse(ast, { Program(p) { program = p; p.stop(); } });
   const scope = program.scope;
+  const body = program.node.body;
+  const topIndex = (p: NodePath): number => {
+    let q: NodePath | null = p;
+    while (q && !q.parentPath?.isProgram()) q = q.parentPath;
+    return q ? body.indexOf(q.node as t.Statement) : -1;
+  };
+
+  // Names the file writes through the global object, and whether it patches a builtin.
+  const globalWrites = new Set<string>();
+  let anyGlobalWrite = false;
+  let builtinsPatched = false;
+  const rootOf = (n: t.Node): t.Node => (t.isMemberExpression(n) ? rootOf(n.object) : n);
+  const noteWrite = (target: t.Node, p: NodePath): void => {
+    if (!t.isMemberExpression(target)) return;
+    const root = rootOf(target);
+    if (t.isIdentifier(root) && BUILTINS.has(root.name) && !p.scope.getBinding(root.name)) builtinsPatched = true;
+    const obj = target.object;
+    const isGlobal = (t.isIdentifier(obj) && GLOBAL_OBJECTS.has(obj.name) && !p.scope.getBinding(obj.name)) || (t.isThisExpression(obj) && !p.getFunctionParent());
+    if (!isGlobal) return;
+    const key = !target.computed && t.isIdentifier(target.property) ? target.property.name : t.isStringLiteral(target.property) ? target.property.value : undefined;
+    if (key === undefined) anyGlobalWrite = true;
+    else globalWrites.add(key);
+  };
+  traverse(ast, {
+    AssignmentExpression(p) { noteWrite(p.node.left, p); },
+    UpdateExpression(p) { noteWrite(p.node.argument, p); },
+    UnaryExpression(p) { if (p.node.operator === "delete") noteWrite(p.node.argument, p); },
+    CallExpression(p) {
+      // Object.defineProperty(window, …), Reflect.set(String.prototype, …) and friends.
+      const c = p.node.callee;
+      const a = p.node.arguments[0];
+      if (!t.isMemberExpression(c) || !t.isIdentifier(c.object, { name: "Object" }) && !t.isIdentifier(c.object, { name: "Reflect" }) || !a) return;
+      const root = rootOf(a);
+      if (t.isIdentifier(root) && BUILTINS.has(root.name)) builtinsPatched = true;
+      if (t.isIdentifier(root) && GLOBAL_OBJECTS.has(root.name)) anyGlobalWrite = true;
+    },
+  });
+  const shadowed = (name: string): boolean => BUILTINS.has(name) && (builtinsPatched || !!scope.getBinding(name));
 
   // Top-level bindings that provably always hold their literal initializer.
   const constant = new Map<string, { value: Val } | null>();
@@ -95,7 +138,8 @@ export function cutCorpusInterlocks(ast: t.File, f: Findings): { folded: number;
     if (constant.has(name)) return constant.get(name) ?? undefined;
     const b = scope.getBinding(name);
     let out: { value: Val } | undefined;
-    if (b && b.constantViolations.length === 0 && b.path.isVariableDeclarator() && b.path.node.init && t.isIdentifier(b.path.node.id) && b.referencePaths.every((r) => isReadOnlyUse(r))) {
+    // Only a top-level `const`: `var`/`let` can be rewritten from another script or through the global object.
+    if (b && b.kind === "const" && b.path.isVariableDeclarator() && b.path.parentPath?.parentPath?.isProgram() && b.path.node.init && t.isIdentifier(b.path.node.id) && b.referencePaths.every((r) => isReadOnlyUse(r))) {
       const r = evalPure(b.path.node.init);
       if (r.ok) out = { value: r.value };
     }
@@ -110,6 +154,7 @@ export function cutCorpusInterlocks(ast: t.File, f: Findings): { folded: number;
   let folded = 0;
   let unresolved = 0;
   const foldedFns = new Set<string>();
+  const corpusInterlocks = new Set<string>();
   traverse(ast, {
     BinaryExpression(p) {
       const { operator, left, right } = p.node;
@@ -128,8 +173,15 @@ export function cutCorpusInterlocks(ast: t.File, f: Findings): { folded: number;
         if (!r.ok) { if (interlock) unresolved++; return; }
         args.push(r.value);
       }
-      const r = callPure(fn, args, globals);
-      if (!r.ok || (typeof r.value === "object" && r.value !== null)) {
+      const reads = new Map<string, Val>();
+      const r = anyGlobalWrite || globalWrites.has(name)
+        ? { ok: false as const }
+        : callPure(fn, args, (g) => { const v = globals(g); if (v) reads.set(g, v.value); return v; }, { shadowed });
+      // Every constant read must be initialised before the statement that makes the call (no TDZ, no reorder),
+      // and none may be rewritten through the global object.
+      const site = topIndex(p);
+      const ordered = [...reads.keys()].every((g) => !globalWrites.has(g) && topIndex(scope.getBinding(g)!.path) < site);
+      if (!r.ok || !ordered || (typeof r.value === "object" && r.value !== null)) {
         if (interlock) unresolved++;
         return;
       }
@@ -138,6 +190,8 @@ export function cutCorpusInterlocks(ast: t.File, f: Findings): { folded: number;
       const holds = operator === "===" ? v === want : operator === "!==" ? v !== want : operator === "==" ? v == want : v != want;
       p.replaceWith(t.booleanLiteral(holds));
       if (interlock) foldedFns.add(name);
+      // Evidence of an anti-strip interlock only when the check hashes a constant corpus.
+      if (interlock && [...reads.values()].some((v) => Array.isArray(v) && v.length > 0)) corpusInterlocks.add(name);
       folded++;
     },
   });
@@ -152,7 +206,7 @@ export function cutCorpusInterlocks(ast: t.File, f: Findings): { folded: number;
 
   let corpora = 0;
   traverse(ast, { VariableDeclarator(p) { if (readCorpus(p.node.init)) corpora++; } });
-  if (foldedFns.size) f.add("entangle", "corpus-digest-interlock", "evaluated the anti-strip interlock statically and folded it to its unmodified value", foldedFns.size);
+  if (corpusInterlocks.size) f.add("entangle", "corpus-digest-interlock", "evaluated the anti-strip interlock statically and folded it to its unmodified value", corpusInterlocks.size);
   if (corpora) f.add("prompt", "interlock-safety-corpus", "LLM-directed decoy corpus (vectorId / classifierDomain / triggerPayload)", corpora);
   return { folded, unresolved };
 }

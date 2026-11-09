@@ -1,5 +1,6 @@
 import type { Findings } from "../../core/types.js";
 import { DECOY_DECL } from "../fingerprints.js";
+import type { Visitor } from "@babel/traverse";
 import { parseJs, t, traverse, type NodePath } from "../ast.js";
 
 export interface ShakeOptions {
@@ -23,19 +24,37 @@ export interface ShakeOptions {
 
 const GLOBAL_OBJECTS = new Set(["window", "globalThis", "self", "top", "parent", "frames"]);
 
-/** `window[k]` with a computed key: a global could be read under a name built at runtime. */
-function readsGlobalsDynamically(ast: t.File): boolean {
+/**
+ * A global could be read under a name built at runtime: `window[k]`, `this[k]` (sloppy
+ * functions see the global object as `this`), or the global object escaping as a value
+ * (`var w = window; w[k]`, `f(globalThis)`).
+ */
+function readsGlobalsDynamically(paths: NodePath[]): boolean {
   let dyn = false;
-  traverse(ast, {
-    "MemberExpression|OptionalMemberExpression"(p: NodePath<t.MemberExpression | t.OptionalMemberExpression>) {
-      const { object, property, computed } = p.node;
-      if (!computed || t.isStringLiteral(property) || t.isNumericLiteral(property)) return;
-      if ((t.isIdentifier(object) && GLOBAL_OBJECTS.has(object.name) && !p.scope.getBinding(object.name)) || (t.isThisExpression(object) && !p.getFunctionParent())) {
+  const literalKey = (n: t.MemberExpression | t.OptionalMemberExpression) => !n.computed || t.isStringLiteral(n.property) || t.isNumericLiteral(n.property);
+  const thisKey = (p: NodePath<t.MemberExpression> | NodePath<t.OptionalMemberExpression>): void => {
+    if (!literalKey(p.node) && t.isThisExpression(p.node.object)) {
+      dyn = true;
+      p.stop();
+    }
+  };
+  const visitor: Visitor = {
+    MemberExpression: thisKey,
+    OptionalMemberExpression: thisKey,
+    Identifier(p) {
+      if (!GLOBAL_OBJECTS.has(p.node.name) || p.scope.getBinding(p.node.name) || !p.isReferencedIdentifier()) return;
+      const parent = p.parentPath;
+      const plainRead = (parent?.isMemberExpression() || parent?.isOptionalMemberExpression()) && parent.node.object === p.node && literalKey(parent.node);
+      if (!plainRead && !parent?.isUnaryExpression({ operator: "typeof" })) {
         dyn = true;
         p.stop();
       }
     },
-  });
+  };
+  for (const p of paths) {
+    if (dyn) break;
+    p.traverse(visitor);
+  }
   return dyn;
 }
 
@@ -266,7 +285,9 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
   // Page-local globals can also be read as `window.x` or `window["x"]`: a property name or
   // string word in live code keeps a global alive (see markRefs). A computed key built at
   // runtime could name anything, so then globals stay.
-  const pageLocal = opts.pageLocal === true && !moduleLike && !readsGlobalsDynamically(ast);
+  // Assumed, then checked against the code that stays live: removed code never runs, so only
+  // live code reading globals by a runtime-built name can break the assumption.
+  let pageLocal = opts.pageLocal === true && !moduleLike;
 
   for (let round = 0; round < 8; round++) {
     pp = programPath();
@@ -294,7 +315,9 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
     // In a plain script every global may be used by another script; only fingerprinted decoys are fair game.
     for (const [name, d] of decls) {
       const injected = DECOY_DECL.test(name) || (opts.blaHardened === true && BLA_TAG.test(name));
-      if (external.has(name) || evalRoots.has(name) || (!moduleLike && !pageLocal && !injected)) roots.push(d);
+      // `function onload(){}` / `var onbeforeunload = …` on a page: the browser calls those itself.
+      const browserHandler = pageLocal && /^on[a-z]+$/.test(name);
+      if (external.has(name) || evalRoots.has(name) || browserHandler || (!moduleLike && !pageLocal && !injected)) roots.push(d);
     }
 
     const live = new Set<string>();
@@ -342,6 +365,11 @@ export function shakeUnreachable(ast: t.File, f: Findings, opts: ShakeOptions = 
       markRefs(p);
     }
 
+    if (pageLocal && readsGlobalsDynamically([...roots, ...[...live].map((n) => decls.get(n)!)])) {
+      pageLocal = false;
+      round--;
+      continue;
+    }
     let thisRound = 0;
     for (const [name, d] of decls) {
       if (live.has(name)) continue;
