@@ -96,7 +96,7 @@ const DETECT_ONLY: { re: RegExp; layer: "deceive" | "runtime"; technique: string
   { re: /enclave_unseal_payload|nesting_breaker|enclave\.nesting\.breaker/, layer: "deceive", technique: "honey-structure", detail: "BLA honey table / nesting breaker text present" },
   { re: /# bla-shield: decoy mapping/, layer: "deceive", technique: "decoy-r8-mapping", detail: "standalone BLA decoy R8 mapping: the whole file is a decoy" },
   { re: /BLA_SHIELD_ANCHOR|enclave_tarpit_fn_\d|BLA_RUSTC_OVERFLOW_TABLE/, layer: "deceive", technique: "bla-shield-header", detail: "BLA-generated shield header/source (bla_shield.h/.rs/.go): decoy functions compiled into the build" },
-  { re: /BLA_BIND_SCOPE_CHECK/, layer: "runtime", technique: "bind-scope", detail: "BLA public domain/date lock present; reported, deliberately left in place" },
+  { re: /BLA_BIND_SCOPE_CHECK/, layer: "runtime", technique: "bind-scope", detail: "BLA public domain/date lock present" },
 ];
 
 function detectOnly(text: string, findings: Findings): void {

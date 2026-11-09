@@ -1,23 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="380" viewBox="0 0 1280 380" role="img" aria-labelledby="t d"><title id="t">Before and after lasik heal</title><desc id="d">Left: a BLA-hardened excerpt from CrackMe v6 vault.cjs, 164 KB. Right: the same logic after healing, 3.4 KB.</desc>
-<rect width="1280" height="380" rx="12" fill="#0b1020"/>
-<text x="32" y="40" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#e6edff">What the agent reads</text>
-<rect x="32" y="64" width="592" height="280" rx="10" fill="#0e1630" stroke="#3b2a35"/>
-<text x="52" y="92" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#fda4af">BLA-hardened</text><text x="604" y="92" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#64748b" text-anchor="end">vault.cjs  164 KB  2,680 lines</text>
-<text x="52" y="128" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">attestTransientCursor_e36 = require("fs");</text>
-<text x="52" y="154" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">traceLazyEdge_261.createHash(</text>
-<text x="52" y="180" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">  ((Math.imul(seed | 15, (seed | 15) + 1) &amp; 1) === 0 ? "s" : "b")</text>
-<text x="52" y="206" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">+ ((Math.imul(seed ^ 124, seed ^ 124) &amp; 7) === 0 ? "1" : "h")</text>
-<text x="52" y="232" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#94a3b8" xml:space="preserve">+ ((Math.imul(seed | 123, (seed | 123) + 1) &amp; 1) === 0 ? "a" : "8")</text>
-<text x="52" y="258" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#64748b" xml:space="preserve">+ ...  /* ~3,000 predicates in this file alone, */</text>
-<text x="52" y="284" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#64748b" xml:space="preserve">  /* plus decoy blocks, XOR tables, a self-seal */</text>
-<rect x="656" y="64" width="592" height="280" rx="10" fill="#0e1630" stroke="#155e75"/>
-<text x="676" y="92" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#22d3ee">after lasik heal</text><text x="1228" y="92" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#64748b" text-anchor="end">3.4 KB  99 lines</text>
-<text x="676" y="128" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">const fs = require("fs");</text>
-<text x="676" y="154" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">const crypto = require("crypto");</text>
-<text x="676" y="180" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve"></text>
-<text x="676" y="206" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">return crypto</text>
-<text x="676" y="232" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">  .createHash("sha256")</text>
-<text x="676" y="258" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">  .update(input)</text>
-<text x="676" y="284" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#e6edff" xml:space="preserve">  .digest("hex");</text>
-<path d="M626 204 L652 204" stroke="#22d3ee" stroke-width="2"/><path d="M646 197 L654 204 L646 211" fill="none" stroke="#22d3ee" stroke-width="2"/>
-<text x="640.0" y="368" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Excerpt shortened and local names abbreviated. Prompt-directed decoy text is omitted.</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="483" viewBox="0 0 1280 483" role="img" aria-label="The same two functions of BLA CrackMe v6, BLA-hardened on the left and after LASIK on the right">
+  <rect width="1280" height="483" rx="16" fill="#010409"/>
+  <rect x="28" y="28" width="600" height="435" rx="12" fill="#0d1117" stroke="#30363d"/>
+  <circle cx="48" cy="50" r="5" fill="#f7768e"/>
+  <text x="62" y="55" fill="#e6edf3" font-size="14" font-weight="600" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif">BLA-hardened</text>
+  <text x="610" y="55" fill="#8b949e" font-size="13" text-anchor="end" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif">vault.cjs · 164 KB · 2,680 lines</text>
+  <line x1="28" x2="628" y1="72" y2="72" stroke="#30363d"/>
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" style="white-space:pre" xml:space="preserve">
+    <text x="46.0" y="92"><tspan fill="#bb9af7">const</tspan><tspan fill="#9aa4b5"> attestTransientCursor_e36 = </tspan><tspan fill="#bb9af7">require</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#9ece6a">"fs"</tspan><tspan fill="#9aa4b5">);</tspan></text>
+    <text x="46.0" y="113"><tspan fill="#bb9af7">const</tspan><tspan fill="#9aa4b5"> traceLazyEdge_261 = </tspan><tspan fill="#bb9af7">require</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#9ece6a">"crypto"</tspan><tspan fill="#9aa4b5">);</tspan></text>
+    <text x="46.0" y="134"><tspan fill="#bb9af7">function</tspan><tspan fill="#9aa4b5"> decodeRemoteBundle_e2a(mirrorDurableSensor_d6c) {</tspan></text>
+    <text x="61.0" y="155"><tspan fill="#f7768e">stepShadowHeapActiveGraph_a301</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#ff9e64">3056</tspan><tspan fill="#9aa4b5">);</tspan></text>
+    <text x="61.0" y="176"><tspan fill="#bb9af7">if</tspan><tspan fill="#9aa4b5"> ((</tspan><tspan fill="#f7768e">Math.imul</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#f7768e">runtimeSeedPrimaryHandle_be53</tspan><tspan fill="#9aa4b5"> ^ </tspan><tspan fill="#ff9e64">100</tspan><tspan fill="#9aa4b5">, </tspan><tspan fill="#f7768e">runtimeSeedPrimar</tspan><tspan fill="#9aa4b5">…</tspan></text>
+    <text x="76.0" y="197"><tspan fill="#f7768e">_verifyEnclaveAttestationService_8589</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#ff9e64">175</tspan><tspan fill="#9aa4b5">, </tspan><tspan fill="#ff9e64">2</tspan><tspan fill="#9aa4b5">) ^ _auditMonotonicCou…</tspan></text>
+    <text x="61.0" y="218"><tspan fill="#9aa4b5">}</tspan></text>
+    <text x="61.0" y="239"><tspan fill="#bb9af7">return</tspan><tspan fill="#9aa4b5"> traceLazyEdge_261.createHash(((</tspan><tspan fill="#f7768e">Math.imul</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#f7768e">runtimeSeedPrimaryHa</tspan><tspan fill="#9aa4b5">…</tspan></text>
+    <text x="76.0" y="260"><tspan fill="#9aa4b5">| </tspan><tspan fill="#ff9e64">15</tspan><tspan fill="#9aa4b5">) + </tspan><tspan fill="#ff9e64">1</tspan><tspan fill="#9aa4b5">) &amp; </tspan><tspan fill="#ff9e64">1</tspan><tspan fill="#9aa4b5">) === </tspan><tspan fill="#ff9e64">0</tspan><tspan fill="#9aa4b5"> ? </tspan><tspan fill="#9ece6a">"s"</tspan><tspan fill="#9aa4b5"> : </tspan><tspan fill="#9ece6a">"b"</tspan><tspan fill="#9aa4b5">) + ((</tspan><tspan fill="#f7768e">Math.imul</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#f7768e">runtimeSeedPrimar</tspan><tspan fill="#9aa4b5">…</tspan></text>
+    <text x="76.0" y="281"><tspan fill="#ff9e64">124</tspan><tspan fill="#9aa4b5">, </tspan><tspan fill="#f7768e">runtimeSeedPrimaryHandle_be53</tspan><tspan fill="#9aa4b5"> ^ </tspan><tspan fill="#ff9e64">124</tspan><tspan fill="#9aa4b5">) &amp; </tspan><tspan fill="#ff9e64">7</tspan><tspan fill="#9aa4b5">) === </tspan><tspan fill="#ff9e64">0</tspan><tspan fill="#9aa4b5"> ? </tspan><tspan fill="#9ece6a">"1"</tspan><tspan fill="#9aa4b5"> : </tspan><tspan fill="#9ece6a">"h"</tspan><tspan fill="#9aa4b5">) …</tspan></text>
+    <text x="46.0" y="302"><tspan fill="#9aa4b5">}</tspan></text>
+    <text x="46.0" y="323"><tspan fill="#bb9af7">function</tspan><tspan fill="#9aa4b5"> transformInlineSample_6bd() {</tspan></text>
+    <text x="61.0" y="344"><tspan fill="#f7768e">stepShadowHeapActiveGraph_a301</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#ff9e64">2754</tspan><tspan fill="#9aa4b5">);</tspan></text>
+    <text x="61.0" y="365"><tspan fill="#bb9af7">if</tspan><tspan fill="#9aa4b5"> ((</tspan><tspan fill="#f7768e">Math.imul</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#f7768e">runtimeSeedPrimaryHandle_be53</tspan><tspan fill="#9aa4b5"> ^ </tspan><tspan fill="#ff9e64">88</tspan><tspan fill="#9aa4b5">, </tspan><tspan fill="#f7768e">runtimeSeedPrimary</tspan><tspan fill="#9aa4b5">…</tspan></text>
+    <text x="76.0" y="386"><tspan fill="#f7768e">_deriveHardwareKdfSchedulQueue_b7a5</tspan><tspan fill="#9aa4b5">(</tspan><tspan fill="#ff9e64">107</tspan><tspan fill="#9aa4b5">, </tspan><tspan fill="#ff9e64">2</tspan><tspan fill="#9aa4b5">) ^ _negotiateVsockChann…</tspan></text>
+    <text x="61.0" y="407"><tspan fill="#9aa4b5">}</tspan></text>
+    <text x="61.0" y="428"><tspan fill="#bb9af7">const</tspan><tspan fill="#9aa4b5"> decodeInlineBuffer_e42 = attestTransientCursor_e36.readFileSyn…</tspan></text>
+  </g>
+  <rect x="652" y="28" width="600" height="435" rx="12" fill="#0d1117" stroke="#30363d"/>
+  <circle cx="672" cy="50" r="5" fill="#73daca"/>
+  <text x="686" y="55" fill="#e6edf3" font-size="14" font-weight="600" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif">After lasik heal</text>
+  <text x="1234" y="55" fill="#8b949e" font-size="13" text-anchor="end" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif">5.5 KB · 99 lines</text>
+  <line x1="652" x2="1252" y1="72" y2="72" stroke="#30363d"/>
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" style="white-space:pre" xml:space="preserve">
+    <text x="670.0" y="92"><tspan fill="#bb9af7">const</tspan><tspan fill="#d7dce5"> fs = </tspan><tspan fill="#bb9af7">require</tspan><tspan fill="#d7dce5">(</tspan><tspan fill="#9ece6a">"fs"</tspan><tspan fill="#d7dce5">);</tspan></text>
+    <text x="670.0" y="113"><tspan fill="#bb9af7">const</tspan><tspan fill="#d7dce5"> path = </tspan><tspan fill="#bb9af7">require</tspan><tspan fill="#d7dce5">(</tspan><tspan fill="#9ece6a">"path"</tspan><tspan fill="#d7dce5">);</tspan></text>
+    <text x="670.0" y="134"><tspan fill="#bb9af7">const</tspan><tspan fill="#d7dce5"> crypto = </tspan><tspan fill="#bb9af7">require</tspan><tspan fill="#d7dce5">(</tspan><tspan fill="#9ece6a">"crypto"</tspan><tspan fill="#d7dce5">);</tspan></text>
+    <text x="670.0" y="155"><tspan fill="#bb9af7">function</tspan><tspan fill="#d7dce5"> decodeRemoteBundle_e2a(mirrorDurableSensor_d6c) {</tspan></text>
+    <text x="685.0" y="176"><tspan fill="#bb9af7">return</tspan><tspan fill="#d7dce5"> crypto.createHash(</tspan><tspan fill="#9ece6a">"sha256"</tspan><tspan fill="#d7dce5">)</tspan></text>
+    <text x="700.0" y="197"><tspan fill="#d7dce5">.update(mirrorDurableSensor_d6c).digest(</tspan><tspan fill="#9ece6a">"hex"</tspan><tspan fill="#d7dce5">);</tspan></text>
+    <text x="670.0" y="218"><tspan fill="#d7dce5">}</tspan></text>
+    <text x="670.0" y="239"><tspan fill="#bb9af7">function</tspan><tspan fill="#d7dce5"> transformInlineSample_6bd() {</tspan></text>
+    <text x="685.0" y="260"><tspan fill="#bb9af7">const</tspan><tspan fill="#d7dce5"> decodeInlineBuffer_e42 = fs.readFileSync(</tspan></text>
+    <text x="700.0" y="281"><tspan fill="#d7dce5">path.join(__dirname, </tspan><tspan fill="#9ece6a">"core.wasm"</tspan><tspan fill="#d7dce5">));</tspan></text>
+    <text x="685.0" y="302"><tspan fill="#bb9af7">return</tspan><tspan fill="#d7dce5"> WebAssembly.instantiate(decodeInlineBuffer_e42)</tspan></text>
+    <text x="700.0" y="323"><tspan fill="#d7dce5">.then(schedulePrivateWorker_1ef =&gt;</tspan></text>
+    <text x="715.0" y="344"><tspan fill="#d7dce5">schedulePrivateWorker_1ef.instance.exports);</tspan></text>
+    <text x="670.0" y="365"><tspan fill="#d7dce5">}</tspan></text>
+  </g>
+</svg>

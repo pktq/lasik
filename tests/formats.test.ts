@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import { healAsar } from "../src/formats/asar.js";
@@ -57,7 +58,7 @@ describe("healWasm", () => {
     expect(r.output.length).toBeLessThan(mod.length);
   });
 
-  const v6 = "D:/temp/claude/71b9d45a7b40e52f/6c10fd63-8c8c-4e90-9d41-896ac7b0ee01/scratchpad/src-bla/challenge/v6/hardened/core.wasm.gz";
+  const v6 = join(import.meta.dirname, "..", "bench", "bla-crackme", "v6", "core.wasm.gz");
   it.skipIf(!existsSync(v6))("heals the real v6 core.wasm.gz to exports [mix, seal]", () => {
     const r = healWasm(readFileSync(v6), v6, {});
     expect(r.changed).toBe(true);

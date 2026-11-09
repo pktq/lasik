@@ -19,6 +19,8 @@ BLA stacks layers: it poisons control flow, entangles the decoys with the real c
 
 ## Pass order and why it matters
 
+<img src="assets/pipeline.svg" alt="LASIK's JavaScript pipeline: detect, cut interlocks, strip decoys, fold to a fixpoint, rename, firewall, report" width="100%" />
+
 `healJs` in `src/js/heal.ts` runs these in order:
 
 | # | Pass | Module |
@@ -260,4 +262,4 @@ Weak techniques that also occur in ordinary code (`dead-branch`, `split-literal`
 - **Real Electron fuse bytes** that BLA overwrote in place.
 - **SQLite, safetensors/GGUF, DEX/IL2CPP, native binaries.** Detection only today. Python is healed structurally by text matching, so unusual layouts are left with a warning.
 - **Free-form agent-written weave** that fits no proven shape is labelled, not folded.
-- **Future BLA versions.** LASIK targets BLA up to 3.2. New layers need new passes; the proofs (known bits, reachability) carry over better than fingerprints do. See [CONTRIBUTING.md](../CONTRIBUTING.md#reporting-a-new-bla-version).
+- **Future BLA versions.** LASIK targets BLA up to 3.2. New layers need new passes; the proofs (known bits, reachability) carry over better than fingerprints do. See [CONTRIBUTING.md](../.github/CONTRIBUTING.md#reporting-a-new-bla-version).

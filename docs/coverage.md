@@ -12,7 +12,7 @@ Status: **healed** = undone, output valid · **partial** = some techniques undon
 | `core/identifiers.ts` | JavaScript / HTML | unrecoverable | `js/heal.ts`<br>`js/passes/tree-shake.ts` | realistic decoy names: original names gone, used as fingerprints to remove decoys |
 | `core/llm-directives.ts` | Prompt text | healed | `firewall/rules.ts` | system-reminder, ChatML, turn markers, dual-use and COPPA text firewalled |
 | `core/prng.ts` | JavaScript / HTML | unrecoverable | `js/heal.ts` | seeded naming; nothing to restore |
-| `engine/bind-scope.ts` | Bind-scope licence lock | detect-only | `engine/run.ts`<br>`js/passes/runtime-decoys.ts` | public domain/date lock: reported and deliberately left in place (it is a licence lock, not blinding) |
+| `engine/bind-scope.ts` | JavaScript / HTML | healed | `js/passes/runtime-decoys.ts`<br>`engine/run.ts` | public domain/date lock IIFE removed; its domains and dates are listed in the report |
 | `engine/encrypt-strings.ts` | JavaScript / HTML | healed | `js/heal.ts`<br>`js/passes/decrypt-strings.ts` | XOR keystream string tables decrypted (JS and per-script HTML) |
 | `engine/harden.ts` | JavaScript / HTML | healed | `js/heal.ts` | project-level orchestration of the shields listed here |
 | `engine/protector.ts` | JavaScript / HTML | healed | `js/heal.ts`<br>`js/html.ts`<br>`formats/asar.ts` | per-format dispatch; HTML script types, bootstrap script and ASAR JS entries all healed |

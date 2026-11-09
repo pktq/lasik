@@ -3,7 +3,7 @@
   "name": "io.github.pktq/lasik",
   "title": "LASIK",
   "description": "Restore sight to coding agents blinded by BLA: statically scan, heal and prompt-firewall hardened code. Never executes the target.",
-  "websiteUrl": "https://github.com/pktq/lasik",
+  "websiteUrl": "https://lasik.dev",
   "repository": {
     "url": "https://github.com/pktq/lasik",
     "source": "github"

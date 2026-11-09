@@ -50,7 +50,7 @@ describe("format dispatch", () => {
     });
   }
 
-  it("reports BLA's public bind-scope lock without removing it", () => {
+  it("reports BLA's public bind-scope lock", () => {
     const d = mkdtempSync(join(tmpdir(), "lasik-bind-"));
     try {
       writeFileSync(join(d, "entry.js"), "(function BLA_BIND_SCOPE_CHECK(){})();\nconsole.log(1);\n");
