@@ -2,3 +2,5 @@
 bench/** -text
 *.wasm binary
 *.gz binary
+bench/** linguist-vendored
+docs/** linguist-documentation
