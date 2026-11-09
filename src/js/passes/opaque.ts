@@ -171,7 +171,7 @@ export function foldOpaquePredicates(ast: t.File, f: Findings, opts: OpaqueOptio
       if (v === undefined || constantOverSamples(node, [...vars]) !== v) return;
       path.replaceWith(t.booleanLiteral(v));
       folded++;
-      f.add("tarpit", "opaque-predicate", `folded number-theoretic opaque predicate (${fam.name})`);
+      f.add("tarpit", "opaque-predicate", "folded number-theoretic opaque predicate (proven int32 identity family)");
       return;
     }
     if (!identsAreInt32Coerced(node)) return;

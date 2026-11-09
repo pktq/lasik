@@ -1,3 +1,4 @@
+import { relative } from "node:path";
 import type { Finding, Report } from "../core/types.js";
 import { EXPANSION, NAME, VERSION } from "../identity.js";
 
@@ -5,8 +6,10 @@ const kb = (n: number) => (n >= 1 << 20 ? `${(n / (1 << 20)).toFixed(1)} MB` : n
 const pct = (before: number, after: number) => (before ? `${(100 * (1 - after / before)).toFixed(1)}%` : "0%");
 const ratio = (before: number, after: number) => (after ? `${(before / after).toFixed(1)}×` : "∞");
 
+const LAYER_ORDER = ["tarpit", "encrypt", "entangle", "deceive", "runtime", "exhaust", "prompt"];
+
 function byLayer(r: Report): Map<string, Finding[]> {
-  const m = new Map<string, Finding[]>();
+  const m = new Map<string, Finding[]>(LAYER_ORDER.map((l) => [l, []]));
   for (const f of r.files) {
     for (const x of f.findings) {
       const list = m.get(x.layer) ?? [];
@@ -16,6 +19,7 @@ function byLayer(r: Report): Map<string, Finding[]> {
       m.set(x.layer, list);
     }
   }
+  for (const [k, v] of m) if (!v.length) m.delete(k);
   return m;
 }
 
@@ -35,7 +39,8 @@ export function renderText(r: Report, color = false): string {
   const t = r.totals;
   const lines: string[] = [];
   lines.push(c("1", `${NAME} ${VERSION}`) + c("2", ` · ${EXPANSION}`));
-  lines.push(`${r.mode === "heal" ? "Healed" : "Scanned"} ${t.files} file(s) in ${r.target}`);
+  const shown = relative(process.cwd(), r.target).replace(/\\/g, "/");
+  lines.push(`${r.mode === "heal" ? "Healed" : "Scanned"} ${t.files} file(s) in ${shown && !shown.startsWith("..") ? shown : r.target}`);
   const verdictColor = r.verdict === "blinded" ? "31" : r.verdict === "suspected" ? "33" : "32";
   lines.push(`Verdict: ${c(`1;${verdictColor}`, r.verdict.toUpperCase())}  ·  blindness ${r.blindness}/100  ·  ${t.blinded} file(s) carry BLA artifacts`);
   if (t.blinded) {

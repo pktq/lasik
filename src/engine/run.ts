@@ -8,6 +8,7 @@ import { Findings, type FileReport, type Format, type Report } from "../core/typ
 import { firewallText } from "../firewall/index.js";
 import { healAsar } from "../formats/asar.js";
 import { healFuseSentinels } from "../formats/electron-fuses.js";
+import { healPython } from "../formats/python.js";
 import { healSourceMap } from "../formats/sourcemap.js";
 import type { FormatHealResult } from "../formats/types.js";
 import { healWasm } from "../formats/wasm.js";
@@ -59,6 +60,13 @@ function healOne(file: string, buf: Buffer, format: Format, opts: RunOptions): F
       return healAsar(buf, file, common);
     case "unknown":
       return healFuseSentinels(buf, file, common);
+    case "python": {
+      const r = healPython(buf, file, common);
+      if (opts.firewall === false) return r;
+      const fw = firewallText(r.output.toString("utf8"));
+      for (const h of fw.hits) r.findings.add("prompt", `firewall:${h.category}`, `redacted LLM-directed decoy text (${h.rule})`, h.count);
+      return fw.redactions ? { ...r, output: Buffer.from(fw.text, "utf8"), changed: true } : r;
+    }
     default: {
       // Text formats LASIK doesn't restructure: detect, and firewall the prompt decoys.
       const text = buf.toString("utf8");
@@ -105,7 +113,7 @@ export function run(target: string, mode: "scan" | "heal", opts: RunOptions = {}
   for (const file of files) {
     if (outDir && (file === outDir || file.startsWith(outDir + "/") || file.startsWith(outDir + "\\"))) continue;
     const buf = readFileSync(file);
-    const rel = relative(root, file) || file.split(/[\\/]/).pop()!;
+    const rel = (relative(root, file) || file.split(/[\\/]/).pop()!).replace(/\\/g, "/");
     const format = formatOf(file, buf);
     let result: FormatHealResult;
     if (buf.length > maxBytes) {

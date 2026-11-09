@@ -150,7 +150,7 @@ export const healAsar: FormatHealer = (input, file, opts) => {
     findings.add(
       "exhaust",
       "asar-header-flood",
-      `removed ${decoys} decoy enclave entries (header ${jsonSize} -> ${json.length} bytes)`,
+      "removed decoy enclave shard entries flooding the ASAR header",
       decoys,
     );
   }

@@ -1,0 +1,4 @@
+* text=auto eol=lf
+bench/** -text
+*.wasm binary
+*.gz binary

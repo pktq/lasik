@@ -43,7 +43,7 @@ export const healFuseSentinels: FormatHealer = (input) => {
   findings.add(
     "exhaust",
     "decoy-fuse-sentinels",
-    `removed ${removed.length} decoy Electron fuse sentinel record(s) appended at EOF (sentinel-limit flood)`,
+    "removed decoy Electron fuse sentinel records appended at EOF (sentinel-limit flood)",
     removed.length,
   );
   return { output: Buffer.from(input.subarray(0, removed[0])), findings, warnings: [], changed: true };

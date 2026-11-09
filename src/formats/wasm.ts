@@ -129,12 +129,8 @@ function healModule(input: Buffer): FormatHealResult {
     findings.add(layer, `wasm-custom:${name}`, `removed BLA custom section "${name}"`, count);
   }
   if (decoyExports > 0) {
-    findings.add(
-      "exhaust",
-      "wasm-decoy-exports",
-      `removed ${decoyExports} decoy exports aliasing real functions; real exports: ${realExports?.join(", ") || "(none)"}`,
-      decoyExports,
-    );
+    findings.add("exhaust", "wasm-decoy-exports", "removed decoy WASM exports aliasing real functions", decoyExports);
+    warnings.push(`real exports: ${realExports?.join(", ") || "(none)"}`);
   }
   if (realExports?.some((n) => RENAMED_EXPORT.test(n))) {
     warnings.push("BLA renamed real exports to ops_<hex>_*; original export names are not recoverable (see the JS glue for how they are called)");
