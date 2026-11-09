@@ -1,0 +1,37 @@
+name: New BLA version or layer
+description: A new BLA release (or intensity) defeats a LASIK pass
+title: "[BLA vX.Y] "
+labels: [new-bla-version]
+body:
+  - type: input
+    id: bla-version
+    attributes:
+      label: BLA version
+      placeholder: "3.3.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: intensity
+    attributes:
+      label: Intensity
+      options: [stealth, balanced, maximum, bankrupt, unknown]
+    validations:
+      required: true
+  - type: textarea
+    id: scan
+    attributes:
+      label: "`lasik scan --json` output"
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: artifact
+    attributes:
+      label: Artifact or minimal reproduction
+      description: Link or attach the hardened file, or paste a small hardened snippet. Do not paste secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What still looks wrong after `lasik heal`?

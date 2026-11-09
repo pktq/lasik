@@ -1,0 +1,32 @@
+name: Bug report
+description: Something in LASIK misbehaves
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Command, input (or a minimal sample) and output. Wrong healing of clean code is a high-priority bug.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: LASIK version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Node.js version and OS
+    validations:
+      required: true

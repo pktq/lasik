@@ -47,7 +47,7 @@ traceLazyEdge_261.createHash(((Math.imul(runtimeSeedPrimaryHandle_be53 | 15, (ru
 ```
 
 ```js
-// after `lasik heal` (5.5 KB, 101 lines)
+// after `lasik heal` (5.5 KB, 99 lines)
 const fs = require("fs");
 const crypto = require("crypto");
 return crypto.createHash("sha256").update(input).digest("hex");
@@ -122,14 +122,16 @@ BLA stacks layers ("Poison → Exhaust → Hallucinate"). LASIK undoes each one 
 | **Runtime** | Shadow-heap stepper woven into every function; "Truman show" blocks that serve fake enclave status to debuggers | Private-state sink analysis: functions that only mutate state nothing else reads are unobservable, so their calls go | Exact for closed state |
 | **Weave** | Agent-written state slots guarding real code with `(slot.epoch & 1) !== 0` and `x & 0` mixes | Known-bits over every write of the slot; algebraic zero | Exact; free-form weave is labelled, not guessed |
 | **Exhaust** | 6.9 MB WASM name/section padding, 250 decoy exports, 16 MiB ASAR headers, 34 fuse sentinels | Rebuilds WASM (validated), ASAR (offsets rewritten) and fuse runs under REA's budgets | Exact |
-| **Prompt** | Fake `system`/chat turns, refusal bait, "no business logic is present" claims, fake COPPA/IEC 62304 notices, canary GUIDs | **Prompt firewall**: 38 rules redact the text before a model reads it | Fingerprint + phrase rules |
+| **Prompt** | Fake `system`/chat turns, refusal bait, "no business logic is present" claims, fake COPPA/IEC 62304 notices, canary GUIDs | **Prompt firewall**: 38 rules redact the text before a model reads it (behaviour-preserving in `heal`, full redaction in `lasik_read`) | Fingerprint + phrase rules |
 
 The full pass order and every fingerprint are documented in [`docs/how-it-works.md`](docs/how-it-works.md).
 
 ### What makes it safe to trust
 
 - **Proof over guesswork.** Default mode folds only what it can prove. Heuristic folding (`--aggressive`) is opt-in, reported separately, and never touches parameters or inputs. The test suite pins this: a real `(key ^ K) === C` license check is never folded.
-- **Clean code is untouched.** Files without BLA fingerprints come back byte-identical (only the prompt firewall can change them).
+- **Clean code is untouched.** Files without BLA evidence come back byte-identical; the prompt firewall may only redact their comments.
+- **Healing keeps behaviour.** In `heal` output the firewall redacts comments and BLA-specific strings only; prompt-shaped *runtime* strings (say, ChatML markers in a real chat app) are reported, not rewritten. `lasik_read` and `--strict-firewall` give agents a fully redacted read view instead.
+- **Independently reviewed.** A separate adversarial review hunted for inputs where a pass changes behaviour and found 15; all are fixed and pinned in [`tests/soundness.test.ts`](tests/soundness.test.ts) (85 tests in total).
 - **Order matters, and is enforced.** Interlocks are cut before any decoy is deleted, so the healed program keeps the seed BLA's real code expects.
 
 ## 🛡️ Safety model
@@ -162,6 +164,7 @@ lasik setup | doctor | mcp
 
 --json | --md                Report formats       --aggressive     Opt-in heuristics
 --no-firewall --no-rename    Keep text / names    --fail-on <lvl>  CI gate (exit 3)
+--strict-firewall            Redact prompt decoys in runtime strings too (read view)
 ```
 
 CI example: fail a pipeline if a dependency you vendor ships BLA-blinded code:
@@ -199,7 +202,7 @@ LASIK is a deobfuscator. Use it on software you own, malware and threat samples,
 
 **Is this anti-BLA?** Yes. It's the third act: REA reverse engineers, BLA blinds, LASIK restores sight.
 
-**Why would a defender want this?** Because attackers will use BLA too. Malware wrapped in BLA is built to make your AI analyst refuse, stall, or burn its budget. LASIK keeps your analyst working, and its prompt firewall is a general defence against instructions planted in code.
+**Why would a defender want this?** Because attackers will use BLA too. Malware wrapped in BLA is built to make your AI analyst refuse, stall, or burn its budget. LASIK keeps your analyst working, its prompt firewall is a general defence against instructions planted in code, and every scan reports **"AI-evasion techniques found: N"**: code that goes out of its way to hide from AI analysis is a risk signal in itself.
 
 **Does it need REA?** No. Any coding agent can read LASIK's output, or call `lasik_read` directly. LASIK pairs naturally with REA for compiled targets.
 

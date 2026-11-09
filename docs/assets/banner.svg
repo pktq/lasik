@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" width="1280" height="400" role="img" aria-labelledby="t d">
+  <title id="t">LASIK: LLM Agent Sight In Kode</title>
+  <desc id="d">An eye that is blurred and scrambled on the left and sharp on the right, next to the LASIK wordmark and the tagline: BLA blinds your agent. LASIK gives it its sight back.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#101a33"/>
+    </linearGradient>
+    <linearGradient id="iris" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e6edff"/>
+      <stop offset="1" stop-color="#67e8f9"/>
+    </linearGradient>
+    <linearGradient id="fadeSharp" x1="60" y1="0" x2="520" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0.15" stop-color="#000"/>
+      <stop offset="0.6" stop-color="#fff"/>
+    </linearGradient>
+    <linearGradient id="fadeBlur" x1="60" y1="0" x2="520" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0.15" stop-color="#fff"/>
+      <stop offset="0.6" stop-color="#000"/>
+    </linearGradient>
+    <mask id="mSharp" maskUnits="userSpaceOnUse" x="0" y="0" width="640" height="400"><rect width="640" height="400" fill="url(#fadeSharp)"/></mask>
+    <mask id="mBlur" maskUnits="userSpaceOnUse" x="0" y="0" width="640" height="400"><rect width="640" height="400" fill="url(#fadeBlur)"/></mask>
+    <filter id="blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+    <g id="eye">
+      <path d="M50 200 Q300 30 550 200 Q300 370 50 200 Z" fill="#0e1730" stroke="#67e8f9" stroke-width="6" stroke-linejoin="round"/>
+      <circle cx="300" cy="200" r="92" fill="url(#iris)"/>
+      <circle cx="300" cy="200" r="92" fill="none" stroke="#a5f3fc" stroke-opacity=".5" stroke-width="3"/>
+      <circle cx="300" cy="200" r="60" fill="none" stroke="#0b1020" stroke-opacity=".35" stroke-width="2"/>
+      <circle cx="300" cy="200" r="38" fill="#050816"/>
+      <circle cx="274" cy="174" r="13" fill="#fff" fill-opacity=".9"/>
+    </g>
+  </defs>
+  <rect width="1280" height="400" fill="url(#bg)"/>
+  <g stroke="#ffffff" stroke-opacity=".04" stroke-width="1">
+    <path d="M0 100H1280M0 200H1280M0 300H1280M320 0V400M640 0V400M960 0V400"/>
+  </g>
+  <ellipse cx="300" cy="200" rx="260" ry="150" fill="#22d3ee" opacity=".12" filter="url(#glow)"/>
+
+  <g mask="url(#mBlur)"><g filter="url(#blur)" opacity=".85"><use href="#eye"/></g></g>
+  <g fill="#f87171" fill-opacity=".55">
+    <rect x="46" y="150" width="46" height="5" rx="2"/><rect x="100" y="150" width="22" height="5" rx="2"/>
+    <rect x="62" y="168" width="30" height="5" rx="2"/><rect x="100" y="168" width="58" height="5" rx="2"/>
+    <rect x="40" y="226" width="64" height="5" rx="2"/><rect x="112" y="226" width="26" height="5" rx="2"/>
+    <rect x="70" y="244" width="40" height="5" rx="2"/><rect x="118" y="244" width="52" height="5" rx="2"/>
+    <rect x="58" y="120" width="26" height="5" rx="2"/><rect x="92" y="282" width="36" height="5" rx="2"/>
+  </g>
+  <g mask="url(#mSharp)"><use href="#eye"/></g>
+  <g stroke="#67e8f9" stroke-opacity=".5" stroke-width="2" stroke-linecap="round">
+    <path d="M300 50V78M300 322V350M430 78l-14 22M170 78l14 22"/>
+  </g>
+
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif">
+    <text x="620" y="205" font-size="112" font-weight="800" letter-spacing="6" fill="url(#word)">LASIK</text>
+    <text x="624" y="248" font-size="24" font-weight="500" letter-spacing="3" fill="#9fb0d6">LLM Agent Sight In Kode</text>
+    <rect x="624" y="272" width="64" height="3" rx="1.5" fill="#22d3ee"/>
+    <text x="624" y="315" font-size="26" font-weight="600" fill="#f8a5a5">BLA blinds your agent.</text>
+    <text x="624" y="351" font-size="26" font-weight="600" fill="#e6edff">LASIK gives it its sight back.</text>
+  </g>
+</svg>
